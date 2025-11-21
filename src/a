@@ -1,0 +1,10 @@
+{/* Kanan - Gambar */}
+<div className="hidden lg:flex items-center justify-center w-1/2 bg-white">
+  <div className="rounded-xl p-6 w-[450px] h-[400px] overflow-hidden">
+    <img
+      src={image}
+      alt="Illustration"
+      className="w-full h-full object-cover rounded-xl"
+    />
+  </div>
+</div>
