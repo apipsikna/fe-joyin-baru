@@ -7,17 +7,48 @@ import bintang from "../assets/bintang2.png";
 import bintangkecil from "../assets/bintangkecil.png";
 import maskot from "../assets/bintangKiri.png";
 import JoyCemerlang from "../assets/JoyCemerlang.png";
+import JoyNgintip from "../assets/JoyNgintip.png"; // ⬅️ tambahkan ini
 
-// ===== SETTING UKURAN MASING-MASING BINTANG =====
-// Ubah angka di sini kalau mau ganti ukuran per bintang (dalam px)
+// ===== SETTING UKURAN MASING-MASING BINTANG (UMUM) =====
+// Dipakai untuk semua bintang sebagai default width (px)
 const STAR_SIZE = {
-  h1: 56,
-  h2: 56,
-  h3: 40,
-  h4: 44,
+  h1: 80,
+  h2: 80,
+  h3: 60,
+  h4: 60,
   b1: 32,
   b2: 56,
   b3: 32,
+};
+
+// ===== SETTING KHUSUS 3 BINTANG KIRI BAWAH TEKS =====
+// Geser kanan-kiri (shiftX), atas-bawah (shiftY), ukuran (size), dan rotasi (rot)
+const BODY_STAR_SETTINGS = {
+  b1: { size: 58, shiftX: 0, shiftY: 0, rot: 35 }, // bintang kecil atas
+  b2: { size: 90, shiftX: 70, shiftY: 40, rot: 3 }, // bintang besar tengah
+  b3: { size: 58, shiftX: 150, shiftY: 70, rot: 30 }, // bintang kecil bawah
+};
+
+// ===== SETTING PERGESERAN MASKOT HIJAU (VERTIKAL) =====
+// offsetY dalam px: negatif = ke atas, positif = ke bawah
+const MASCOT_SHIFT = {
+  offsetY: -75, // naikkan sedikit maskot hijau
+};
+
+// ===== SETTING PERGESERAN MASKOT JOYCEMERLANG (GAMBAR SAJA) =====
+// offsetY dalam px: negatif = ke atas, positif = ke bawah
+const JOYC_IMAGE_SHIFT = {
+  offsetY: 0, // ubah ini untuk naik/turunkan gambar JoyCemerlang saja
+};
+
+// ===== SETTING MASKOT HIJAU KIRI LAYAR (HORIZONTAL, UKURAN & ROTASI) =====
+// offsetX: + ke kanan (masuk layar), - ke kiri (lebih keluar)
+// width: ukuran maskot (px)
+// rotate: rotasi akhir maskot (derajat), + searah jarum jam, - berlawanan
+const LEFT_MASCOT_SETTINGS = {
+  offsetX: 20,
+  width: 410,
+  rotate: 38, // kemiringan maskot kiri
 };
 
 export default function TentangKami() {
@@ -37,6 +68,13 @@ export default function TentangKami() {
   const qp = new URLSearchParams(
     typeof window !== "undefined" ? window.location.search : ""
   );
+
+  // util kecil buat ambil angka dari query
+  const numFromQp = (key) => {
+    const v = qp.get(key);
+    return v !== null ? Number(v) : null;
+  };
+
   const M = {
     side:
       qp.get("m_side") === "right"
@@ -44,10 +82,16 @@ export default function TentangKami() {
         : qp.get("m_side") === "left"
         ? "left"
         : DEFAULT_MASCOT.side,
-    width: Number(qp.get("m_w") || DEFAULT_MASCOT.width),
+    // width default ambil dari LEFT_MASCOT_SETTINGS, masih bisa dioverride m_w
+    width: Number(
+      qp.get("m_w") || LEFT_MASCOT_SETTINGS.width || DEFAULT_MASCOT.width
+    ),
     outside: Number(qp.get("m_out") || DEFAULT_MASCOT.outside),
     translateY: Number(qp.get("m_y") || DEFAULT_MASCOT.translateY),
-    rotate: Number(qp.get("m_rot") || DEFAULT_MASCOT.rotate),
+    // Rotasi akhir: pakai LEFT_MASCOT_SETTINGS.rotate, bisa dioverride ?m_rot=
+    rotate:
+      numFromQp("m_rot") ??
+      (LEFT_MASCOT_SETTINGS.rotate ?? DEFAULT_MASCOT.rotate),
     flip:
       qp.get("m_flip") === "1"
         ? true
@@ -59,7 +103,7 @@ export default function TentangKami() {
     peek: Number(qp.get("m_peek") || DEFAULT_MASCOT.peek),
   };
 
-  // ====== UTIL ======
+  // ====== UTIL LAIN ======
   const num = (key, fallback) => {
     const v = qp.get(key);
     return v !== null ? Number(v) : fallback;
@@ -70,13 +114,16 @@ export default function TentangKami() {
     return v === "1" || v === "true";
   };
 
-  // ===== Hitung posisi maskot =====
+  // ===== Hitung posisi maskot hijau (hero) =====
   const maxOutside = Math.max(0, M.width - M.peek);
   const safeOutside = Math.min(M.outside, maxOutside);
+  const baseOffset = -safeOutside;
+
+  // Tambahkan LEFT_MASCOT_SETTINGS.offsetX ke posisi X
   const sidePos =
     M.side === "left"
-      ? { left: `-${safeOutside}px` }
-      : { right: `-${safeOutside}px` };
+      ? { left: `${baseOffset + LEFT_MASCOT_SETTINGS.offsetX}px` }
+      : { right: `${baseOffset + LEFT_MASCOT_SETTINGS.offsetX}px` };
 
   const transformOrigin = !M.flip
     ? M.side === "left"
@@ -86,12 +133,14 @@ export default function TentangKami() {
     ? "bottom right"
     : "bottom left";
 
+  const mascotTranslateY = (M.translateY || 0) + MASCOT_SHIFT.offsetY;
+
   const mascotStyle = {
     position: "absolute",
     bottom: 0,
     ...sidePos,
     width: `${M.width}px`,
-    transform: `translateY(${M.translateY}px) rotate(${M.rotate}deg) ${
+    transform: `translateY(${mascotTranslateY}px) rotate(${M.rotate}deg) ${
       M.flip ? "scaleX(-1)" : ""
     }`,
     transformOrigin,
@@ -100,44 +149,56 @@ export default function TentangKami() {
 
   // ====== BINTANG: default + override via query params ======
   const STAR_DEFAULTS = {
-    // ⭐ HERO: 4 bintang (2 kiri, 2 kanan) — posisi & rotasi
+    // ⭐ HERO: 4 bintang (2 kiri, 2 kanan)
     hero: [
-      // Kiri atas
-      { id: "h1", left: 40, top: 70, rotate: -10 },
-      // Kiri agak tengah
-      { id: "h4", left: 130, top: 170, rotate: 8 },
-      // Kanan atas (agak tengah)
-      { id: "h2", right: 70, top: 80, rotate: 6 },
-      // Kanan bawah
-      { id: "h3", right: 90, top: 190, rotate: -4 },
+      { id: "h1", left: 100, top: 70, rotate: 30 },
+      { id: "h4", left: 60, top: 170, rotate: 30 },
+      { id: "h2", right: 55, top: 190, rotate: 6 },
+      { id: "h3", right: 90, top: 320, rotate: 29 },
     ],
-    // ⭐ BODY: posisi section bawah
+    // ⭐ BODY: cluster kiri bawah tulisan
     body: [
-      { id: "b1", left: 64, top: 16, rotate: 0 },
-      { id: "b2", left: 48, top: 160, rotate: 0 },
-      { id: "b3", left: 192, top: 240, rotate: 0 },
+      { id: "b1", left: 80, top: 260, rotate: -5 },
+      { id: "b2", left: 90, top: 320, rotate: 8 },
+      { id: "b3", left: 160, top: 340, rotate: -10 },
     ],
   };
 
-  const overrideStar = (d) => ({
-    id: d.id,
-    left:
-      qp.get(`${d.id}_l`) !== null
-        ? num(`${d.id}_l`, d.left ?? null)
-        : d.left ?? null,
-    right:
-      qp.get(`${d.id}_r`) !== null
-        ? num(`${d.id}_r`, d.right ?? null)
-        : d.right ?? null,
-    top: num(`${d.id}_t`, d.top ?? 0),
-    // kalau ada query param {id}_w pakai itu, kalau tidak pakai STAR_SIZE
-    w: num(`${d.id}_w`, STAR_SIZE[d.id] ?? 28),
-    rotate: num(`${d.id}_rot`, d.rotate ?? 0),
-    show: bool(`${d.id}_show`, true),
-  });
+  const overrideStar = (d, section) => {
+    const cfg = section === "body" ? BODY_STAR_SETTINGS[d.id] || {} : {};
 
-  const STAR_HERO = STAR_DEFAULTS.hero.map(overrideStar);
-  const STAR_BODY = STAR_DEFAULTS.body.map(overrideStar);
+    const baseLeft = d.left ?? null;
+    const baseRight = d.right ?? null;
+    const baseTop = d.top ?? 0;
+
+    const shiftedLeft =
+      baseLeft !== null ? baseLeft + (cfg.shiftX || 0) : baseLeft;
+    const shiftedRight =
+      baseRight !== null ? baseRight - (cfg.shiftX || 0) : baseRight;
+    const shiftedTop = baseTop + (cfg.shiftY || 0);
+
+    const defaultWidth = cfg.size ?? STAR_SIZE[d.id] ?? 28;
+    const defaultRotate = cfg.rot ?? d.rotate ?? 0;
+
+    return {
+      id: d.id,
+      left:
+        qp.get(`${d.id}_l`) !== null
+          ? num(`${d.id}_l`, shiftedLeft ?? null)
+          : shiftedLeft ?? null,
+      right:
+        qp.get(`${d.id}_r`) !== null
+          ? num(`${d.id}_r`, shiftedRight ?? null)
+          : shiftedRight ?? null,
+      top: num(`${d.id}_t`, shiftedTop),
+      w: num(`${d.id}_w`, defaultWidth),
+      rotate: num(`${d.id}_rot`, defaultRotate),
+      show: bool(`${d.id}_show`, true),
+    };
+  };
+
+  const STAR_HERO = STAR_DEFAULTS.hero.map((d) => overrideStar(d, "hero"));
+  const STAR_BODY = STAR_DEFAULTS.body.map((d) => overrideStar(d, "body"));
 
   const starStyle = (s) => {
     const width = s.w ?? 28;
@@ -199,10 +260,9 @@ export default function TentangKami() {
 #56C8AD 0%, \
 #8BD4B7 18%, \
 #BDE7A6 38%, \
-#DAE88E 62%, \
-#E6F0A9 78%, \
-#EFF5C7 88%, \
-#F7FAE6 96%, \
+#DDEEA5 56%, \
+#F4F3C0 76%, \
+#FCF9E8 92%, \
 #FFFFFF 100%)",
         }}
       >
@@ -221,7 +281,7 @@ export default function TentangKami() {
             )
         )}
 
-        {/* Maskot fleksibel */}
+        {/* Maskot fleksibel (hero) */}
         <img
           src={maskot}
           alt="Maskot Joyin"
@@ -279,14 +339,12 @@ export default function TentangKami() {
 
         {/* Paragraf (offset kiri/kanan sesuai foto) */}
         <div className="max-w-5xl mx-auto px-6 md:pl-24 lg:pl-32 mt-8 md:mt-10 space-y-10 md:space-y-12">
-          {/* Geser sedikit ke kiri mulai md */}
           <p className="text-lg md:text-xl lg:text-[26px] leading-relaxed md:leading-[1.8] font-semibold text-black md:-ml-6 lg:-ml-12">
             Kami ingin bikin pengalaman pelanggan terasa lebih ringan, ramah,
             dan menyenangkan. Setiap interaksi dengan pelanggan jadi lebih
             cepat, praktis, dan bikin mereka merasa diperhatikan.
           </p>
 
-          {/* Geser sedikit ke kanan mulai md */}
           <p className="text-lg md:text-xl lg:text-[26px] leading-relaxed md:leading-[1.8] font-semibold text-black md:ml-10 lg:ml-16">
             Nggak perlu lagi balas chat satu per satu atau begadang demi respon
             cepat. Joyin siap bantu kamu memberikan jawaban otomatis dengan
@@ -298,17 +356,25 @@ export default function TentangKami() {
 
       {/* ==== SECTION JOYCEMERLANG ==== */}
       <section
-        className="relative w-full overflow-hidden mt-8 md:mt-10 pt-24 md:pt-28 pb-20 md:pb-24"
+        className="relative w-full overflow-hidden mt-8 md:mt-10 pt-10 md:pt-12 pb-12 md:pb-14"
         style={{
           background:
-            "radial-gradient(120% 120% at 50% 0%, #E7B8FF 0%, #B55CFF 40%, #8E3BFF 100%)",
+            "linear-gradient(180deg, #AE6DFC 0%, #C27FFF 45%, #B368FF 100%)",
         }}
       >
+        {/* JoyNgintip di pojok kanan atas, ngintip ke bawah */}
+        <img
+          src={JoyNgintip}
+          alt="Joyin mengintip"
+          className="pointer-events-none select-none absolute -top-32 right-4 md:right-16 w-[180px] md:w-[230px] lg:w-[260px]"
+          style={{ zIndex: 25 }}
+        />
+
         {/* Strip ungu di bawah */}
-        <div className="absolute left-0 right-0 bottom-0 h-12 md:h-16 bg-[#9B3AF3] rounded-t-[32px] z-20" />
+        <div className="absolute left-0 right-0 bottom-0 h-12 md:h-16 bg-[#A858FF] rounded-t-[32px] z-20" />
 
         {/* Dekor play & dots kiri-atas */}
-        <div className="absolute left-8 md:left-14 top-10 md:top-14 flex items-center gap-3 z-10">
+        <div className="absolute left-8 md:left-14 top-8 md:top-10 flex items-center gap-3 z-10">
           <div
             aria-hidden="true"
             style={{
@@ -358,32 +424,34 @@ export default function TentangKami() {
         </div>
 
         {/* Bintang kecil dekor (JoyCemerlang section) */}
+        {/* ➜ Dua bintang kanan-atas, mirip referensi */}
         <img
           src={bintangkecil}
           alt=""
           aria-hidden="true"
-          className="pointer-events-none select-none absolute top-20 left-1/2 -translate-x-10 w-6 md:w-7"
+          className="pointer-events-none select-none absolute top-16 right-[18%] w-7 md:w-8"
           style={{ zIndex: 5 }}
         />
         <img
           src={bintangkecil}
           alt=""
           aria-hidden="true"
-          className="pointer-events-none select-none absolute top-24 left-1/2 -translate-x-0 w-7 md:w-8"
+          className="pointer-events-none select-none absolute top-10 right-[10%] w-5 md:w-6"
+          style={{ zIndex: 5 }}
+        />
+        {/* ➜ Dua bintang kiri-bawah, mirip referensi */}
+        <img
+          src={bintangkecil}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none select-none absolute bottom-16 left-6 md:left-10 w-6 md:w-7"
           style={{ zIndex: 5 }}
         />
         <img
           src={bintangkecil}
           alt=""
           aria-hidden="true"
-          className="pointer-events-none select-none absolute bottom-20 left-1/5 w-7 md:w-8"
-          style={{ zIndex: 5 }}
-        />
-        <img
-          src={bintangkecil}
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none select-none absolute bottom-16 left-1/4 w-5 md:w-6"
+          className="pointer-events-none select-none absolute bottom-10 left-16 md:left-20 w-5 md:w-6"
           style={{ zIndex: 5 }}
         />
 
@@ -393,7 +461,7 @@ export default function TentangKami() {
             Buat Chat Lebih Hidup Tanpa Ribet
           </h2>
 
-          <div className="mt-14 md:mt-16 flex flex-col lg:flex-row items-center justify-between gap-12 md:gap-14">
+          <div className="mt-8 md:mt-10 flex flex-col lg:flex-row items-center justify-between gap-8 md:gap-10">
             {/* Teks kiri */}
             <p className="text-white text-base md:text-lg leading-relaxed max-w-md text-left">
               Nggak perlu lagi begadang atau terus mantengin layar hanya demi
@@ -402,12 +470,12 @@ export default function TentangKami() {
             </p>
 
             {/* JoyCemerlang */}
-            <div className="shrink-0 relative flex items-end justify-center h-[280px] md:h-[340px] lg:h-[420px] translate-y-12 md:translate-y-16 lg:translate-y-20">
+            <div className="shrink-0 relative flex items-end justify-center h-[240px] md:h-[300px] lg:h-[360px] translate-y-6 md:translate-y-8 lg:translate-y-10">
               <div
                 aria-hidden="true"
                 className="absolute inset-x-[-40px] bottom-[-16px] rounded-[999px]"
                 style={{
-                  height: "260px",
+                  height: "210px",
                   background:
                     "radial-gradient(55% 55% at 50% 35%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.4) 40%, rgba(255,255,255,0) 75%)",
                   filter: "blur(4px)",
@@ -417,8 +485,11 @@ export default function TentangKami() {
               <img
                 src={JoyCemerlang}
                 alt="JoyCemerlang, maskot Joyin yang ceria"
-                className="relative w-[320px] md:w-[380px] lg:w-[430px]"
-                style={{ zIndex: 10 }}
+                className="relative w-[280px] md:w-[330px] lg:w-[380px]"
+                style={{
+                  zIndex: 10,
+                  transform: `translateY(${JOYC_IMAGE_SHIFT.offsetY}px)`,
+                }}
               />
             </div>
 
