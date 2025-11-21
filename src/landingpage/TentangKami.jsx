@@ -8,6 +8,18 @@ import bintangkecil from "../assets/bintangkecil.png";
 import maskot from "../assets/bintangKiri.png";
 import JoyCemerlang from "../assets/JoyCemerlang.png";
 
+// ===== SETTING UKURAN MASING-MASING BINTANG =====
+// Ubah angka di sini kalau mau ganti ukuran per bintang (dalam px)
+const STAR_SIZE = {
+  h1: 56,
+  h2: 56,
+  h3: 40,
+  h4: 44,
+  b1: 32,
+  b2: 56,
+  b3: 32,
+};
+
 export default function TentangKami() {
   // ===== Konfigurasi default maskot =====
   const DEFAULT_MASCOT = {
@@ -88,16 +100,22 @@ export default function TentangKami() {
 
   // ====== BINTANG: default + override via query params ======
   const STAR_DEFAULTS = {
+    // ⭐ HERO: 4 bintang (2 kiri, 2 kanan) — posisi & rotasi
     hero: [
-      { id: "h1", left: 32, top: 64, w: 36, rotate: -8 }, // kiri-atas
-      { id: "h2", left: 64, top: 160, w: 28, rotate: 0 }, // kiri-tengah
-      { id: "h3", right: 40, top: 64, w: 40, rotate: 0 }, // kanan-atas
-      { id: "h4", right: 24, top: 224, w: 32, rotate: 8 }, // kanan-bawah
+      // Kiri atas
+      { id: "h1", left: 40, top: 70, rotate: -10 },
+      // Kiri agak tengah
+      { id: "h4", left: 130, top: 170, rotate: 8 },
+      // Kanan atas (agak tengah)
+      { id: "h2", right: 70, top: 80, rotate: 6 },
+      // Kanan bawah
+      { id: "h3", right: 90, top: 190, rotate: -4 },
     ],
+    // ⭐ BODY: posisi section bawah
     body: [
-      { id: "b1", left: 64, top: 16, w: 32, rotate: 0 }, // kiri-atas section bawah
-      { id: "b2", left: 48, top: 160, w: 56, rotate: 0 }, // kiri-tengah
-      { id: "b3", left: 192, top: 240, w: 32, rotate: 0 }, // kiri-bawah
+      { id: "b1", left: 64, top: 16, rotate: 0 },
+      { id: "b2", left: 48, top: 160, rotate: 0 },
+      { id: "b3", left: 192, top: 240, rotate: 0 },
     ],
   };
 
@@ -112,7 +130,8 @@ export default function TentangKami() {
         ? num(`${d.id}_r`, d.right ?? null)
         : d.right ?? null,
     top: num(`${d.id}_t`, d.top ?? 0),
-    w: num(`${d.id}_w`, d.w ?? 28),
+    // kalau ada query param {id}_w pakai itu, kalau tidak pakai STAR_SIZE
+    w: num(`${d.id}_w`, STAR_SIZE[d.id] ?? 28),
     rotate: num(`${d.id}_rot`, d.rotate ?? 0),
     show: bool(`${d.id}_show`, true),
   });
@@ -121,10 +140,11 @@ export default function TentangKami() {
   const STAR_BODY = STAR_DEFAULTS.body.map(overrideStar);
 
   const starStyle = (s) => {
+    const width = s.w ?? 28;
     const st = {
       position: "absolute",
       top: `${s.top}px`,
-      width: `${s.w}px`,
+      width: `${width}px`,
       transform: s.rotate ? `rotate(${s.rotate}deg)` : undefined,
       zIndex: 6,
     };
@@ -186,7 +206,7 @@ export default function TentangKami() {
 #FFFFFF 100%)",
         }}
       >
-        {/* Bintang dekor kiri/kanan (HERO) */}
+        {/* Bintang dekor (HERO) */}
         {STAR_HERO.map(
           (s) =>
             s.show && (
@@ -212,7 +232,7 @@ export default function TentangKami() {
           ].join(" ")}
         />
 
-        {/* Teks tengah — diturunkan sedikit */}
+        {/* Teks tengah */}
         <div className="max-w-4xl mx-auto px-6 text-center mt-8 md:mt-12 lg:mt-16">
           <h1 className="text-white font-extrabold text-3xl md:text-4xl lg:text-5xl">
             Kenalan Yuk dengan Joyin!
@@ -276,7 +296,7 @@ export default function TentangKami() {
         </div>
       </section>
 
-      {/* ==== SECTION JOYCEMERLANG (SESUAI DESAIN FOTO) ==== */}
+      {/* ==== SECTION JOYCEMERLANG ==== */}
       <section
         className="relative w-full overflow-hidden mt-8 md:mt-10 pt-24 md:pt-28 pb-20 md:pb-24"
         style={{
@@ -284,7 +304,7 @@ export default function TentangKami() {
             "radial-gradient(120% 120% at 50% 0%, #E7B8FF 0%, #B55CFF 40%, #8E3BFF 100%)",
         }}
       >
-        {/* Strip ungu di bawah dengan sudut rounded (di depan kaki) */}
+        {/* Strip ungu di bawah */}
         <div className="absolute left-0 right-0 bottom-0 h-12 md:h-16 bg-[#9B3AF3] rounded-t-[32px] z-20" />
 
         {/* Dekor play & dots kiri-atas */}
@@ -337,7 +357,7 @@ export default function TentangKami() {
           />
         </div>
 
-        {/* Bintang-bintang dekor (atas & bawah) - pakai bintangkecil */}
+        {/* Bintang kecil dekor (JoyCemerlang section) */}
         <img
           src={bintangkecil}
           alt=""
@@ -367,7 +387,7 @@ export default function TentangKami() {
           style={{ zIndex: 5 }}
         />
 
-        {/* Konten utama (judul, teks kiri/kanan, dan JoyCemerlang di tengah) */}
+        {/* Konten utama JoyCemerlang */}
         <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-10">
           <h2 className="text-center text-white font-extrabold text-2xl md:text-3xl lg:text-4xl tracking-tight">
             Buat Chat Lebih Hidup Tanpa Ribet
@@ -381,9 +401,8 @@ export default function TentangKami() {
               mana pun, tanpa kehilangan rasa hangat dalam percakapan.
             </p>
 
-            {/* JoyCemerlang di tengah */}
+            {/* JoyCemerlang */}
             <div className="shrink-0 relative flex items-end justify-center h-[280px] md:h-[340px] lg:h-[420px] translate-y-12 md:translate-y-16 lg:translate-y-20">
-              {/* Glow putih di belakang JoyCemerlang */}
               <div
                 aria-hidden="true"
                 className="absolute inset-x-[-40px] bottom-[-16px] rounded-[999px]"
@@ -407,8 +426,8 @@ export default function TentangKami() {
             <p className="text-white text-base md:text-lg leading-relaxed max-w-md text-left lg:text-right">
               Dengan Joyin, cukup atur sekali dan biarkan chatbot kami bekerja
               untukmu — menjawab otomatis dengan gaya ramah dan natural,
-              membuat pelanggan tetap dekat, dan bisnismu makin berkembang
-              tanpa ribet.
+              membuat pelanggan tetap dekat, dan bisnismu makin berkembang tanpa
+              ribet.
             </p>
           </div>
         </div>

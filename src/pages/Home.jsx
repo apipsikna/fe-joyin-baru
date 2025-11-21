@@ -18,6 +18,17 @@ import {
   ReferenceLine,
 } from "recharts";
 
+/* ==================== LAYOUT CONFIG (untuk developer) ==================== */
+// Ubah ini kalau mau lebar container utama beda.
+// Contoh:
+// - "max-w-4xl mx-auto"  → lebih sempit
+// - "max-w-5xl mx-auto"  → sedang
+// - "max-w-6xl mx-auto"  → lebar
+// - "w-full"            → full width
+const HOME_LAYOUT = {
+  mainContainerWidth: "max-w-7xl mx-auto",
+};
+
 // ==================== Home Page ====================
 export default function Home({ profile }) {
   const { t } = useTranslation();
@@ -30,7 +41,9 @@ export default function Home({ profile }) {
       />
 
       {/* MAIN WHITE CONTAINER */}
-      <div className="-mt-24 bg-white rounded-t-[40px] shadow-lg w-full min-h-[300px] z-10 relative pt-12 px-6 md:px-10">
+      <div
+        className={`-mt-24 bg-white rounded-t-[40px] shadow-lg w-full min-h-[300px] z-10 relative pt-12 px-6 md:px-10 ${HOME_LAYOUT.mainContainerWidth}`}
+      >
         {/* === Kotak Chat Masuk === */}
         <div className="mb-8">
           <h2 className="text-xl font-bold text-center mb-6">
@@ -135,7 +148,7 @@ function InfoBox({ title, value, bg, text }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* ==================== Statistik Section (Improved) ================= */
+/* ==================== Statistik Section =========================== */
 /* ------------------------------------------------------------------ */
 function CustomTooltip({ active, payload, label, t }) {
   if (!active || !payload || !payload.length) return null;
@@ -150,7 +163,8 @@ function CustomTooltip({ active, payload, label, t }) {
   );
 }
 
-function StatisticsSection({ t }) {
+// 👉 dibungkus React.memo supaya nggak re-render terus
+const StatisticsSection = React.memo(function StatisticsSectionInner({ t }) {
   const monthLabels = useMemo(
     () => [
       t("months.janShort", { defaultValue: "Jan" }),
@@ -191,6 +205,11 @@ function StatisticsSection({ t }) {
     return data.length ? Math.round((total / data.length) * 10) / 10 : 0;
   }, [data]);
 
+  const maxValue = useMemo(
+    () => data.reduce((max, d) => (d.value > max ? d.value : max), 0),
+    [data]
+  );
+
   return (
     <div className="mt-12 bg-white rounded-3xl shadow-lg p-8 w-full">
       <h2 className="text-2xl font-bold text-center mb-8">
@@ -215,10 +234,10 @@ function StatisticsSection({ t }) {
         </select>
       </div>
 
-      {/* Chart container FULL width + tinggi fix, tanpa overflow scroll */}
+      {/* Chart container full width, tinggi fix */}
       <div className="w-full rounded-2xl border border-emerald-100 shadow-[0_10px_30px_rgba(92,201,175,.15)] p-3">
         <div className="w-full h-[340px]">
-          <ResponsiveContainer width="100%" height="100%" debounce={200}>
+          <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={data}
               margin={{ top: 20, right: 24, left: 0, bottom: 10 }}
@@ -242,14 +261,14 @@ function StatisticsSection({ t }) {
                 tick={{ fill: "#6b7280", fontSize: 12 }}
                 axisLine={false}
                 tickLine={false}
+                interval={0} // paksa semua bulan tampil
+                allowDuplicatedCategory={false}
+                tickMargin={8}
+                minTickGap={0}
               />
               <YAxis
                 allowDecimals={false}
-                domain={[
-                  0,
-                  (dataMax) =>
-                    Number.isFinite(dataMax) ? dataMax + 1 : 1,
-                ]}
+                domain={[0, maxValue + 1]}
                 tick={{ fill: "#6b7280", fontSize: 12 }}
                 axisLine={false}
                 tickLine={false}
@@ -257,22 +276,23 @@ function StatisticsSection({ t }) {
 
               <Tooltip
                 content={<CustomTooltip t={t} />}
-                cursor={false} // ⬅️ matikan highlight area supaya nggak bikin efek kedip
+                cursor={{ fill: "rgba(16,185,129,0.06)" }}
               />
 
-              {/* Garis rata-rata */}
+              {/* Garis rata-rata dengan label terlihat */}
               <ReferenceLine
                 y={avg}
                 stroke="#10b981"
                 strokeDasharray="4 4"
                 ifOverflow="extendDomain"
                 label={{
-                  value: t("home.stats.average", {
+                  value: `${t("home.stats.average", {
                     defaultValue: "Rata-rata",
-                  }),
-                  position: "insideTopRight",
+                  })}: ${avg}`,
+                  position: "right",
                   fill: "#10b981",
                   fontSize: 12,
+                  fontWeight: 600,
                 }}
               />
 
@@ -281,7 +301,7 @@ function StatisticsSection({ t }) {
                 fill="url(#barGradient)"
                 radius={[12, 12, 8, 8]}
                 maxBarSize={38}
-                isAnimationActive={false} // matikan animasi bar
+                isAnimationActive={false} // matikan animasi bar biar stabil
               >
                 <LabelList
                   dataKey="value"
@@ -308,7 +328,7 @@ function StatisticsSection({ t }) {
       </p>
     </div>
   );
-}
+});
 
 // ==================== Kelola Bot ====================
 function KelolaBotSection({ t }) {
