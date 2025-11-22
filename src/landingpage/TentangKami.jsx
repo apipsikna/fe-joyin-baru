@@ -7,10 +7,9 @@ import bintang from "../assets/bintang2.png";
 import bintangkecil from "../assets/bintangkecil.png";
 import maskot from "../assets/bintangKiri.png";
 import JoyCemerlang from "../assets/JoyCemerlang.png";
-import JoyNgintip from "../assets/JoyNgintip.png"; // ⬅️ tambahkan ini
+import JoyNgintip from "../assets/JoyNgintip.png";
 
 // ===== SETTING UKURAN MASING-MASING BINTANG (UMUM) =====
-// Dipakai untuk semua bintang sebagai default width (px)
 const STAR_SIZE = {
   h1: 80,
   h2: 80,
@@ -22,33 +21,40 @@ const STAR_SIZE = {
 };
 
 // ===== SETTING KHUSUS 3 BINTANG KIRI BAWAH TEKS =====
-// Geser kanan-kiri (shiftX), atas-bawah (shiftY), ukuran (size), dan rotasi (rot)
 const BODY_STAR_SETTINGS = {
-  b1: { size: 58, shiftX: 0, shiftY: 0, rot: 35 }, // bintang kecil atas
-  b2: { size: 90, shiftX: 70, shiftY: 40, rot: 3 }, // bintang besar tengah
-  b3: { size: 58, shiftX: 150, shiftY: 70, rot: 30 }, // bintang kecil bawah
+  b1: { size: 58, shiftX: 0, shiftY: 90, rot: 35 }, // bintang kecil atas
+  b2: { size: 90, shiftX: 70, shiftY: 130, rot: 3 }, // bintang besar tengah
+  b3: { size: 58, shiftX: 150, shiftY: 160, rot: 30 }, // bintang kecil bawah
 };
 
 // ===== SETTING PERGESERAN MASKOT HIJAU (VERTIKAL) =====
-// offsetY dalam px: negatif = ke atas, positif = ke bawah
 const MASCOT_SHIFT = {
-  offsetY: -75, // naikkan sedikit maskot hijau
+  offsetY: -75,
 };
 
 // ===== SETTING PERGESERAN MASKOT JOYCEMERLANG (GAMBAR SAJA) =====
-// offsetY dalam px: negatif = ke atas, positif = ke bawah
 const JOYC_IMAGE_SHIFT = {
-  offsetY: 0, // ubah ini untuk naik/turunkan gambar JoyCemerlang saja
+  offsetY: 0,
 };
 
-// ===== SETTING MASKOT HIJAU KIRI LAYAR (HORIZONTAL, UKURAN & ROTASI) =====
-// offsetX: + ke kanan (masuk layar), - ke kiri (lebih keluar)
-// width: ukuran maskot (px)
-// rotate: rotasi akhir maskot (derajat), + searah jarum jam, - berlawanan
+// ===== SETTING MASKOT HIJAU KIRI LAYAR =====
 const LEFT_MASCOT_SETTINGS = {
-  offsetX: 20,
+  offsetX: 5,
   width: 410,
-  rotate: 38, // kemiringan maskot kiri
+  rotate: 38,
+};
+
+// ===== SETTING JOY NGINTIP (UKURAN & POSISI) =====
+const JOYNGINTIP_SHIFT = {
+  shiftX: 10,
+  shiftY: 15,
+  scale: 2,
+};
+
+// ===== SETTING POSISI 3 LAYER UNGU (NAIK / TURUN) =====
+// offsetY dalam px -> negatif = naik, positif = turun
+const PURPLE_LAYER_SHIFT = {
+  offsetY: -96, // silakan atur: misal -120, -80, dll
 };
 
 export default function TentangKami() {
@@ -69,7 +75,6 @@ export default function TentangKami() {
     typeof window !== "undefined" ? window.location.search : ""
   );
 
-  // util kecil buat ambil angka dari query
   const numFromQp = (key) => {
     const v = qp.get(key);
     return v !== null ? Number(v) : null;
@@ -82,13 +87,11 @@ export default function TentangKami() {
         : qp.get("m_side") === "left"
         ? "left"
         : DEFAULT_MASCOT.side,
-    // width default ambil dari LEFT_MASCOT_SETTINGS, masih bisa dioverride m_w
     width: Number(
       qp.get("m_w") || LEFT_MASCOT_SETTINGS.width || DEFAULT_MASCOT.width
     ),
     outside: Number(qp.get("m_out") || DEFAULT_MASCOT.outside),
     translateY: Number(qp.get("m_y") || DEFAULT_MASCOT.translateY),
-    // Rotasi akhir: pakai LEFT_MASCOT_SETTINGS.rotate, bisa dioverride ?m_rot=
     rotate:
       numFromQp("m_rot") ??
       (LEFT_MASCOT_SETTINGS.rotate ?? DEFAULT_MASCOT.rotate),
@@ -103,7 +106,6 @@ export default function TentangKami() {
     peek: Number(qp.get("m_peek") || DEFAULT_MASCOT.peek),
   };
 
-  // ====== UTIL LAIN ======
   const num = (key, fallback) => {
     const v = qp.get(key);
     return v !== null ? Number(v) : fallback;
@@ -119,7 +121,6 @@ export default function TentangKami() {
   const safeOutside = Math.min(M.outside, maxOutside);
   const baseOffset = -safeOutside;
 
-  // Tambahkan LEFT_MASCOT_SETTINGS.offsetX ke posisi X
   const sidePos =
     M.side === "left"
       ? { left: `${baseOffset + LEFT_MASCOT_SETTINGS.offsetX}px` }
@@ -149,14 +150,12 @@ export default function TentangKami() {
 
   // ====== BINTANG: default + override via query params ======
   const STAR_DEFAULTS = {
-    // ⭐ HERO: 4 bintang (2 kiri, 2 kanan)
     hero: [
       { id: "h1", left: 100, top: 70, rotate: 30 },
       { id: "h4", left: 60, top: 170, rotate: 30 },
       { id: "h2", right: 55, top: 190, rotate: 6 },
       { id: "h3", right: 90, top: 320, rotate: 29 },
     ],
-    // ⭐ BODY: cluster kiri bawah tulisan
     body: [
       { id: "b1", left: 80, top: 260, rotate: -5 },
       { id: "b2", left: 90, top: 320, rotate: 8 },
@@ -244,7 +243,7 @@ export default function TentangKami() {
   }, []);
 
   return (
-    <div className="w-screen min-h-screen font-poppins overflow-x-hidden bg-white">
+    <div className="w-screen min-h-screen font-poppins bg-white overflow-x-hidden">
       {/* Bungkus Navbar agar bisa diukur */}
       <div ref={navWrapRef}>
         <Navbar />
@@ -257,12 +256,13 @@ export default function TentangKami() {
           marginTop: heroOffset ? `${heroOffset}px` : undefined,
           background:
             "linear-gradient(180deg, \
-#56C8AD 0%, \
-#8BD4B7 18%, \
-#BDE7A6 38%, \
-#DDEEA5 56%, \
-#F4F3C0 76%, \
-#FCF9E8 92%, \
+#37B796 0%, \
+#56C8AD 12%, \
+#8BD4B7 32%, \
+#BDE7A6 52%, \
+#DDEEA5 70%, \
+#F4F3C0 84%, \
+#FCF9E8 94%, \
 #FFFFFF 100%)",
         }}
       >
@@ -293,7 +293,7 @@ export default function TentangKami() {
         />
 
         {/* Teks tengah */}
-        <div className="max-w-4xl mx-auto px-6 text-center mt-8 md:mt-12 lg:mt-16">
+        <div className="max-w-4xl mx-auto px-6 text-center mt-12 md:mt-16 lg:mt-20">
           <h1 className="text-white font-extrabold text-3xl md:text-4xl lg:text-5xl">
             Kenalan Yuk dengan Joyin!
           </h1>
@@ -310,7 +310,7 @@ export default function TentangKami() {
       {/* ==== SECTION TEKS DI BAWAH MASKOT ==== */}
       <section
         className="relative w-full bg-white overflow-hidden
-                   pt-20 md:pt-24 pb-24 md:pb-32 min-h-[600px]"
+                   pt-20 md:pt-24 pb-40 md:pb-56 min-h-[750px]"
       >
         {/* Glow lembut kanan-bawah */}
         <div
@@ -337,41 +337,45 @@ export default function TentangKami() {
             )
         )}
 
-        {/* Paragraf (offset kiri/kanan sesuai foto) */}
-        <div className="max-w-5xl mx-auto px-6 md:pl-24 lg:pl-32 mt-8 md:mt-10 space-y-10 md:space-y-12">
-          <p className="text-lg md:text-xl lg:text-[26px] leading-relaxed md:leading-[1.8] font-semibold text-black md:-ml-6 lg:-ml-12">
-            Kami ingin bikin pengalaman pelanggan terasa lebih ringan, ramah,
-            dan menyenangkan. Setiap interaksi dengan pelanggan jadi lebih
-            cepat, praktis, dan bikin mereka merasa diperhatikan.
+        {/* Paragraf – posisi bawah + paragraf kedua digeser ke kanan */}
+        <div className="w-full max-w-7xl mx-auto px-6 md:px-10 lg:px-14 mt-6 md:mt-10 space-y-10 md:space-y-18">
+          <p className="text-base md:text-lg lg:text-[22px] leading-relaxed md:leading-[1.8] font-semibold text-black md:ml-10 lg:ml-6">
+            Joyin hadir untuk bantu kamu merespons otomatis selama 24 jam penuh,
+            jadi bisnis tetap berjalan walau kamu lagi santai. Dengan sistem
+            pintar kami, setiap interaksi terasa lebih personal tanpa perlu
+            repot balas satu per satu.
           </p>
 
-          <p className="text-lg md:text-xl lg:text-[26px] leading-relaxed md:leading-[1.8] font-semibold text-black md:ml-10 lg:ml-16">
-            Nggak perlu lagi balas chat satu per satu atau begadang demi respon
-            cepat. Joyin siap bantu kamu memberikan jawaban otomatis dengan
-            sentuhan personal, sehingga pelanggan tetap merasa dekat dengan
-            bisnismu.
+          <p className="text-base md:text-lg lg:text-[22px] leading-relaxed md:leading-[1.8] font-semibold text-black md:ml-24 lg:ml-32">
+            Kami ingin menciptakan pengalaman pelanggan yang lebih ringan dan
+            menyenangkan. Setiap pesan dibalas dengan cepat, namun tetap punya
+            manusia yang membuat pelanggan merasa diperhatikan.
           </p>
         </div>
       </section>
 
       {/* ==== SECTION JOYCEMERLANG ==== */}
       <section
-        className="relative w-full overflow-hidden mt-8 md:mt-10 pt-10 md:pt-12 pb-12 md:pb-14"
+        className="relative w-full overflow-visible pt-10 md:pt-12 pb-16 md:pb-20"
         style={{
           background:
-            "linear-gradient(180deg, #AE6DFC 0%, #C27FFF 45%, #B368FF 100%)",
+            "linear-gradient(180deg, #a861ffff 0%, #a861ffff 45%, #a861ffff 100%)",
         }}
       >
-        {/* JoyNgintip di pojok kanan atas, ngintip ke bawah */}
-        <img
-          src={JoyNgintip}
-          alt="Joyin mengintip"
-          className="pointer-events-none select-none absolute -top-32 right-4 md:right-16 w-[180px] md:w-[230px] lg:w-[260px]"
-          style={{ zIndex: 25 }}
-        />
-
-        {/* Strip ungu di bawah */}
-        <div className="absolute left-0 right-0 bottom-0 h-12 md:h-16 bg-[#A858FF] rounded-t-[32px] z-20" />
+        {/* JoyNgintip di batas putih–ungu */}
+        <div
+          className="pointer-events-none select-none absolute -top-24 md:-top-28 lg:-top-32 right-4 md:right-16 lg:right-24 z-30"
+          style={{
+            transform: `translate(${JOYNGINTIP_SHIFT.shiftX}px, ${JOYNGINTIP_SHIFT.shiftY}px) scale(${JOYNGINTIP_SHIFT.scale})`,
+            transformOrigin: "bottom center",
+          }}
+        >
+          <img
+            src={JoyNgintip}
+            alt="Joyin mengintip"
+            className="w-[190px] md:w-[230px] lg:w-[260px]"
+          />
+        </div>
 
         {/* Dekor play & dots kiri-atas */}
         <div className="absolute left-8 md:left-14 top-8 md:top-10 flex items-center gap-3 z-10">
@@ -399,7 +403,7 @@ export default function TentangKami() {
         </div>
 
         {/* Dekor play & dots kanan-bawah */}
-        <div className="absolute right-8 md:right-16 bottom-16 flex items-center gap-3 z-10">
+        <div className="absolute right-8 md:right-16 bottom-20 md:bottom-24 flex items-center gap-3 z-10">
           <span
             aria-hidden="true"
             className="w-3 h-3 rounded-full"
@@ -423,8 +427,7 @@ export default function TentangKami() {
           />
         </div>
 
-        {/* Bintang kecil dekor (JoyCemerlang section) */}
-        {/* ➜ Dua bintang kanan-atas, mirip referensi */}
+        {/* Bintang kecil dekor */}
         <img
           src={bintangkecil}
           alt=""
@@ -439,19 +442,18 @@ export default function TentangKami() {
           className="pointer-events-none select-none absolute top-10 right-[10%] w-5 md:w-6"
           style={{ zIndex: 5 }}
         />
-        {/* ➜ Dua bintang kiri-bawah, mirip referensi */}
         <img
           src={bintangkecil}
           alt=""
           aria-hidden="true"
-          className="pointer-events-none select-none absolute bottom-16 left-6 md:left-10 w-6 md:w-7"
+          className="pointer-events-none select-none absolute bottom-20 left-6 md:left-10 w-6 md:w-7"
           style={{ zIndex: 5 }}
         />
         <img
           src={bintangkecil}
           alt=""
           aria-hidden="true"
-          className="pointer-events-none select-none absolute bottom-10 left-16 md:left-20 w-5 md:w-6"
+          className="pointer-events-none select-none absolute bottom-14 left-16 md:left-20 w-5 md:w-6"
           style={{ zIndex: 5 }}
         />
 
@@ -471,17 +473,6 @@ export default function TentangKami() {
 
             {/* JoyCemerlang */}
             <div className="shrink-0 relative flex items-end justify-center h-[240px] md:h-[300px] lg:h-[360px] translate-y-6 md:translate-y-8 lg:translate-y-10">
-              <div
-                aria-hidden="true"
-                className="absolute inset-x-[-40px] bottom-[-16px] rounded-[999px]"
-                style={{
-                  height: "210px",
-                  background:
-                    "radial-gradient(55% 55% at 50% 35%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.4) 40%, rgba(255,255,255,0) 75%)",
-                  filter: "blur(4px)",
-                  zIndex: 0,
-                }}
-              />
               <img
                 src={JoyCemerlang}
                 alt="JoyCemerlang, maskot Joyin yang ceria"
@@ -489,6 +480,11 @@ export default function TentangKami() {
                 style={{
                   zIndex: 10,
                   transform: `translateY(${JOYC_IMAGE_SHIFT.offsetY}px)`,
+                  // Glow putih mengikuti siluet
+                  filter:
+                    "drop-shadow(0 0 40px rgba(255,255,255,0.98)) " +
+                    "drop-shadow(0 0 90px rgba(255,255,255,0.9)) " +
+                    "drop-shadow(0 0 160px rgba(255,255,255,0.75))",
                 }}
               />
             </div>
@@ -502,6 +498,41 @@ export default function TentangKami() {
             </p>
           </div>
         </div>
+      </section>
+
+      {/* ==== 3 LAYER UNGU + GRADIENT PUTIH (SEPERTI FOTO) ==== */}
+      <section
+        className="relative w-full h-[260px] md:h-[300px] lg:h-[340px] overflow-hidden bg-white"
+        style={{
+          marginTop: `${PURPLE_LAYER_SHIFT.offsetY}px`,
+        }}
+      >
+        <div
+          className="pointer-events-none select-none absolute inset-x-0 z-20"
+          style={{ top: "0", height: "100%" }}
+        >
+          {/* Layer 1 (paling atas) – warna disamakan dengan strip ungu sebelumnya */}
+          <div
+            className="absolute left-0 right-0 top-0 h-[80px] md:h-[88px] lg:h-[96px] rounded-t-[32px]"
+            style={{ background: "#942fffff" }}
+          />
+
+          {/* Layer 2 (tengah) */}
+          <div
+            className="absolute left-0 right-0 top-[30px] md:top-[36px] lg:top-[42px] h-[88px] md:h-[96px] lg:h-[104px] rounded-t-[32px]"
+            style={{ background: "#a852ffff" }}
+          />
+
+          {/* Layer 3 (bawah) – ungu ke gradasi putih */}
+          <div
+            className="absolute left-0 right-0 top-[62px] md:top-[70px] lg:top-[78px] bottom-0 rounded-t-[32px]"
+            style={{
+              background:
+                "linear-gradient(180deg, #C57DFF 0%, #DFA5FF 28%, #F0E7FF 60%, #FFFFFF 100%)",
+            }}
+          />
+        </div>
+        {/* Setelah section ini, kamu bisa lanjut section baru konten berikutnya */}
       </section>
 
       <Footer />
