@@ -1,4 +1,4 @@
-// src/components/Navbar.jsx
+// src/components/Navbar1.jsx
 import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../assets/logo.png";

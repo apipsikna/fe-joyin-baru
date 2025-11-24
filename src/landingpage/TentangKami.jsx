@@ -7,65 +7,9 @@ import bintang from "../assets/bintang2.png";
 import bintangkecil from "../assets/bintangkecil.png";
 import maskot from "../assets/bintangKiri.png";
 import JoyCemerlang from "../assets/JoyCemerlang.png";
-import JoyNgintip from "../assets/JoyNgintip.png";
-
-/* ========= PLAY ICON & DOTS (SVG, GRADIENT, ROUNDED) ========= */
-
-const PlayIcon = ({ direction = "right", size = 32 }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    style={{
-      display: "block",
-      filter: "drop-shadow(0 3px 6px rgba(0,0,0,0.25))",
-    }}
-  >
-    <defs>
-      <linearGradient id="playGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#FFF59A" />
-        <stop offset="45%" stopColor="#FFD944" />
-        <stop offset="100%" stopColor="#FFB620" />
-      </linearGradient>
-    </defs>
-
-    <g transform={direction === "right" ? "" : "translate(24 0) scale(-1 1)"}>
-      {/* Segitiga dengan sudut benar-benar membulat */}
-      <path
-        d="
-          M 7 5
-          L 18.5 12
-          L 7 19
-        "
-        fill="url(#playGradient)"
-        stroke="url(#playGradient)"
-        strokeWidth="3"
-        strokeLinejoin="round"
-      />
-    </g>
-  </svg>
-);
-
-const DotIcon = ({ size = 14 }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 16 16"
-    style={{
-      display: "block",
-      filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.22))",
-    }}
-  >
-    <defs>
-      <linearGradient id="dotGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#FFF59A" />
-        <stop offset="45%" stopColor="#FFD944" />
-        <stop offset="100%" stopColor="#FFB620" />
-      </linearGradient>
-    </defs>
-    <circle cx="8" cy="8" r="7" fill="url(#dotGradient)" />
-  </svg>
-);
+import JoyNgintip2 from "../assets/JoyNgintip2.png"; // JoyNgintip2
+import BgSection from "../assets/BgSection.png"; // background section CTA
+import PlayDot from "../assets/PlayDot.png"; // 🔹 gambar baru pengganti Play & Dot
 
 /* ================== BINTANG & MASKOT CONFIG ================== */
 
@@ -104,11 +48,11 @@ const LEFT_MASCOT_SETTINGS = {
   rotate: 38,
 };
 
-// ===== SETTING JOY NGINTIP (UKURAN & POSISI) =====
-const JOYNGINTIP_SHIFT = {
-  shiftX: 10,
-  shiftY: 15,
-  scale: 2,
+// ===== SETTING JOY NGINTIP (UKURAN & POSISI DEFAULT) =====
+const JOYNGINTIP_SHIFT_DEFAULT = {
+  shiftX: -480,
+  shiftY: 75,
+  scale: 5.5,
 };
 
 // ===== SETTING POSISI 3 LAYER UNGU (NAIK / TURUN GLOBAL) =====
@@ -245,6 +189,13 @@ export default function TentangKami() {
     },
   };
 
+  // ==== SETTING FINAL POSISI & UKURAN JOYNGINTIP2 ====
+  const JOYNGINTIP_SHIFT = {
+    shiftX: num("jn_x", JOYNGINTIP_SHIFT_DEFAULT.shiftX),
+    shiftY: num("jn_y", JOYNGINTIP_SHIFT_DEFAULT.shiftY),
+    scale: num("jn_s", JOYNGINTIP_SHIFT_DEFAULT.scale),
+  };
+
   // ==== SETTING FINAL GESER, SCALE & ROTATE 4 BINTANG KECIL DI CONTAINER UNGU ====
   const PURPLE_TINY_STARS_SHIFT = {
     ps1: {
@@ -308,7 +259,7 @@ export default function TentangKami() {
   const sidePos =
     M.side === "left"
       ? { left: `${baseOffset + LEFT_MASCOT_SETTINGS.offsetX}px` }
-      : { right: `${baseOffset + LEFTMASCOT_SETTINGS.offsetX}px` };
+      : { right: `${baseOffset + LEFT_MASCOT_SETTINGS.offsetX}px` };
 
   const transformOrigin = !M.flip
     ? M.side === "left"
@@ -546,7 +497,7 @@ export default function TentangKami() {
             "linear-gradient(180deg, #a861ffff 0%, #a861ffff 45%, #a861ffff 100%)",
         }}
       >
-        {/* JoyNgintip di batas putih–ungu */}
+        {/* JoyNgintip2 di batas putih–ungu */}
         <div
           className="pointer-events-none select-none absolute -top-24 md:-top-28 lg:-top-32 right-4 md:right-16 lg:right-24 z-30"
           style={{
@@ -555,24 +506,29 @@ export default function TentangKami() {
           }}
         >
           <img
-            src={JoyNgintip}
+            src={JoyNgintip2}
             alt="Joyin mengintip"
             className="w-[190px] md:w-[230px] lg:w-[260px]"
           />
         </div>
 
-        {/* Dekor play & dots kiri-atas */}
-        <div className="absolute left-8 md:left-14 top-7 md:top-9 flex items-center gap-3 z-10">
-          <PlayIcon direction="right" size={32} />
-          <DotIcon size={14} />
-          <DotIcon size={14} />
+        {/* Dekor PlayDot kiri-atas */}
+        <div className="absolute left-8 md:left-14 top-7 md:top-9 z-10">
+          <img
+            src={PlayDot}
+            alt="dekorasi play"
+            className="w-16 md:w-20 lg:w-24 pointer-events-none select-none drop-shadow-[0_6px_16px_rgba(0,0,0,0.25)]"
+          />
         </div>
 
-        {/* Dekor play & dots kanan-bawah (mirror, play ke kiri) */}
-        <div className="absolute right-8 md:right-16 bottom-24 md:bottom-28 flex items-center gap-3 z-10">
-          <DotIcon size={14} />
-          <DotIcon size={14} />
-          <PlayIcon direction="left" size={32} />
+        {/* Dekor PlayDot kanan-bawah (mirror) */}
+        <div className="absolute right-8 md:right-16 bottom-24 md:bottom-28 z-10">
+          <img
+            src={PlayDot}
+            alt="dekorasi play"
+            className="w-16 md:w-20 lg:w-24 pointer-events-none select-none drop-shadow-[0_6px_16px_rgba(0,0,0,0.25)]"
+            style={{ transform: "scaleX(-1)" }}
+          />
         </div>
 
         {/* Bintang kecil dekor (4 bintang di container ungu) */}
@@ -681,7 +637,6 @@ export default function TentangKami() {
       <section
         className="relative w-full h-[260px] md:h-[300px] lg:h-[340px] overflow-hidden bg-transparent"
         style={{
-          // margin global untuk keseluruhan blok 3 layer
           marginTop: `${PURPLE_LAYER_OFFSET_Y}px`,
         }}
       >
@@ -755,126 +710,107 @@ export default function TentangKami() {
         </div>
       </section>
 
-      {/* ==== SECTION CTA “Yuk, Tumbuh Bareng Joyin!” (FULL WIDTH, MELENGKUNG) ==== */}
-      <section
-        className="relative z-10 w-full rounded-t-[40px] md:rounded-t-[48px]"
-        style={{
-          background:
-            "linear-gradient(180deg, #B164FF 0%, #A862FF 28%, #7EE0E6 62%, #9FF7C5 100%)",
-        }}
-      >
-        {/* Konten CTA */}
-        <div className="relative z-10 max-w-3xl mx-auto pt-16 md:pt-20 pb-28 md:pb-32 px-6 md:px-10 text-center text-white">
-          <h2 className="text-[26px] md:text-[32px] lg:text-[36px] font-extrabold tracking-tight mb-6">
-            Yuk, Tumbuh Bareng Joyin!
-          </h2>
+      {/* ==== SECTION CTA “Yuk, Tumbuh Bareng Joyin!” (BgSection FULL IMG) ==== */}
+      <section className="relative z-10 w-full overflow-hidden rounded-t-[40px] md:rounded-t-[48px] mb-24 md:mb-28 lg:mb-32">
+        {/* BgSection ditampilkan full sebagai gambar */}
+        <img
+          src={BgSection}
+          alt="Latar belakang Joyin"
+          className="w-full h-auto block"
+        />
 
-          <p className="text-sm md:text-base lg:text-[17px] leading-relaxed md:leading-[1.9]">
-            Nggak ada kata terlalu cepat buat mulai pakai Joyin. Coba sekarang
-            dan rasakan gimana mudahnya ngobrol dengan pelanggan tanpa ribet.
-            Yuk, gabung bareng kami dan biarkan Joyin bantu bisnismu tumbuh
-            lebih cepat dan lebih dekat!
-          </p>
+        {/* Konten CTA di atas gambar (tidak memotong gambar) */}
+        <div className="absolute inset-0 flex items-center justify-center px-6 md:px-10">
+          <div className="relative z-10 max-w-3xl mx-auto text-center text-white">
+            <h2 className="text-[26px] md:text-[32px] lg:text-[36px] font-extrabold tracking-tight mb-6">
+              Yuk, Tumbuh Bareng Joyin!
+            </h2>
 
-          <p className="mt-8 text-base md:text-lg font-semibold">
-            Hubungi Kami
-          </p>
+            <p className="text-sm md:text-base lg:text-[17px] leading-relaxed md:leading-[1.9]">
+              Nggak ada kata terlalu cepat buat mulai pakai Joyin. Coba sekarang
+              dan rasakan gimana mudahnya ngobrol dengan pelanggan tanpa ribet.
+              Yuk, gabung bareng kami dan biarkan Joyin bantu bisnismu tumbuh
+              lebih cepat dan lebih dekat!
+            </p>
 
-          {/* Tombol kontak dengan animasi hover (invert warna + serong) */}
-          <div className="mt-6 flex items-center justify-center gap-8 md:gap-10">
-            {/* Email */}
-            <button
-              type="button"
-              className="group w-16 h-16 md:w-20 md:h-20 rounded-full bg-white text-[#B164FF] shadow-[0_14px_35px_rgba(0,0,0,0.22)] flex items-center justify-center transition-all duration-200 ease-out hover:-translate-y-1 hover:-rotate-3 hover:bg-[#B164FF] hover:text-white"
-            >
-              <svg
-                width="30"
-                height="30"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-                className="transition-transform duration-200 ease-out group-hover:scale-110 group-hover:-rotate-3"
+            <p className="mt-8 text-base md:text-lg font-semibold">
+              Hubungi Kami
+            </p>
+
+            {/* Tombol kontak dengan animasi hover (invert warna + serong) */}
+            <div className="mt-6 flex items-center justify-center gap-8 md:gap-10">
+              {/* Email */}
+              <button
+                type="button"
+                className="group w-16 h-16 md:w-20 md:h-20 rounded-full bg-white text-[#B164FF] shadow-[0_14px_35px_rgba(0,0,0,0.22)] flex items-center justify-center transition-all duration-200 ease-out hover:-translate-y-1 hover:-rotate-3 hover:bg-[#B164FF] hover:text-white"
               >
-                {/* Amplop outline, warna pakai currentColor */}
-                <rect
-                  x="3"
-                  y="5"
-                  width="18"
-                  height="14"
-                  rx="3"
-                  ry="3"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                />
-                <path
-                  d="M4 7.5L12 12.5L20 7.5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
+                <svg
+                  width="30"
+                  height="30"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  className="transition-transform duration-200 ease-out group-hover:scale-110 group-hover:-rotate-3"
+                >
+                  {/* Amplop outline, warna pakai currentColor */}
+                  <rect
+                    x="3"
+                    y="5"
+                    width="18"
+                    height="14"
+                    rx="3"
+                    ry="3"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                  />
+                  <path
+                    d="M4 7.5L12 12.5L20 7.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
 
-            {/* WhatsApp */}
-            <button
-              type="button"
-              className="group w-16 h-16 md:w-20 md:h-20 rounded-full bg-white text-[#25D366] shadow-[0_14px_35px_rgba(0,0,0,0.22)] flex items-center justify-center transition-all duration-200 ease-out hover:-translate-y-1 hover:-rotate-3 hover:bg-[#25D366] hover:text-white"
-            >
-              <svg
-                width="30"
-                height="30"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-                className="transition-transform duration-200 ease-out group-hover:scale-110 group-hover:-rotate-3"
+              {/* WhatsApp */}
+              <button
+                type="button"
+                className="group w-16 h-16 md:w-20 md:h-20 rounded-full bg-white text-[#25D366] shadow-[0_14px_35px_rgba(0,0,0,0.22)] flex items-center justify-center transition-all duration-200 ease-out hover:-translate-y-1 hover:-rotate-3 hover:bg-[#25D366] hover:text-white"
               >
-                {/* Lingkaran outline WA, warna pakai currentColor */}
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="8.5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                />
-                {/* Icon WA di tengah */}
-                <path
-                  d="M9.4 8.2c-.2-.5-.4-.5-.7-.5h-.6c-.2 0-.5.1-.7.3-.2.2-.9.8-.9 2s.9 2.3 1 2.4c.1.2 1.7 2.7 4.2 3.7 2.1.8 2.5.7 3 .6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2 0-.1-.1-.2-.3-.3l-1.2-.6c-.2-.1-.4-.1-.6.1-.2.2-.7.8-.9.9-.2.1-.3.2-.6.1-.3-.1-1.2-.4-2.2-1.4-.8-.7-1.3-1.6-1.4-1.9-.1-.2 0-.4.1-.5.1-.1.2-.2.3-.4.1-.1.1-.2.2-.4.1-.2 0-.3 0-.4l-.5-1.3Z"
-                  fill="currentColor"
-                />
-              </svg>
-            </button>
+                <svg
+                  width="30"
+                  height="30"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  className="transition-transform duration-200 ease-out group-hover:scale-110 group-hover:-rotate-3"
+                >
+                  {/* Lingkaran outline WA, warna pakai currentColor */}
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="8.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                  />
+                  {/* Icon WA di tengah */}
+                  <path
+                    d="M9.4 8.2c-.2-.5-.4-.5-.7-.5h-.6c-.2 0-.5.1-.7.3-.2.2-.9.8-.9 2s.9 2.3 1 2.4c.1.2 1.7 2.7 4.2 3.7 2.1.8 2.5.7 3 .6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2 0-.1-.1-.2-.3-.3l-1.2-.6c-.2-.1-.4-.1-.6.1-.2.2-.7.8-.9.9-.2.1-.3.2-.6.1-.3-.1-1.2-.4-2.2-1.4-.8-.7-1.3-1.6-1.4-1.9-.1-.2 0-.4.1-.5.1-.1.2-.2.3-.4.1-.1.1-.2.2-.4.1-.2 0-.3 0-.4l-.5-1.3Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
-
-        {/* Wave putih di bawah section - dibuat mirip contoh (beberapa gelombang halus) */}
-        <div className="absolute bottom-[-2px] left-0 right-0 pointer-events-none leading-[0]">
-          <svg
-            viewBox="0 0 1440 320"
-            preserveAspectRatio="none"
-            className="block w-full h-[90px] md:h-[110px]"
-          >
-            <path
-              fill="#FFFFFF"
-              d="
-                M0,160
-                C 80,130 160,130 240,160
-                C 320,190 400,190 480,160
-                C 560,130 640,130 720,160
-                C 800,190 880,190 960,160
-                C 1040,130 1120,130 1200,160
-                C 1280,190 1360,190 1440,160
-                L1440,320
-                L0,320
-                Z
-              "
-            ></path>
-          </svg>
         </div>
       </section>
 
-      <Footer />
+      {/* FOOTER: tetap seperti semula */}
+      <div className="mt-0 md:mt-2 lg:mt-4 [&>footer]:border-t-0 [&>footer]:border-none">
+        <Footer />
+      </div>
     </div>
   );
 }

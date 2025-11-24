@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 import Dashboard from "./Dashboard";
 import Login from "./Login";
 import GoogleCallback from "./GoogleCallback";
-import Navbar from "./components/Navbar1";
+import Navbar from "./components/Navbar1"; // ⬅️ pakai Navbar1
 import HeroSection from "./components/HeroSection";
 import Keunggulan from "./components/Keunggulan";
 import FiturJoyin from "./components/FiturJoyin";
@@ -27,7 +27,7 @@ import ResetPassword from "./ResetPassword";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import ForgotPassword from "./ForgotPassword";
 import TentangKami from "./landingpage/TentangKami";
-import Referral from "./landingpage/Referral"; // ✅ tambahkan import halaman Referral
+import Referral from "./landingpage/Referral"; // ⬅️ halaman referral
 
 /* ================== Landing Page ================== */
 function LandingPage() {
@@ -98,8 +98,7 @@ function PublicOnly({ children }) {
   return ok ? <Navigate to="/dashboard" replace /> : children;
 }
 
-// Publik-khusus LOGIN: redirect cepat (cukup isAuthenticated)
-// Tujuan: /login auto ke /dashboard bila sesi valid; / (landing) tidak auto-redirect.
+// Publik-khusus LOGIN
 function PublicOnlyLogin({ children }) {
   const { isAuthenticated, ready } = useAuth();
   if (!ready) return null;
@@ -112,10 +111,10 @@ function AppInner() {
       <HtmlLangSync />
       <Router>
         <Routes>
-          {/* ✅ Landing page TANPA auto-redirect */}
+          {/* Landing page */}
           <Route path="/" element={<LandingPage />} />
 
-          {/* ✅ LOGIN: auto-redirect ke dashboard jika sesi sudah ada */}
+          {/* LOGIN */}
           <Route
             path="/login"
             element={
@@ -125,7 +124,7 @@ function AppInner() {
             }
           />
 
-          {/* Publik (boleh auto-redirect kalau sudah login valid & user lengkap) */}
+          {/* Google callback */}
           <Route
             path="/google-callback"
             element={
@@ -135,7 +134,7 @@ function AppInner() {
             }
           />
 
-          {/* ✅ Verify / Reset / Forgot */}
+          {/* Verify / Reset / Forgot */}
           <Route path="/verify-otp" element={<VerifyOtp />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
@@ -143,7 +142,7 @@ function AppInner() {
 
           {/* Publik */}
           <Route path="/tentang" element={<TentangKami />} />
-          <Route path="/referral" element={<Referral />} /> {/* ✅ ROUTE BARU */}
+          <Route path="/referral" element={<Referral />} /> {/* ⬅️ route baru */}
 
           {/* Privat */}
           <Route
