@@ -5,7 +5,6 @@ import {
   Routes,
   Route,
   Navigate,
-  // useNavigate, // ❌ tidak dipakai lagi
 } from "react-router-dom";
 
 import "./i18n";
@@ -28,6 +27,7 @@ import ResetPassword from "./ResetPassword";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import ForgotPassword from "./ForgotPassword";
 import TentangKami from "./landingpage/TentangKami";
+import Referral from "./landingpage/Referral"; // ✅ tambahkan import halaman Referral
 
 /* ================== Landing Page ================== */
 function LandingPage() {
@@ -75,7 +75,9 @@ function LandingPage() {
 function HtmlLangSync() {
   const { i18n } = useTranslation();
   useEffect(() => {
-    document.documentElement.lang = i18n.language?.startsWith("en") ? "en" : "id";
+    document.documentElement.lang = i18n.language?.startsWith("en")
+      ? "en"
+      : "id";
   }, [i18n.language]);
   return null;
 }
@@ -141,6 +143,7 @@ function AppInner() {
 
           {/* Publik */}
           <Route path="/tentang" element={<TentangKami />} />
+          <Route path="/referral" element={<Referral />} /> {/* ✅ ROUTE BARU */}
 
           {/* Privat */}
           <Route

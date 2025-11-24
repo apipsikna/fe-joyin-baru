@@ -9,7 +9,8 @@ export default function Navbar() {
 
   // ====== Menu config ======
   const NAV_ITEMS = [
-    { id: "referral", label: "Referral", kind: "hash", target: "#referral" },
+    // ✅ Referral sekarang jadi route, bukan hash
+    { id: "referral", label: "Referral", kind: "route", target: "/referral" },
     { id: "paket", label: "Paket", kind: "hash", target: "#paket" },
     { id: "beranda", label: "Beranda", kind: "hash", target: "#beranda" },
     { id: "tutorial", label: "Tutorial", kind: "hash", target: "#tutorial" },
@@ -20,12 +21,18 @@ export default function Navbar() {
   const [active, setActive] = useState("beranda"); // default: beranda hijau saat load
   const menuRef = useRef(null);
   const itemRefs = useRef({});
-  const [indicator, setIndicator] = useState({ left: 0, width: 0, ready: false });
+  const [indicator, setIndicator] = useState({
+    left: 0,
+    width: 0,
+    ready: false,
+  });
 
   // Tentukan active berdasarkan URL sekarang
   const deriveActiveFromLocation = (loc) => {
     const { pathname, hash } = loc;
+
     if (pathname === "/tentang") return "tentang";
+    if (pathname === "/referral") return "referral"; // ✅ aktifkan Referral saat di /referral
     if (pathname === "/") {
       const map = {
         "#referral": "referral",
@@ -63,7 +70,6 @@ export default function Navbar() {
   // - saat active berubah
   // - saat resize
   useLayoutEffect(() => {
-    // dua kali raf untuk memastikan layout final (font/resize)
     const raf1 = requestAnimationFrame(() => {
       updateIndicator();
       const raf2 = requestAnimationFrame(updateIndicator);
@@ -87,13 +93,14 @@ export default function Navbar() {
   const handleClick = (e, item) => {
     e.preventDefault();
 
+    // === Route normal (Referral, Tentang Kami, dll) ===
     if (item.kind === "route") {
       setActive(item.id); // langsung hijau + pindah halaman
       navigate(item.target);
       return;
     }
 
-    // hash (anchor di landing)
+    // === Hash (anchor di landing) ===
     if (location.pathname !== "/") {
       setActive(item.id); // langsung hijau
       navigate({ pathname: "/", hash: item.target });
@@ -122,7 +129,10 @@ export default function Navbar() {
       </div>
 
       {/* Menu */}
-      <div ref={menuRef} className="relative hidden lg:flex items-center gap-8 text-sm">
+      <div
+        ref={menuRef}
+        className="relative hidden lg:flex items-center gap-8 text-sm"
+      >
         {NAV_ITEMS.map((item) => {
           const isActive = active === item.id;
           const href = item.target;
@@ -134,7 +144,11 @@ export default function Navbar() {
               ref={(el) => (itemRefs.current[item.id] = el)}
               onClick={(e) => handleClick(e, item)}
               className={`relative inline-block font-bold transition-colors duration-200
-                ${isActive ? "text-emerald-600" : "text-gray-900 hover:text-emerald-600"}`}
+                ${
+                  isActive
+                    ? "text-emerald-600"
+                    : "text-gray-900 hover:text-emerald-600"
+                }`}
               aria-current={isActive ? "page" : undefined}
             >
               {item.label}
