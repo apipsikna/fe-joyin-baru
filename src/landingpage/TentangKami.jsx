@@ -9,6 +9,66 @@ import maskot from "../assets/bintangKiri.png";
 import JoyCemerlang from "../assets/JoyCemerlang.png";
 import JoyNgintip from "../assets/JoyNgintip.png";
 
+/* ========= PLAY ICON & DOTS (SVG, GRADIENT, ROUNDED) ========= */
+
+const PlayIcon = ({ direction = "right", size = 32 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    style={{
+      display: "block",
+      filter: "drop-shadow(0 3px 6px rgba(0,0,0,0.25))",
+    }}
+  >
+    <defs>
+      <linearGradient id="playGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#FFF59A" />
+        <stop offset="45%" stopColor="#FFD944" />
+        <stop offset="100%" stopColor="#FFB620" />
+      </linearGradient>
+    </defs>
+
+    <g transform={direction === "right" ? "" : "translate(24 0) scale(-1 1)"}>
+      {/* Segitiga dengan sudut benar-benar membulat */}
+      <path
+        d="
+          M 7 5
+          L 18.5 12
+          L 7 19
+        "
+        fill="url(#playGradient)"
+        stroke="url(#playGradient)"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+    </g>
+  </svg>
+);
+
+const DotIcon = ({ size = 14 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 16 16"
+    style={{
+      display: "block",
+      filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.22))",
+    }}
+  >
+    <defs>
+      <linearGradient id="dotGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#FFF59A" />
+        <stop offset="45%" stopColor="#FFD944" />
+        <stop offset="100%" stopColor="#FFB620" />
+      </linearGradient>
+    </defs>
+    <circle cx="8" cy="8" r="7" fill="url(#dotGradient)" />
+  </svg>
+);
+
+/* ================== BINTANG & MASKOT CONFIG ================== */
+
 // ===== SETTING UKURAN MASING-MASING BINTANG (UMUM) =====
 const STAR_SIZE = {
   h1: 80,
@@ -34,7 +94,7 @@ const MASCOT_SHIFT = {
 
 // ===== SETTING PERGESERAN MASKOT JOYCEMERLANG (GAMBAR SAJA) =====
 const JOYC_IMAGE_SHIFT = {
-  offsetY: 0,
+  offsetY: 17,
 };
 
 // ===== SETTING MASKOT HIJAU KIRI LAYAR =====
@@ -51,10 +111,55 @@ const JOYNGINTIP_SHIFT = {
   scale: 2,
 };
 
-// ===== SETTING POSISI 3 LAYER UNGU (NAIK / TURUN) =====
-// offsetY dalam px -> negatif = naik, positif = turun
+// ===== SETTING POSISI 3 LAYER UNGU (NAIK / TURUN GLOBAL) =====
 const PURPLE_LAYER_SHIFT = {
-  offsetY: -96, // silakan atur: misal -120, -80, dll
+  offsetY: -96, // default marginTop section 3 layer ungu
+};
+
+// ===== SETTING BESAR TEKS DI SAMPING JOYCEMERLANG =====
+const JOYC_TEXT_DEFAULT = {
+  left: 22,
+  right: 22,
+};
+
+// ===== SETTING LEBAR BOX TEKS DI SAMPING JOYCEMERLANG =====
+const JOYC_TEXT_WIDTH_DEFAULT = {
+  left: 900,
+  right: 900,
+};
+
+// ===== SETTING PERGESERAN POSISI TEKS JOYCEMERLANG (X/Y) =====
+const JOYC_TEXT_SHIFT_DEFAULT = {
+  left: { x: -110, y: -50 },
+  right: { x: 110, y: -50 },
+};
+
+/* ===== SETTING TEKS “Selalu Ada Ruang untuk Berkembang” ===== */
+const GROWTH_TEXT_CONFIG_DEFAULT = {
+  titleSize: 45, // px
+  bodySize: 21, // px
+  shiftX: 0, // px (kiri/kanan)
+  shiftY: -20, // px (atas/bawah)
+};
+
+/* ===== SETTING GESER, SCALE & ROTATE 4 BINTANG KECIL DI CONTAINER UNGU =====
+   ps1 = bintang atas kanan (right-[18%])
+   ps2 = bintang lebih kecil di kanan atas
+   ps3 = bintang kiri bawah
+   ps4 = bintang kecil kiri bawah
+*/
+const PURPLE_TINY_STARS_SHIFT_DEFAULT = {
+  ps1: { x: 0, y: 0, scale: 1.2, rot: 0 },
+  ps2: { x: -170, y: 0, scale: 0.7, rot: -30 },
+  ps3: { x: 160, y: -40, scale: 1.3, rot: 10 },
+  ps4: { x: 200, y: -30, scale: 0.8, rot: -16 },
+};
+
+// ===== SETTING DEFAULT POSISI MASING-MASING LAYER UNGU (TOP) =====
+const PURPLE_LAYER_Y_DEFAULT = {
+  l1: 0, // layer 1 (paling atas)
+  l2: 50, // layer 2
+  l3: 110, // layer 3 (gradient)
 };
 
 export default function TentangKami() {
@@ -116,6 +221,85 @@ export default function TentangKami() {
     return v === "1" || v === "true";
   };
 
+  // ==== SETTING FINAL BESAR TEKS KIRI / KANAN JOYCEMERLANG ====
+  const JOYC_TEXT_SIZE = {
+    left: num("tL_size", JOYC_TEXT_DEFAULT.left),
+    right: num("tR_size", JOYC_TEXT_DEFAULT.right),
+  };
+
+  // ==== SETTING FINAL LEBAR BOX TEKS KIRI / KANAN JOYCEMERLANG ====
+  const JOYC_TEXT_WIDTH = {
+    left: num("tL_w", JOYC_TEXT_WIDTH_DEFAULT.left),
+    right: num("tR_w", JOYC_TEXT_WIDTH_DEFAULT.right),
+  };
+
+  // ==== SETTING FINAL PERGESERAN POSISI TEKS KIRI / KANAN JOYCEMERLANG ====
+  const JOYC_TEXT_SHIFT = {
+    left: {
+      x: num("tL_x", JOYC_TEXT_SHIFT_DEFAULT.left.x),
+      y: num("tL_y", JOYC_TEXT_SHIFT_DEFAULT.left.y),
+    },
+    right: {
+      x: num("tR_x", JOYC_TEXT_SHIFT_DEFAULT.right.x),
+      y: num("tR_y", JOYC_TEXT_SHIFT_DEFAULT.right.y),
+    },
+  };
+
+  // ==== SETTING FINAL GESER, SCALE & ROTATE 4 BINTANG KECIL DI CONTAINER UNGU ====
+  const PURPLE_TINY_STARS_SHIFT = {
+    ps1: {
+      x: num("ps1_x", PURPLE_TINY_STARS_SHIFT_DEFAULT.ps1.x),
+      y: num("ps1_y", PURPLE_TINY_STARS_SHIFT_DEFAULT.ps1.y),
+      scale: num("ps1_s", PURPLE_TINY_STARS_SHIFT_DEFAULT.ps1.scale),
+      rot: num("ps1_rot", PURPLE_TINY_STARS_SHIFT_DEFAULT.ps1.rot),
+    },
+    ps2: {
+      x: num("ps2_x", PURPLE_TINY_STARS_SHIFT_DEFAULT.ps2.x),
+      y: num("ps2_y", PURPLE_TINY_STARS_SHIFT_DEFAULT.ps2.y),
+      scale: num("ps2_s", PURPLE_TINY_STARS_SHIFT_DEFAULT.ps2.scale),
+      rot: num("ps2_rot", PURPLE_TINY_STARS_SHIFT_DEFAULT.ps2.rot),
+    },
+    ps3: {
+      x: num("ps3_x", PURPLE_TINY_STARS_SHIFT_DEFAULT.ps3.x),
+      y: num("ps3_y", PURPLE_TINY_STARS_SHIFT_DEFAULT.ps3.y),
+      scale: num("ps3_s", PURPLE_TINY_STARS_SHIFT_DEFAULT.ps3.scale),
+      rot: num("ps3_rot", PURPLE_TINY_STARS_SHIFT_DEFAULT.ps3.rot),
+    },
+    ps4: {
+      x: num("ps4_x", PURPLE_TINY_STARS_SHIFT_DEFAULT.ps4.x),
+      y: num("ps4_y", PURPLE_TINY_STARS_SHIFT_DEFAULT.ps4.y),
+      scale: num("ps4_s", PURPLE_TINY_STARS_SHIFT_DEFAULT.ps4.scale),
+      rot: num("ps4_rot", PURPLE_TINY_STARS_SHIFT_DEFAULT.ps4.rot),
+    },
+  };
+
+  // ==== SETTING FINAL TEKS “Selalu Ada Ruang untuk Berkembang” ====
+  const GROWTH_TITLE_SIZE = num(
+    "g_title_size",
+    GROWTH_TEXT_CONFIG_DEFAULT.titleSize
+  );
+  const GROWTH_BODY_SIZE = num(
+    "g_body_size",
+    GROWTH_TEXT_CONFIG_DEFAULT.bodySize
+  );
+  const GROWTH_SHIFT = {
+    x: num("g_x", GROWTH_TEXT_CONFIG_DEFAULT.shiftX),
+    y: num("g_y", GROWTH_TEXT_CONFIG_DEFAULT.shiftY),
+  };
+
+  // 🔹 SETTING FINAL POSISI GLOBAL 3 LAYER UNGU (MARGIN SECTION, ?pl_y=..)
+  const PURPLE_LAYER_OFFSET_Y = num(
+    "pl_y",
+    PURPLE_LAYER_SHIFT.offsetY // default -96
+  );
+
+  // 🔹 SETTING FINAL POSISI MASING-MASING LAYER (TOP) → ?pl1_y, ?pl2_y, ?pl3_y
+  const PURPLE_LAYER_Y = {
+    l1: num("pl1_y", PURPLE_LAYER_Y_DEFAULT.l1),
+    l2: num("pl2_y", PURPLE_LAYER_Y_DEFAULT.l2),
+    l3: num("pl3_y", PURPLE_LAYER_Y_DEFAULT.l3),
+  };
+
   // ===== Hitung posisi maskot hijau (hero) =====
   const maxOutside = Math.max(0, M.width - M.peek);
   const safeOutside = Math.min(M.outside, maxOutside);
@@ -124,7 +308,7 @@ export default function TentangKami() {
   const sidePos =
     M.side === "left"
       ? { left: `${baseOffset + LEFT_MASCOT_SETTINGS.offsetX}px` }
-      : { right: `${baseOffset + LEFT_MASCOT_SETTINGS.offsetX}px` };
+      : { right: `${baseOffset + LEFTMASCOT_SETTINGS.offsetX}px` };
 
   const transformOrigin = !M.flip
     ? M.side === "left"
@@ -378,109 +562,95 @@ export default function TentangKami() {
         </div>
 
         {/* Dekor play & dots kiri-atas */}
-        <div className="absolute left-8 md:left-14 top-8 md:top-10 flex items-center gap-3 z-10">
-          <div
-            aria-hidden="true"
-            style={{
-              width: 0,
-              height: 0,
-              borderTop: "16px solid transparent",
-              borderBottom: "16px solid transparent",
-              borderLeft: "28px solid #FFD54F",
-              filter: "drop-shadow(0 6px 8px rgba(0,0,0,0.18))",
-            }}
-          />
-          <span
-            aria-hidden="true"
-            className="w-3 h-3 rounded-full"
-            style={{ backgroundColor: "#FFD54F" }}
-          />
-          <span
-            aria-hidden="true"
-            className="w-3 h-3 rounded-full"
-            style={{ backgroundColor: "#FFD54F" }}
-          />
+        <div className="absolute left-8 md:left-14 top-7 md:top-9 flex items-center gap-3 z-10">
+          <PlayIcon direction="right" size={32} />
+          <DotIcon size={14} />
+          <DotIcon size={14} />
         </div>
 
-        {/* Dekor play & dots kanan-bawah */}
-        <div className="absolute right-8 md:right-16 bottom-20 md:bottom-24 flex items-center gap-3 z-10">
-          <span
-            aria-hidden="true"
-            className="w-3 h-3 rounded-full"
-            style={{ backgroundColor: "#FFD54F" }}
-          />
-          <span
-            aria-hidden="true"
-            className="w-3 h-3 rounded-full"
-            style={{ backgroundColor: "#FFD54F" }}
-          />
-          <div
-            aria-hidden="true"
-            style={{
-              width: 0,
-              height: 0,
-              borderTop: "16px solid transparent",
-              borderBottom: "16px solid transparent",
-              borderRight: "28px solid #FFD54F",
-              filter: "drop-shadow(0 6px 8px rgba(0,0,0,0.18))",
-            }}
-          />
+        {/* Dekor play & dots kanan-bawah (mirror, play ke kiri) */}
+        <div className="absolute right-8 md:right-16 bottom-24 md:bottom-28 flex items-center gap-3 z-10">
+          <DotIcon size={14} />
+          <DotIcon size={14} />
+          <PlayIcon direction="left" size={32} />
         </div>
 
-        {/* Bintang kecil dekor */}
+        {/* Bintang kecil dekor (4 bintang di container ungu) */}
         <img
           src={bintangkecil}
           alt=""
           aria-hidden="true"
           className="pointer-events-none select-none absolute top-16 right-[18%] w-7 md:w-8"
-          style={{ zIndex: 5 }}
+          style={{
+            zIndex: 5,
+            transform: `translate(${PURPLE_TINY_STARS_SHIFT.ps1.x}px, ${PURPLE_TINY_STARS_SHIFT.ps1.y}px) scale(${PURPLE_TINY_STARS_SHIFT.ps1.scale}) rotate(${PURPLE_TINY_STARS_SHIFT.ps1.rot}deg)`,
+            transformOrigin: "center",
+          }}
         />
         <img
           src={bintangkecil}
           alt=""
           aria-hidden="true"
           className="pointer-events-none select-none absolute top-10 right-[10%] w-5 md:w-6"
-          style={{ zIndex: 5 }}
+          style={{
+            zIndex: 5,
+            transform: `translate(${PURPLE_TINY_STARS_SHIFT.ps2.x}px, ${PURPLE_TINY_STARS_SHIFT.ps2.y}px) scale(${PURPLE_TINY_STARS_SHIFT.ps2.scale}) rotate(${PURPLE_TINY_STARS_SHIFT.ps2.rot}deg)`,
+            transformOrigin: "center",
+          }}
         />
         <img
           src={bintangkecil}
           alt=""
           aria-hidden="true"
-          className="pointer-events-none select-none absolute bottom-20 left-6 md:left-10 w-6 md:w-7"
-          style={{ zIndex: 5 }}
+          className="pointer-events-none select-none absolute bottom-28 left-6 md:left-10 w-6 md:w-7"
+          style={{
+            zIndex: 5,
+            transform: `translate(${PURPLE_TINY_STARS_SHIFT.ps3.x}px, ${PURPLE_TINY_STARS_SHIFT.ps3.y}px) scale(${PURPLE_TINY_STARS_SHIFT.ps3.scale}) rotate(${PURPLE_TINY_STARS_SHIFT.ps3.rot}deg)`,
+            transformOrigin: "center",
+          }}
         />
         <img
           src={bintangkecil}
           alt=""
           aria-hidden="true"
-          className="pointer-events-none select-none absolute bottom-14 left-16 md:left-20 w-5 md:w-6"
-          style={{ zIndex: 5 }}
+          className="pointer-events-none select-none absolute bottom-24 left-16 md:left-20 w-5 md:w-6"
+          style={{
+            zIndex: 5,
+            transform: `translate(${PURPLE_TINY_STARS_SHIFT.ps4.x}px, ${PURPLE_TINY_STARS_SHIFT.ps4.y}px) scale(${PURPLE_TINY_STARS_SHIFT.ps4.scale}) rotate(${PURPLE_TINY_STARS_SHIFT.ps4.rot}deg)`,
+            transformOrigin: "center",
+          }}
         />
 
         {/* Konten utama JoyCemerlang */}
-        <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-10">
+        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10">
           <h2 className="text-center text-white font-extrabold text-2xl md:text-3xl lg:text-4xl tracking-tight">
             Buat Chat Lebih Hidup Tanpa Ribet
           </h2>
 
           <div className="mt-8 md:mt-10 flex flex-col lg:flex-row items-center justify-between gap-8 md:gap-10">
             {/* Teks kiri */}
-            <p className="text-white text-base md:text-lg leading-relaxed max-w-md text-left">
+            <p
+              className="text-white leading-relaxed text-left flex-1 w-full"
+              style={{
+                fontSize: `${JOYC_TEXT_SIZE.left}px`,
+                maxWidth: `${JOYC_TEXT_WIDTH.left}px`,
+                transform: `translate(${JOYC_TEXT_SHIFT.left.x}px, ${JOYC_TEXT_SHIFT.left.y}px)`,
+              }}
+            >
               Nggak perlu lagi begadang atau terus mantengin layar hanya demi
               respon cepat. Joyin siap bantu kamu tetap terhubung kapan pun, di
               mana pun, tanpa kehilangan rasa hangat dalam percakapan.
             </p>
 
             {/* JoyCemerlang */}
-            <div className="shrink-0 relative flex items-end justify-center h-[240px] md:h-[300px] lg:h-[360px] translate-y-6 md:translate-y-8 lg:translate-y-10">
+            <div className="shrink-0 relative flex items-end justify-center h-[280px] md:h-[340px] lg:h-[420px] translate-y-6 md:translate-y-8 lg:translate-y-10">
               <img
                 src={JoyCemerlang}
                 alt="JoyCemerlang, maskot Joyin yang ceria"
-                className="relative w-[280px] md:w-[330px] lg:w-[380px]"
+                className="relative w-[340px] md:w-[420px] lg:w-[500px]"
                 style={{
                   zIndex: 10,
                   transform: `translateY(${JOYC_IMAGE_SHIFT.offsetY}px)`,
-                  // Glow putih mengikuti siluet
                   filter:
                     "drop-shadow(0 0 40px rgba(255,255,255,0.98)) " +
                     "drop-shadow(0 0 90px rgba(255,255,255,0.9)) " +
@@ -490,7 +660,14 @@ export default function TentangKami() {
             </div>
 
             {/* Teks kanan */}
-            <p className="text-white text-base md:text-lg leading-relaxed max-w-md text-left lg:text-right">
+            <p
+              className="text-white leading-relaxed text-left lg:text-right flex-1 w-full"
+              style={{
+                fontSize: `${JOYC_TEXT_SIZE.right}px`,
+                maxWidth: `${JOYC_TEXT_WIDTH.right}px`,
+                transform: `translate(${JOYC_TEXT_SHIFT.right.x}px, ${JOYC_TEXT_SHIFT.right.y}px)`,
+              }}
+            >
               Dengan Joyin, cukup atur sekali dan biarkan chatbot kami bekerja
               untukmu — menjawab otomatis dengan gaya ramah dan natural,
               membuat pelanggan tetap dekat, dan bisnismu makin berkembang tanpa
@@ -500,39 +677,201 @@ export default function TentangKami() {
         </div>
       </section>
 
-      {/* ==== 3 LAYER UNGU + GRADIENT PUTIH (SEPERTI FOTO) ==== */}
+      {/* ==== 3 LAYER UNGU + GRADIENT PUTIH ==== */}
       <section
-        className="relative w-full h-[260px] md:h-[300px] lg:h-[340px] overflow-hidden bg-white"
+        className="relative w-full h-[260px] md:h-[300px] lg:h-[340px] overflow-hidden bg-transparent"
         style={{
-          marginTop: `${PURPLE_LAYER_SHIFT.offsetY}px`,
+          // margin global untuk keseluruhan blok 3 layer
+          marginTop: `${PURPLE_LAYER_OFFSET_Y}px`,
         }}
       >
+        {/* Container ungu panjang di belakang 3 layer */}
         <div
-          className="pointer-events-none select-none absolute inset-x-0 z-20"
-          style={{ top: "0", height: "100%" }}
+          aria-hidden="true"
+          className="absolute inset-0 z-0 pointer-events-none select-none"
+          style={{
+            background: "#A861FF",
+          }}
+        />
+
+        {/* Stack 3 layer ungu di atas background */}
+        <div
+          className="pointer-events-none select-none absolute inset-x-0 z-10"
+          style={{ top: 0, height: "100%" }}
         >
-          {/* Layer 1 (paling atas) – warna disamakan dengan strip ungu sebelumnya */}
+          {/* Layer 1 */}
           <div
-            className="absolute left-0 right-0 top-0 h-[80px] md:h-[88px] lg:h-[96px] rounded-t-[32px]"
-            style={{ background: "#942fffff" }}
-          />
-
-          {/* Layer 2 (tengah) */}
-          <div
-            className="absolute left-0 right-0 top-[30px] md:top-[36px] lg:top-[42px] h-[88px] md:h-[96px] lg:h-[104px] rounded-t-[32px]"
-            style={{ background: "#a852ffff" }}
-          />
-
-          {/* Layer 3 (bawah) – ungu ke gradasi putih */}
-          <div
-            className="absolute left-0 right-0 top-[62px] md:top-[70px] lg:top-[78px] bottom-0 rounded-t-[32px]"
+            className="absolute left-0 right-0 h-[80px] md:h-[88px] lg:h-[96px] rounded-t-[32px]"
             style={{
+              top: `${PURPLE_LAYER_Y.l1}px`,
+              background: "#942fffff",
+            }}
+          />
+
+          {/* Layer 2 */}
+          <div
+            className="absolute left-0 right-0 h-[88px] md:h-[96px] lg:h-[104px] rounded-t-[32px]"
+            style={{
+              top: `${PURPLE_LAYER_Y.l2}px`,
+              background: "#a852ffff",
+            }}
+          />
+
+          {/* Layer 3 */}
+          <div
+            className="absolute left-0 right-0 bottom-0 rounded-t-[32px]"
+            style={{
+              top: `${PURPLE_LAYER_Y.l3}px`,
               background:
                 "linear-gradient(180deg, #C57DFF 0%, #DFA5FF 28%, #F0E7FF 60%, #FFFFFF 100%)",
             }}
           />
         </div>
-        {/* Setelah section ini, kamu bisa lanjut section baru konten berikutnya */}
+      </section>
+
+      {/* ==== SECTION TEKS “Selalu Ada Ruang untuk Berkembang” ==== */}
+      <section className="w-full bg-white py-12 md:py-16 mb-24 md:mb-28">
+        <div
+          className="max-w-5xl mx-auto px-6 text-center"
+          style={{
+            transform: `translate(${GROWTH_SHIFT.x}px, ${GROWTH_SHIFT.y}px)`,
+          }}
+        >
+          <h2
+            className="font-extrabold text-black tracking-tight"
+            style={{ fontSize: `${GROWTH_TITLE_SIZE}px` }}
+          >
+            Selalu Ada Ruang untuk Berkembang
+          </h2>
+          <p
+            className="mt-6 leading-relaxed md:leading-[1.9] text-black"
+            style={{ fontSize: `${GROWTH_BODY_SIZE}px` }}
+          >
+            Kami percaya setiap bisnis punya cara unik buat terhubung dengan
+            pelanggan. Karena itu, Joyin terus berkembang biar bisa menyesuaikan
+            diri dengan gaya komunikasi bisnismu — dari obrolan santai sampai
+            layanan profesional, semua bisa kamu atur dengan mudah.
+          </p>
+        </div>
+      </section>
+
+      {/* ==== SECTION CTA “Yuk, Tumbuh Bareng Joyin!” (FULL WIDTH, MELENGKUNG) ==== */}
+      <section
+        className="relative z-10 w-full rounded-t-[40px] md:rounded-t-[48px]"
+        style={{
+          background:
+            "linear-gradient(180deg, #B164FF 0%, #A862FF 28%, #7EE0E6 62%, #9FF7C5 100%)",
+        }}
+      >
+        {/* Konten CTA */}
+        <div className="relative z-10 max-w-3xl mx-auto pt-16 md:pt-20 pb-28 md:pb-32 px-6 md:px-10 text-center text-white">
+          <h2 className="text-[26px] md:text-[32px] lg:text-[36px] font-extrabold tracking-tight mb-6">
+            Yuk, Tumbuh Bareng Joyin!
+          </h2>
+
+          <p className="text-sm md:text-base lg:text-[17px] leading-relaxed md:leading-[1.9]">
+            Nggak ada kata terlalu cepat buat mulai pakai Joyin. Coba sekarang
+            dan rasakan gimana mudahnya ngobrol dengan pelanggan tanpa ribet.
+            Yuk, gabung bareng kami dan biarkan Joyin bantu bisnismu tumbuh
+            lebih cepat dan lebih dekat!
+          </p>
+
+          <p className="mt-8 text-base md:text-lg font-semibold">
+            Hubungi Kami
+          </p>
+
+          {/* Tombol kontak dengan animasi hover (invert warna + serong) */}
+          <div className="mt-6 flex items-center justify-center gap-8 md:gap-10">
+            {/* Email */}
+            <button
+              type="button"
+              className="group w-16 h-16 md:w-20 md:h-20 rounded-full bg-white text-[#B164FF] shadow-[0_14px_35px_rgba(0,0,0,0.22)] flex items-center justify-center transition-all duration-200 ease-out hover:-translate-y-1 hover:-rotate-3 hover:bg-[#B164FF] hover:text-white"
+            >
+              <svg
+                width="30"
+                height="30"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                className="transition-transform duration-200 ease-out group-hover:scale-110 group-hover:-rotate-3"
+              >
+                {/* Amplop outline, warna pakai currentColor */}
+                <rect
+                  x="3"
+                  y="5"
+                  width="18"
+                  height="14"
+                  rx="3"
+                  ry="3"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                />
+                <path
+                  d="M4 7.5L12 12.5L20 7.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+
+            {/* WhatsApp */}
+            <button
+              type="button"
+              className="group w-16 h-16 md:w-20 md:h-20 rounded-full bg-white text-[#25D366] shadow-[0_14px_35px_rgba(0,0,0,0.22)] flex items-center justify-center transition-all duration-200 ease-out hover:-translate-y-1 hover:-rotate-3 hover:bg-[#25D366] hover:text-white"
+            >
+              <svg
+                width="30"
+                height="30"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                className="transition-transform duration-200 ease-out group-hover:scale-110 group-hover:-rotate-3"
+              >
+                {/* Lingkaran outline WA, warna pakai currentColor */}
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="8.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                />
+                {/* Icon WA di tengah */}
+                <path
+                  d="M9.4 8.2c-.2-.5-.4-.5-.7-.5h-.6c-.2 0-.5.1-.7.3-.2.2-.9.8-.9 2s.9 2.3 1 2.4c.1.2 1.7 2.7 4.2 3.7 2.1.8 2.5.7 3 .6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2 0-.1-.1-.2-.3-.3l-1.2-.6c-.2-.1-.4-.1-.6.1-.2.2-.7.8-.9.9-.2.1-.3.2-.6.1-.3-.1-1.2-.4-2.2-1.4-.8-.7-1.3-1.6-1.4-1.9-.1-.2 0-.4.1-.5.1-.1.2-.2.3-.4.1-.1.1-.2.2-.4.1-.2 0-.3 0-.4l-.5-1.3Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Wave putih di bawah section - dibuat mirip contoh (beberapa gelombang halus) */}
+        <div className="absolute bottom-[-2px] left-0 right-0 pointer-events-none leading-[0]">
+          <svg
+            viewBox="0 0 1440 320"
+            preserveAspectRatio="none"
+            className="block w-full h-[90px] md:h-[110px]"
+          >
+            <path
+              fill="#FFFFFF"
+              d="
+                M0,160
+                C 80,130 160,130 240,160
+                C 320,190 400,190 480,160
+                C 560,130 640,130 720,160
+                C 800,190 880,190 960,160
+                C 1040,130 1120,130 1200,160
+                C 1280,190 1360,190 1440,160
+                L1440,320
+                L0,320
+                Z
+              "
+            ></path>
+          </svg>
+        </div>
       </section>
 
       <Footer />
