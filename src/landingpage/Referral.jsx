@@ -1,5 +1,6 @@
 // src/landingpage/Referral.jsx
-import React from "react";
+import React, { useEffect } from "react";
+import { motion } from "framer-motion";
 import Navbar from "../components/Navbar1";
 import Footer from "../components/Footer"; // ⬅️ import Footer
 
@@ -11,52 +12,23 @@ import YukGabung from "../assets/YukGabung.png"; // gambar section YukGabung
 
 export default function Referral() {
   // === SETTING OFFSET & UKURAN GAMBAR SectionRef1 (bisa digeser & di-zoom via query param) ===
-  // Contoh:
-  //   ?ref_offset=-40   → geser SectionRef1 agak naik
-  //   ?ref_offset=60    → geser SectionRef1 agak turun
-  //   ?ref_scale=1.2    → SectionRef1 sedikit lebih besar (zoom in)
-  //   ?ref_scale=0.9    → SectionRef1 sedikit lebih kecil (zoom out)
   let REF_OFFSET = -100;
   let REF_SCALE = 0.9;
 
   // === SETTING POSISI & SKALA TOMBOL "AYO BERGABUNG!" (section paling bawah) ===
-  // Contoh:
-  //   ?btn_x=40      → geser tombol ke kanan 40px
-  //   ?btn_x=-30     → geser tombol ke kiri 30px
-  //   ?btn_y=50      → geser tombol ke bawah 50px
-  //   ?btn_y=-20     → geser tombol ke atas 20px
-  //   ?btn_scale=1.2 → tombol sedikit lebih besar
-  //   ?btn_scale=0.8 → tombol sedikit lebih kecil
-  let BTN_OFFSET_X = -275;
-  let BTN_OFFSET_Y = -2000;
+  let BTN_OFFSET_X = -240;
+  let BTN_OFFSET_Y = -1970;
   let BTN_SCALE = 1.25;
 
   // === SETTING POSISI & SKALA SectionKeunggulaan ===
-  // Contoh:
-  //   ?keungg_x=40      → geser SectionKeunggulaan ke kanan 40px
-  //   ?keungg_x=-30     → geser SectionKeunggulaan ke kiri 30px
-  //   ?keungg_y=50      → geser SectionKeunggulaan ke bawah 50px
-  //   ?keungg_y=-20     → geser SectionKeunggulaan ke atas 20px
-  //   ?keungg_scale=1.2 → SectionKeunggulaan sedikit lebih besar
-  //   ?keungg_scale=0.8 → SectionKeunggulaan sedikit lebih kecil
   let KEUNG_OFFSET_X = 0;
   let KEUNG_OFFSET_Y = 0;
   let KEUNG_SCALE = 0.85;
 
   // === SETTING POSISI YUKGABUNG (hanya atas-bawah) ===
-  // Contoh:
-  //   ?yuk_y=40   → geser gambar YukGabung ke bawah 40px
-  //   ?yuk_y=-30  → geser gambar YukGabung ke atas 30px
   let YUK_OFFSET_Y = 100;
 
   // === SETTING POSISI & SKALA BUTTON "BERGABUNG & DAPATKAN HADIAH" DI DALAM YUKGABUNG ===
-  // Contoh:
-  //   ?join_btn_x=40      → geser tombol ke kanan 40px
-  //   ?join_btn_x=-30     → geser tombol ke kiri 30px
-  //   ?join_btn_y=20      → geser tombol ke bawah 20px
-  //   ?join_btn_y=-10     → geser tombol ke atas 10px
-  //   ?join_btn_scale=1.2 → tombol sedikit lebih besar
-  //   ?join_btn_scale=0.8 → tombol sedikit lebih kecil
   let JOIN_BTN_OFFSET_X = 0;
   let JOIN_BTN_OFFSET_Y = -55;
   let JOIN_BTN_SCALE = 1.4;
@@ -166,50 +138,117 @@ export default function Referral() {
     }
   }
 
+  // === SCROLL KE ATAS SAAT HALAMAN REFERRAL DIBUKA DARI HALAMAN LAIN ===
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.scrollTo(0, 0); // langsung ke paling atas
+    }
+  }, []);
+
   return (
     <div className="w-screen min-h-screen flex flex-col bg-white overflow-x-hidden font-poppins">
       {/* NAVBAR */}
       <Navbar active="referral" />
 
-      {/* HERO REFERRAL dengan BgReferral sebagai IMG (full, nggak terpotong) */}
-      <main className="relative w-full flex justify-center bg-white overflow-hidden">
-        {/* Gambar BgReferral - selalu tampil penuh dari kiri ke kanan */}
-        <img
+      {/* ========= HERO: cinematic fade-up + floating stars ========= */}
+      <motion.main
+        className="relative w-full flex justify-center bg-white overflow-hidden"
+        initial={{ opacity: 0, y: 28 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      >
+        {/* Background hero dengan zoom-out lembut */}
+        <motion.img
           src={BgReferral}
           alt="Background Referral Joyin"
           className="w-full h-auto block"
+          initial={{ opacity: 0, scale: 1.08, y: 30 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
         />
 
-        {/* BINTANG KIRI ATAS (besar) */}
-        <img
+        {/* BINTANG KIRI ATAS (besar) – floating lembut */}
+        <motion.img
           src={bintang}
           alt="bintang dekorasi"
           className="absolute left-10 top-32 w-16 md:w-18 drop-shadow-[0_10px_22px_rgba(0,0,0,0.18)] pointer-events-none select-none z-10"
+          initial={{ opacity: 0, y: -20, scale: 0.7 }}
+          animate={{
+            opacity: 1,
+            y: [0, -6, 0],
+            scale: 1,
+          }}
+          transition={{
+            duration: 2.1,
+            delay: 0.4,
+            ease: "easeInOut",
+            repeat: Infinity,
+            repeatType: "mirror",
+          }}
         />
 
-        {/* BINTANG KIRI BAWAH (kecil) */}
-        <img
+        {/* BINTANG KIRI BAWAH (kecil) – beda ritme */}
+        <motion.img
           src={bintang}
           alt="bintang dekorasi"
           className="absolute left-32 top-60 md:top-64 w-10 md:w-11 drop-shadow-[0_8px_18px_rgba(0,0,0,0.2)] pointer-events-none select-none z-10"
+          initial={{ opacity: 0, y: 10, scale: 0.7 }}
+          animate={{
+            opacity: 1,
+            y: [0, 5, 0],
+            scale: 1,
+          }}
+          transition={{
+            duration: 2.4,
+            delay: 0.6,
+            ease: "easeInOut",
+            repeat: Infinity,
+            repeatType: "mirror",
+          }}
         />
 
         {/* BINTANG KANAN ATAS (besar) */}
-        <img
+        <motion.img
           src={bintang}
           alt="bintang dekorasi"
           className="absolute right-10 top-36 w-16 md:w-18 drop-shadow-[0_10px_22px_rgba(0,0,0,0.18)] pointer-events-none select-none z-10"
+          initial={{ opacity: 0, y: -20, scale: 0.7 }}
+          animate={{
+            opacity: 1,
+            y: [0, -5, 0],
+            scale: 1,
+          }}
+          transition={{
+            duration: 2.2,
+            delay: 0.7,
+            ease: "easeInOut",
+            repeat: Infinity,
+            repeatType: "mirror",
+          }}
         />
 
         {/* BINTANG KANAN TENGAH (kecil) */}
-        <img
+        <motion.img
           src={bintang}
           alt="bintang dekorasi"
           className="absolute right-32 top-64 md:top-72 w-10 md:w-11 drop-shadow-[0_8px_18px_rgba(0,0,0,0.2)] pointer-events-none select-none z-10"
+          initial={{ opacity: 0, y: 10, scale: 0.7 }}
+          animate={{
+            opacity: 1,
+            y: [0, 6, 0],
+            scale: 1,
+          }}
+          transition={{
+            duration: 2.5,
+            delay: 0.8,
+            ease: "easeInOut",
+            repeat: Infinity,
+            repeatType: "mirror",
+          }}
         />
 
-        {/* KONTEN TENGAH (overlay di atas BgReferral) */}
-        <section
+        {/* KONTEN TENGAH HERO */}
+        <motion.section
           className="
             absolute inset-x-0 top-0
             max-w-5xl w-full mx-auto text-center 
@@ -218,137 +257,213 @@ export default function Referral() {
             pb-32 md:pb-40
             z-20
           "
+          initial={{ opacity: 0, y: 42 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
         >
-          <h1 className="text-[28px] sm:text-[32px] md:text-[40px] lg:text-[44px] font-semibold text-white leading-tight drop-shadow-sm">
+          <motion.h1
+            className="text-[28px] sm:text-[32px] md:text-[40px] lg:text-[44px] font-semibold text-white leading-tight drop-shadow-sm"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.45, ease: "easeOut" }}
+          >
             Dapatkan Keuntungan dari Referral Joyin!
-          </h1>
+          </motion.h1>
 
-          <p className="mt-6 text-sm sm:text-base md:text-lg lg:text-[18px] text-white/95 leading-relaxed max-w-3xl mx-auto">
+          <motion.p
+            className="mt-6 text-sm sm:text-base md:text-lg lg:text-[18px] text-white/95 leading-relaxed max-w-3xl mx-auto"
+            initial={{ opacity: 0, y: 26 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.55, ease: "easeOut" }}
+          >
             Temanmu dapat diskon spesial, kamu pun dapat hadiah menarik.
             Semakin banyak yang bergabung, semakin banyak untung yang kamu
             dapat!
-          </p>
+          </motion.p>
 
-          {/* TOMBOL AKSI HERO */}
+          {/* Tombol hero */}
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
-            {/* PRIMARY BUTTON */}
-            <button
+            <motion.button
               type="button"
               className="px-10 sm:px-12 py-3.5 sm:py-4 rounded-full bg-white text-[#2BB673] font-semibold text-sm sm:text-base shadow-[0_14px_34px_rgba(0,0,0,0.2)] border border-white hover:translate-y-[1px] transition-transform duration-150"
+              initial={{ opacity: 0, y: 20, scale: 0.92 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.55, delay: 0.7, ease: "easeOut" }}
+              whileHover={{ scale: 1.05, y: 1 }}
+              whileTap={{ scale: 0.96 }}
             >
               Dapatkan Kode Referral
-            </button>
+            </motion.button>
 
-            {/* SECONDARY BUTTON */}
-            <button
+            <motion.button
               type="button"
-              className="px-10 sm:px-12 py-3.5 sm:py-4 rounded-full bg-white/10 backdrop-blur-sm text.white font-semibold text-sm sm:text-base border border-white/80 shadow-[0_12px_30px_rgba(0,0,0,0.16)] hover:bg-white/18 hover:translate-y-[1px] transition-all duration-150"
+              className="px-10 sm:px-12 py-3.5 sm:py-4 rounded-full bg-white/10 backdrop-blur-sm text-white font-semibold text-sm sm:text-base border border-white/80 shadow-[0_12px_30px_rgba(0,0,0,0.16)] hover:bg-white/18 hover:translate-y-[1px] transition-all duration-150"
+              initial={{ opacity: 0, y: 20, scale: 0.92 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.55, delay: 0.8, ease: "easeOut" }}
+              whileHover={{ scale: 1.05, y: 1 }}
+              whileTap={{ scale: 0.96 }}
             >
               Pelajari Lebih Lanjut
-            </button>
+            </motion.button>
           </div>
-        </section>
-      </main>
+        </motion.section>
+      </motion.main>
 
-      {/* SECTION PUTIH DENGAN GAMBAR SectionRef1 FULL WIDTH + SETTING UKURAN */}
-      <section
+      {/* ========= SECTION 1: SectionRef1 ========= */}
+      <motion.section
         className="w-full bg-white"
-        style={{
-          transform: `translateY(${REF_OFFSET}px)`,
-          transition: "transform 0.25s ease-out",
-        }}
+        initial={{ opacity: 0, y: REF_OFFSET + 90 }}
+        whileInView={{ opacity: 1, y: REF_OFFSET }}
+        viewport={{ once: true, amount: 0.35 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="w-full overflow-hidden">
-          <img
+          <motion.img
             src={SectionRef1}
             alt="Ilustrasi referral Joyin"
             className="w-full h-auto object-cover block"
-            style={{
-              transform: `scale(${REF_SCALE})`,
-              transformOrigin: "center top",
-              transition: "transform 0.25s ease-out",
-            }}
+            initial={{ opacity: 0, y: 50, scale: REF_SCALE * 0.95 }}
+            whileInView={{ opacity: 1, y: 0, scale: REF_SCALE }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
           />
         </div>
-      </section>
+      </motion.section>
 
-      {/* GAMBAR SectionKeunggulaan DI BAWAH SectionRef1 + SETTING POSISI & SKALA */}
-      <section className="w-full bg.white">
-        <div
+      {/* ========= SECTION 2: Keunggulan ========= */}
+      <section className="w-full bg-white">
+        <motion.div
           className="w-full overflow-hidden"
-          style={{
-            transform: `translate(${KEUNG_OFFSET_X}px, ${KEUNG_OFFSET_Y}px) scale(${KEUNG_SCALE})`,
-            transformOrigin: "center top",
-            transition: "transform 0.25s ease.out",
+          style={{ transformOrigin: "center top" }}
+          initial={{
+            opacity: 0,
+            x: KEUNG_OFFSET_X - 90,
+            y: KEUNG_OFFSET_Y + 40,
+            scale: KEUNG_SCALE * 0.9,
+            rotate: -4,
+          }}
+          whileInView={{
+            opacity: 1,
+            x: KEUNG_OFFSET_X,
+            y: KEUNG_OFFSET_Y,
+            scale: KEUNG_SCALE,
+            rotate: 0,
+          }}
+          viewport={{ once: true, amount: 0.35 }}
+          transition={{
+            duration: 0.85,
+            ease: [0.16, 1, 0.3, 1],
           }}
         >
-          <img
+          <motion.img
             src={SectionKeunggulaan}
             alt="Keunggulan program referral Joyin"
             className="w-full h-auto object-cover block"
+            initial={{ opacity: 0, y: 26 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.7, delay: 0.06, ease: "easeOut" }}
           />
-        </div>
+        </motion.div>
       </section>
 
-      {/* SECTION GAMBAR YUK GABUNG DI BAWAH SectionKeunggulaan + SETTING ATAS-BAWAH */}
-      <section
-        className="w-full bg.white"
-        style={{
-          transform: `translateY(${YUK_OFFSET_Y}px)`,
-          transition: "transform 0.25s ease.out",
+      {/* ========= SECTION 3: Yuk Gabung ========= */}
+      <motion.section
+        className="w-full bg-white"
+        initial={{ opacity: 0, x: 70, y: YUK_OFFSET_Y + 90 }}
+        whileInView={{ opacity: 1, x: 0, y: YUK_OFFSET_Y }}
+        viewport={{ once: true, amount: 0.35 }}
+        transition={{
+          duration: 0.85,
+          ease: [0.16, 1, 0.3, 1],
         }}
       >
         <div className="w-full overflow-hidden relative">
-          <img
+          <motion.img
             src={YukGabung}
             alt="Yuk Gabung Joyin Referral"
             className="w-full h-auto object-cover block"
+            initial={{ opacity: 0, y: 40, scale: 0.96 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, amount: 0.35 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
           />
 
-          {/* TOMBOL PERSIS DI BAWAH TEKS "MULAI PERJALANANMU..." (OVERLAY) */}
-          <div
-            className="absolute top-[62%] left-1/2"
-            style={{
-              transform: `translate(-50%, 0) translate(${JOIN_BTN_OFFSET_X}px, ${JOIN_BTN_OFFSET_Y}px) scale(${JOIN_BTN_SCALE})`,
-              transformOrigin: "center center",
-              transition: "transform 0.25s ease-out",
-            }}
-          >
-            <button
-              type="button"
-              className="
-                inline-flex items-center justify-center
-                px-10 sm:px-12 py-3 sm:py-3.5
-                rounded-full
-                bg-white
-                font-semibold
-                text-sm sm:text-base
-                leading-none
-                text-[#A259FF]
-                shadow-[0_14px_30px_rgba(0,0,0,0.25)]
-                outline-none focus:outline-none focus-visible:outline-none
-                ring-0 focus:ring-0 focus-visible:ring-0
-                border-0
-              "
+          {/* TOMBOL "Bergabung & Dapatkan Hadiah" */}
+          <div className="absolute top-[62%] left-1/2 -translate-x-1/2">
+            <motion.div
+              initial={{
+                opacity: 0,
+                x: JOIN_BTN_OFFSET_X + 28,
+                y: JOIN_BTN_OFFSET_Y + 40,
+                scale: JOIN_BTN_SCALE * 0.85,
+              }}
+              whileInView={{
+                opacity: 1,
+                x: JOIN_BTN_OFFSET_X,
+                y: JOIN_BTN_OFFSET_Y,
+                scale: JOIN_BTN_SCALE,
+              }}
+              viewport={{ once: true, amount: 0.55 }}
+              transition={{
+                type: "spring",
+                stiffness: 260,
+                damping: 22,
+                delay: 0.1,
+              }}
             >
-              Bergabung &amp; Dapatkan Hadiah
-            </button>
+              <motion.button
+                type="button"
+                className="
+                  inline-flex items-center justify-center
+                  px-10 sm:px-12 py-3 sm:py-3.5
+                  rounded-full
+                  bg-white
+                  font-semibold
+                  text-sm sm:text-base
+                  leading-none
+                  text-[#A259FF]
+                  shadow-[0_14px_30px_rgba(0,0,0,0.25)]
+                  outline-none focus:outline-none focus-visible:outline-none
+                  ring-0 focus:ring-0 focus-visible:ring-0
+                  border-0
+                "
+                whileHover={{ scale: 1.07, y: 1 }}
+                whileTap={{ scale: 0.96 }}
+              >
+                Bergabung &amp; Dapatkan Hadiah
+              </motion.button>
+            </motion.div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      {/* SECTION TOMBOL "AYO BERGABUNG!" SAJA DENGAN SETTING POSISI & SKALA */}
+      {/* ========= SECTION 4: CTA "Ayo Bergabung!" ========= */}
       <section className="w-full bg-white py-12 md:py-16">
-        <div
-          className="max-w-4xl mx-auto px-4 sm:px-6"
-          style={{
-            transform: `translate(${BTN_OFFSET_X}px, ${BTN_OFFSET_Y}px) scale(${BTN_SCALE})`,
-            transformOrigin: "left top",
-            transition: "transform 0.25s ease-out",
-          }}
-        >
-          <div className="inline-block shadow-[0_8px_18px_rgba(0,0,0,0.08)] rounded-full">
-            <button
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+          <motion.div
+            className="inline-block shadow-[0_8px_18px_rgba(0,0,0,0.08)] rounded-full"
+            initial={{
+              opacity: 0,
+              x: BTN_OFFSET_X,
+              y: BTN_OFFSET_Y + 90,
+              scale: BTN_SCALE * 0.8,
+            }}
+            whileInView={{
+              opacity: 1,
+              x: BTN_OFFSET_X,
+              y: BTN_OFFSET_Y,
+              scale: BTN_SCALE,
+            }}
+            viewport={{ once: true, amount: 0.45 }}
+            transition={{
+              type: "spring",
+              stiffness: 220,
+              damping: 24,
+            }}
+          >
+            <motion.button
               type="button"
               className="
                 px-8 sm:px-10 py-2.5 sm:py-3
@@ -363,10 +478,12 @@ export default function Referral() {
                 outline-none focus:outline-none focus-visible:outline-none
                 border-0
               "
+              whileHover={{ scale: 1.08, y: 1 }}
+              whileTap={{ scale: 0.96 }}
             >
               Ayo Bergabung!
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         </div>
       </section>
 

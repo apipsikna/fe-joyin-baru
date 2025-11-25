@@ -1,5 +1,6 @@
 // src/landingpage/TentangKami.jsx
 import React, { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import Navbar from "../components/Navbar1";
 import Footer from "../components/Footer";
 
@@ -166,27 +167,24 @@ export default function TentangKami() {
   };
 
   // ==== SETTING FINAL BESAR TEKS KIRI / KANAN JOYCEMERLANG ====
+  // 🔒 KUNCI: tidak baca query param
   const JOYC_TEXT_SIZE = {
-    left: num("tL_size", JOYC_TEXT_DEFAULT.left),
-    right: num("tR_size", JOYC_TEXT_DEFAULT.right),
+    left: JOYC_TEXT_DEFAULT.left,
+    right: JOYC_TEXT_DEFAULT.right,
   };
 
   // ==== SETTING FINAL LEBAR BOX TEKS KIRI / KANAN JOYCEMERLANG ====
+  // 🔒 KUNCI: tidak baca query param
   const JOYC_TEXT_WIDTH = {
-    left: num("tL_w", JOYC_TEXT_WIDTH_DEFAULT.left),
-    right: num("tR_w", JOYC_TEXT_WIDTH_DEFAULT.right),
+    left: JOYC_TEXT_WIDTH_DEFAULT.left,
+    right: JOYC_TEXT_WIDTH_DEFAULT.right,
   };
 
   // ==== SETTING FINAL PERGESERAN POSISI TEKS KIRI / KANAN JOYCEMERLANG ====
+  // 🔒 DIKUNCI: selalu pakai default
   const JOYC_TEXT_SHIFT = {
-    left: {
-      x: num("tL_x", JOYC_TEXT_SHIFT_DEFAULT.left.x),
-      y: num("tL_y", JOYC_TEXT_SHIFT_DEFAULT.left.y),
-    },
-    right: {
-      x: num("tR_x", JOYC_TEXT_SHIFT_DEFAULT.right.x),
-      y: num("tR_y", JOYC_TEXT_SHIFT_DEFAULT.right.y),
-    },
+    left: { ...JOYC_TEXT_SHIFT_DEFAULT.left },
+    right: { ...JOYC_TEXT_SHIFT_DEFAULT.right },
   };
 
   // ==== SETTING FINAL POSISI & UKURAN JOYNGINTIP2 ====
@@ -377,6 +375,13 @@ export default function TentangKami() {
     };
   }, []);
 
+  // 🌟 SCROLL KE ATAS SAAT MASUK HALAMAN TENTANG KAMI
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.scrollTo(0, 0);
+    }
+  }, []);
+
   return (
     <div className="w-screen min-h-screen font-poppins bg-white overflow-x-hidden">
       {/* Bungkus Navbar agar bisa diukur */}
@@ -385,7 +390,7 @@ export default function TentangKami() {
       </div>
 
       {/* ==== HERO TENTANG JOYIN ==== */}
-      <section
+      <motion.section
         className="relative w-full pt-8 pb-36 min-h-[560px]"
         style={{
           marginTop: heroOffset ? `${heroOffset}px` : undefined,
@@ -400,24 +405,34 @@ export default function TentangKami() {
 #FCF9E8 94%, \
 #FFFFFF 100%)",
         }}
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       >
         {/* Bintang dekor (HERO) */}
         {STAR_HERO.map(
-          (s) =>
+          (s, idx) =>
             s.show && (
-              <img
+              <motion.img
                 key={s.id}
                 src={bintang}
                 alt=""
                 aria-hidden="true"
                 className="pointer-events-none select-none"
                 style={starStyle(s)}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{
+                  duration: 0.5,
+                  delay: 0.2 + idx * 0.08,
+                  ease: "easeOut",
+                }}
               />
             )
         )}
 
         {/* Maskot fleksibel (hero) */}
-        <img
+        <motion.img
           src={maskot}
           alt="Maskot Joyin"
           style={mascotStyle}
@@ -425,114 +440,174 @@ export default function TentangKami() {
             "pointer-events-none select-none",
             M.showOnMobile ? "block" : "hidden sm:block",
           ].join(" ")}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.35, ease: "easeOut" }}
         />
 
         {/* Teks tengah */}
         <div className="max-w-4xl mx-auto px-6 text-center mt-12 md:mt-16 lg:mt-20">
-          <h1 className="text-white font-extrabold text-3xl md:text-4xl lg:text-5xl">
+          <motion.h1
+            className="text-white font-extrabold text-3xl md:text-4xl lg:text-5xl"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.35, ease: "easeOut" }}
+          >
             Kenalan Yuk dengan Joyin!
-          </h1>
-          <p className="mt-6 md:mt-8 lg:mt-10 text-white/95 text-base md:text-lg leading-relaxed md:leading-8">
+          </motion.h1>
+          <motion.p
+            className="mt-6 md:mt-8 lg:mt-10 text-white/95 text-base md:text-lg leading-relaxed md:leading-8"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.45, ease: "easeOut" }}
+          >
             Selamat datang di Joyin, sahabat bisnis kamu dalam urusan ngobrol
             sama pelanggan. Kami percaya komunikasi cepat dan hangat bikin
             pelanggan makin nyaman. Joyin hadir untuk bantu kamu merespons
             otomatis 24 jam nonstop, jadi bisnis tetap jalan walau kamu lagi
             santai.
-          </p>
+          </motion.p>
         </div>
-      </section>
+      </motion.section>
 
       {/* ==== SECTION TEKS DI BAWAH MASKOT ==== */}
-      <section
-        className="relative w-full bg-white overflow-hidden
-                   pt-20 md:pt-24 pb-40 md:pb-56 min-h-[750px]"
+      <motion.section
+        className="relative w-full bg-white overflow-hidden pt-20 md:pt-24 pb-40 md:pb-56 min-h-[750px]"
+        initial={{ opacity: 0, y: 60 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.35 }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       >
         {/* Glow lembut kanan-bawah */}
-        <div
+        <motion.div
           aria-hidden="true"
           className="pointer-events-none absolute -right-24 -bottom-24 w-[520px] h-[520px] opacity-70"
           style={{
             background:
               "radial-gradient(54% 54% at 50% 50%, rgba(255, 240, 190, 0.75) 0%, rgba(255,255,255,0) 65%)",
           }}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 0.7 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
         />
 
         {/* Bintang kiri (BODY) */}
         {STAR_BODY.map(
-          (s) =>
+          (s, idx) =>
             s.show && (
-              <img
+              <motion.img
                 key={s.id}
                 src={bintang}
                 alt=""
                 aria-hidden="true"
                 className="pointer-events-none select-none"
                 style={starStyle(s)}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true, amount: 0.4 }}
+                transition={{
+                  duration: 0.5,
+                  delay: 0.2 + idx * 0.08,
+                  ease: "easeOut",
+                }}
               />
             )
         )}
 
-        {/* Paragraf – posisi bawah + paragraf kedua digeser ke kanan */}
+        {/* Paragraf – 1 dari kiri, 2 dari kanan */}
         <div className="w-full max-w-7xl mx-auto px-6 md:px-10 lg:px-14 mt-6 md:mt-10 space-y-10 md:space-y-18">
-          <p className="text-base md:text-lg lg:text-[22px] leading-relaxed md:leading-[1.8] font-semibold text-black md:ml-10 lg:ml-6">
+          <motion.p
+            className="text-base md:text-lg lg:text-[22px] leading-relaxed md:leading-[1.8] font-semibold text-black md:ml-10 lg:ml-6"
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.65, ease: "easeOut" }}
+          >
             Joyin hadir untuk bantu kamu merespons otomatis selama 24 jam penuh,
             jadi bisnis tetap berjalan walau kamu lagi santai. Dengan sistem
             pintar kami, setiap interaksi terasa lebih personal tanpa perlu
             repot balas satu per satu.
-          </p>
+          </motion.p>
 
-          <p className="text-base md:text-lg lg:text-[22px] leading-relaxed md:leading-[1.8] font-semibold text-black md:ml-24 lg:ml-32">
+          <motion.p
+            className="text-base md:text-lg lg:text-[22px] leading-relaxed md:leading-[1.8] font-semibold text-black md:ml-24 lg:ml-32"
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.65, delay: 0.1, ease: "easeOut" }}
+          >
             Kami ingin menciptakan pengalaman pelanggan yang lebih ringan dan
             menyenangkan. Setiap pesan dibalas dengan cepat, namun tetap punya
             manusia yang membuat pelanggan merasa diperhatikan.
-          </p>
+          </motion.p>
         </div>
-      </section>
+      </motion.section>
 
       {/* ==== SECTION JOYCEMERLANG ==== */}
-      <section
+      <motion.section
         className="relative w-full overflow-visible pt-10 md:pt-12 pb-16 md:pb-20"
         style={{
           background:
             "linear-gradient(180deg, #a861ffff 0%, #a861ffff 45%, #a861ffff 100%)",
         }}
+        initial={{ opacity: 0, y: 60 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.35 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       >
         {/* JoyNgintip2 di batas putih–ungu */}
-        <div
+        <motion.div
           className="pointer-events-none select-none absolute -top-24 md:-top-28 lg:-top-32 right-4 md:right-16 lg:right-24 z-30"
           style={{
             transform: `translate(${JOYNGINTIP_SHIFT.shiftX}px, ${JOYNGINTIP_SHIFT.shiftY}px) scale(${JOYNGINTIP_SHIFT.scale})`,
             transformOrigin: "bottom center",
           }}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
         >
           <img
             src={JoyNgintip2}
             alt="Joyin mengintip"
             className="w-[190px] md:w-[230px] lg:w-[260px]"
           />
-        </div>
+        </motion.div>
 
         {/* Dekor PlayDot kiri-atas */}
-        <div className="absolute left-8 md:left-14 top-7 md:top-9 z-10">
+        <motion.div
+          className="absolute left-8 md:left-14 top-7 md:top-9 z-10"
+          initial={{ opacity: 0, y: -16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
           <img
             src={PlayDot}
             alt="dekorasi play"
             className="w-16 md:w-20 lg:w-24 pointer-events-none select-none drop-shadow-[0_6px_16px_rgba(0,0,0,0.25)]"
           />
-        </div>
+        </motion.div>
 
         {/* Dekor PlayDot kanan-bawah (mirror) */}
-        <div className="absolute right-8 md:right-16 bottom-24 md:bottom-28 z-10">
+        <motion.div
+          className="absolute right-8 md:right-16 bottom-24 md:bottom-28 z-10"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.5, delay: 0.05, ease: "easeOut" }}
+        >
           <img
             src={PlayDot}
             alt="dekorasi play"
             className="w-16 md:w-20 lg:w-24 pointer-events-none select-none drop-shadow-[0_6px_16px_rgba(0,0,0,0.25)]"
             style={{ transform: "scaleX(-1)" }}
           />
-        </div>
+        </motion.div>
 
         {/* Bintang kecil dekor (4 bintang di container ungu) */}
-        <img
+        <motion.img
           src={bintangkecil}
           alt=""
           aria-hidden="true"
@@ -542,8 +617,12 @@ export default function TentangKami() {
             transform: `translate(${PURPLE_TINY_STARS_SHIFT.ps1.x}px, ${PURPLE_TINY_STARS_SHIFT.ps1.y}px) scale(${PURPLE_TINY_STARS_SHIFT.ps1.scale}) rotate(${PURPLE_TINY_STARS_SHIFT.ps1.rot}deg)`,
             transformOrigin: "center",
           }}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
         />
-        <img
+        <motion.img
           src={bintangkecil}
           alt=""
           aria-hidden="true"
@@ -553,8 +632,12 @@ export default function TentangKami() {
             transform: `translate(${PURPLE_TINY_STARS_SHIFT.ps2.x}px, ${PURPLE_TINY_STARS_SHIFT.ps2.y}px) scale(${PURPLE_TINY_STARS_SHIFT.ps2.scale}) rotate(${PURPLE_TINY_STARS_SHIFT.ps2.rot}deg)`,
             transformOrigin: "center",
           }}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.5, delay: 0.05, ease: "easeOut" }}
         />
-        <img
+        <motion.img
           src={bintangkecil}
           alt=""
           aria-hidden="true"
@@ -564,8 +647,12 @@ export default function TentangKami() {
             transform: `translate(${PURPLE_TINY_STARS_SHIFT.ps3.x}px, ${PURPLE_TINY_STARS_SHIFT.ps3.y}px) scale(${PURPLE_TINY_STARS_SHIFT.ps3.scale}) rotate(${PURPLE_TINY_STARS_SHIFT.ps3.rot}deg)`,
             transformOrigin: "center",
           }}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
         />
-        <img
+        <motion.img
           src={bintangkecil}
           alt=""
           aria-hidden="true"
@@ -575,70 +662,99 @@ export default function TentangKami() {
             transform: `translate(${PURPLE_TINY_STARS_SHIFT.ps4.x}px, ${PURPLE_TINY_STARS_SHIFT.ps4.y}px) scale(${PURPLE_TINY_STARS_SHIFT.ps4.scale}) rotate(${PURPLE_TINY_STARS_SHIFT.ps4.rot}deg)`,
             transformOrigin: "center",
           }}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
         />
 
         {/* Konten utama JoyCemerlang */}
         <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10">
-          <h2 className="text-center text-white font-extrabold text-2xl md:text-3xl lg:text-4xl tracking-tight">
+          <motion.h2
+            className="text-center text-white font-extrabold text-2xl md:text-3xl lg:text-4xl tracking-tight"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
             Buat Chat Lebih Hidup Tanpa Ribet
-          </h2>
+          </motion.h2>
 
           <div className="mt-8 md:mt-10 flex flex-col lg:flex-row items-center justify-between gap-8 md:gap-10">
             {/* Teks kiri */}
-            <p
+            <motion.p
               className="text-white leading-relaxed text-left flex-1 w-full"
               style={{
                 fontSize: `${JOYC_TEXT_SIZE.left}px`,
                 maxWidth: `${JOYC_TEXT_WIDTH.left}px`,
                 transform: `translate(${JOYC_TEXT_SHIFT.left.x}px, ${JOYC_TEXT_SHIFT.left.y}px)`,
               }}
+              initial={{ opacity: 0 }} // ⬅️ HANYA FADE
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
             >
               Nggak perlu lagi begadang atau terus mantengin layar hanya demi
               respon cepat. Joyin siap bantu kamu tetap terhubung kapan pun, di
               mana pun, tanpa kehilangan rasa hangat dalam percakapan.
-            </p>
+            </motion.p>
 
             {/* JoyCemerlang */}
-            <div className="shrink-0 relative flex items-end justify-center h-[280px] md:h-[340px] lg:h-[420px] translate-y-6 md:translate-y-8 lg:translate-y-10">
-              <img
-                src={JoyCemerlang}
-                alt="JoyCemerlang, maskot Joyin yang ceria"
-                className="relative w-[340px] md:w-[420px] lg:w-[500px]"
-                style={{
-                  zIndex: 10,
-                  transform: `translateY(${JOYC_IMAGE_SHIFT.offsetY}px)`,
-                  filter:
-                    "drop-shadow(0 0 40px rgba(255,255,255,0.98)) " +
-                    "drop-shadow(0 0 90px rgba(255,255,255,0.9)) " +
-                    "drop-shadow(0 0 160px rgba(255,255,255,0.75))",
-                }}
-              />
-            </div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.65, ease: "easeOut" }}
+            >
+              <div className="shrink-0 relative flex items-end justify-center h-[280px] md:h-[340px] lg:h-[420px] translate-y-6 md:translate-y-8 lg:translate-y-10">
+                <img
+                  src={JoyCemerlang}
+                  alt="JoyCemerlang, maskot Joyin yang ceria"
+                  className="relative w-[340px] md:w-[420px] lg:w-[500px]"
+                  style={{
+                    zIndex: 10,
+                    transform: `translateY(${JOYC_IMAGE_SHIFT.offsetY}px)`,
+                    filter:
+                      "drop-shadow(0 0 40px rgba(255,255,255,0.98)) " +
+                      "drop-shadow(0 0 90px rgba(255,255,255,0.9)) " +
+                      "drop-shadow(0 0 160px rgba(255,255,255,0.75))",
+                  }}
+                />
+              </div>
+            </motion.div>
 
             {/* Teks kanan */}
-            <p
+            <motion.p
               className="text-white leading-relaxed text-left lg:text-right flex-1 w-full"
               style={{
                 fontSize: `${JOYC_TEXT_SIZE.right}px`,
                 maxWidth: `${JOYC_TEXT_WIDTH.right}px`,
                 transform: `translate(${JOYC_TEXT_SHIFT.right.x}px, ${JOYC_TEXT_SHIFT.right.y}px)`,
               }}
+              initial={{ opacity: 0 }} // ⬅️ HANYA FADE
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.7, delay: 0.05, ease: "easeOut" }}
             >
               Dengan Joyin, cukup atur sekali dan biarkan chatbot kami bekerja
               untukmu — menjawab otomatis dengan gaya ramah dan natural,
               membuat pelanggan tetap dekat, dan bisnismu makin berkembang tanpa
               ribet.
-            </p>
+            </motion.p>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* ==== 3 LAYER UNGU + GRADIENT PUTIH ==== */}
-      <section
+      <motion.section
         className="relative w-full h-[260px] md:h-[300px] lg:h-[340px] overflow-hidden bg-transparent"
         style={{
           marginTop: `${PURPLE_LAYER_OFFSET_Y}px`,
         }}
+        initial={{ opacity: 0, y: 60 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.35 }}
+        transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
       >
         {/* Container ungu panjang di belakang 3 layer */}
         <div
@@ -655,94 +771,164 @@ export default function TentangKami() {
           style={{ top: 0, height: "100%" }}
         >
           {/* Layer 1 */}
-          <div
+          <motion.div
             className="absolute left-0 right-0 h-[80px] md:h-[88px] lg:h-[96px] rounded-t-[32px]"
             style={{
               top: `${PURPLE_LAYER_Y.l1}px`,
               background: "#942fffff",
             }}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
           />
 
           {/* Layer 2 */}
-          <div
+          <motion.div
             className="absolute left-0 right-0 h-[88px] md:h-[96px] lg:h-[104px] rounded-t-[32px]"
             style={{
               top: `${PURPLE_LAYER_Y.l2}px`,
               background: "#a852ffff",
             }}
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.55, delay: 0.05, ease: "easeOut" }}
           />
 
           {/* Layer 3 */}
-          <div
+          <motion.div
             className="absolute left-0 right-0 bottom-0 rounded-t-[32px]"
             style={{
               top: `${PURPLE_LAYER_Y.l3}px`,
               background:
                 "linear-gradient(180deg, #C57DFF 0%, #DFA5FF 28%, #F0E7FF 60%, #FFFFFF 100%)",
             }}
+            initial={{ opacity: 0, y: 60 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.6, delay: 0.09, ease: "easeOut" }}
           />
         </div>
-      </section>
+      </motion.section>
 
       {/* ==== SECTION TEKS “Selalu Ada Ruang untuk Berkembang” ==== */}
-      <section className="w-full bg-white py-12 md:py-16 mb-24 md:mb-28">
-        <div
+      <motion.section
+        className="w-full bg-white py-12 md:py-16 mb-24 md:mb-28"
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.4 }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <motion.div
           className="max-w-5xl mx-auto px-6 text-center"
           style={{
             transform: `translate(${GROWTH_SHIFT.x}px, ${GROWTH_SHIFT.y}px)`,
           }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          <h2
+          <motion.h2
             className="font-extrabold text-black tracking-tight"
             style={{ fontSize: `${GROWTH_TITLE_SIZE}px` }}
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
           >
             Selalu Ada Ruang untuk Berkembang
-          </h2>
-          <p
+          </motion.h2>
+          <motion.p
             className="mt-6 leading-relaxed md:leading-[1.9] text-black"
             style={{ fontSize: `${GROWTH_BODY_SIZE}px` }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.6, delay: 0.05, ease: "easeOut" }}
           >
             Kami percaya setiap bisnis punya cara unik buat terhubung dengan
             pelanggan. Karena itu, Joyin terus berkembang biar bisa menyesuaikan
             diri dengan gaya komunikasi bisnismu — dari obrolan santai sampai
             layanan profesional, semua bisa kamu atur dengan mudah.
-          </p>
-        </div>
-      </section>
+          </motion.p>
+        </motion.div>
+      </motion.section>
 
       {/* ==== SECTION CTA “Yuk, Tumbuh Bareng Joyin!” (BgSection FULL IMG) ==== */}
-      <section className="relative z-10 w-full overflow-hidden rounded-t-[40px] md:rounded-t-[48px] mb-24 md:mb-28 lg:mb-32">
+      <motion.section
+        className="relative z-10 w-full overflow-hidden rounded-t-[40px] md:rounded-t-[48px] mb-24 md:mb-28 lg:mb-32"
+        initial={{ opacity: 0, y: 60, scale: 0.96 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, amount: 0.35 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      >
         {/* BgSection ditampilkan full sebagai gambar */}
-        <img
+        <motion.img
           src={BgSection}
           alt="Latar belakang Joyin"
           className="w-full h-auto block"
+          initial={{ opacity: 0.9, scale: 1.03 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.9, ease: "easeOut" }}
         />
 
         {/* Konten CTA di atas gambar (tidak memotong gambar) */}
-        <div className="absolute inset-0 flex items-center justify-center px-6 md:px-10">
+        <motion.div
+          className="absolute inset-0 flex items-center justify-center px-6 md:px-10"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+        >
           <div className="relative z-10 max-w-3xl mx-auto text-center text-white">
-            <h2 className="text-[26px] md:text-[32px] lg:text-[36px] font-extrabold tracking-tight mb-6">
+            <motion.h2
+              className="text-[26px] md:text-[32px] lg:text-[36px] font-extrabold tracking-tight mb-6"
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.55 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
               Yuk, Tumbuh Bareng Joyin!
-            </h2>
+            </motion.h2>
 
-            <p className="text-sm md:text-base lg:text-[17px] leading-relaxed md:leading-[1.9]">
+            <motion.p
+              className="text-sm md:text-base lg:text-[17px] leading-relaxed md:leading-[1.9]"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.55 }}
+              transition={{ duration: 0.6, delay: 0.06, ease: "easeOut" }}
+            >
               Nggak ada kata terlalu cepat buat mulai pakai Joyin. Coba sekarang
               dan rasakan gimana mudahnya ngobrol dengan pelanggan tanpa ribet.
               Yuk, gabung bareng kami dan biarkan Joyin bantu bisnismu tumbuh
               lebih cepat dan lebih dekat!
-            </p>
+            </motion.p>
 
-            <p className="mt-8 text-base md:text-lg font-semibold">
+            <motion.p
+              className="mt-8 text-base md:text-lg font-semibold"
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.55 }}
+              transition={{ duration: 0.55, delay: 0.1, ease: "easeOut" }}
+            >
               Hubungi Kami
-            </p>
+            </motion.p>
 
-            {/* Tombol kontak dengan animasi hover (invert warna + serong) */}
+            {/* Tombol kontak */}
             <div className="mt-6 flex items-center justify-center gap-8 md:gap-10">
               {/* Email */}
-              <button
+              <motion.button
                 type="button"
                 className="group w-16 h-16 md:w-20 md:h-20 rounded-full bg-white text-[#B164FF] shadow-[0_14px_35px_rgba(0,0,0,0.22)] flex items-center justify-center transition-all duration-200 ease-out hover:-translate-y-1 hover:-rotate-3 hover:bg-[#B164FF] hover:text-white"
+                initial={{ opacity: 0, y: 22, scale: 0.9 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, amount: 0.6 }}
+                transition={{ duration: 0.55, delay: 0.18, ease: "easeOut" }}
+                whileHover={{ scale: 1.06, y: -2 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <svg
                   width="30"
@@ -751,7 +937,6 @@ export default function TentangKami() {
                   aria-hidden="true"
                   className="transition-transform duration-200 ease-out group-hover:scale-110 group-hover:-rotate-3"
                 >
-                  {/* Amplop outline, warna pakai currentColor */}
                   <rect
                     x="3"
                     y="5"
@@ -772,12 +957,18 @@ export default function TentangKami() {
                     strokeLinejoin="round"
                   />
                 </svg>
-              </button>
+              </motion.button>
 
               {/* WhatsApp */}
-              <button
+              <motion.button
                 type="button"
                 className="group w-16 h-16 md:w-20 md:h-20 rounded-full bg-white text-[#25D366] shadow-[0_14px_35px_rgba(0,0,0,0.22)] flex items-center justify-center transition-all duration-200 ease-out hover:-translate-y-1 hover:-rotate-3 hover:bg-[#25D366] hover:text-white"
+                initial={{ opacity: 0, y: 22, scale: 0.9 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, amount: 0.6 }}
+                transition={{ duration: 0.55, delay: 0.24, ease: "easeOut" }}
+                whileHover={{ scale: 1.06, y: -2 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <svg
                   width="30"
@@ -786,7 +977,6 @@ export default function TentangKami() {
                   aria-hidden="true"
                   className="transition-transform duration-200 ease-out group-hover:scale-110 group-hover:-rotate-3"
                 >
-                  {/* Lingkaran outline WA, warna pakai currentColor */}
                   <circle
                     cx="12"
                     cy="12"
@@ -795,17 +985,16 @@ export default function TentangKami() {
                     stroke="currentColor"
                     strokeWidth="1.6"
                   />
-                  {/* Icon WA di tengah */}
                   <path
                     d="M9.4 8.2c-.2-.5-.4-.5-.7-.5h-.6c-.2 0-.5.1-.7.3-.2.2-.9.8-.9 2s.9 2.3 1 2.4c.1.2 1.7 2.7 4.2 3.7 2.1.8 2.5.7 3 .6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2 0-.1-.1-.2-.3-.3l-1.2-.6c-.2-.1-.4-.1-.6.1-.2.2-.7.8-.9.9-.2.1-.3.2-.6.1-.3-.1-1.2-.4-2.2-1.4-.8-.7-1.3-1.6-1.4-1.9-.1-.2 0-.4.1-.5.1-.1.2-.2.3-.4.1-.1.1-.2.2-.4.1-.2 0-.3 0-.4l-.5-1.3Z"
                     fill="currentColor"
                   />
                 </svg>
-              </button>
+              </motion.button>
             </div>
           </div>
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
 
       {/* FOOTER: tetap seperti semula */}
       <div className="mt-0 md:mt-2 lg:mt-4 [&>footer]:border-t-0 [&>footer]:border-none">

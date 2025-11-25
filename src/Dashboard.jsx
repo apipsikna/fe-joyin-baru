@@ -1,5 +1,6 @@
 // src/Dashboard.jsx
 import React, { useState, useRef, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   HiOutlineHome,
   HiOutlineDocumentText,
@@ -15,7 +16,7 @@ import LoadingSpinner from "./components/LoadingSpinner";
 import ProfileModal from "./components/profile/ProfileModal";
 import { useAuth } from "./contexts/AuthContext";
 import { useTranslation } from "react-i18next";
-import { resolveAvatarUrl } from "./utils/avatar"; // ⬅️ PENTING: helper avatar
+import { resolveAvatarUrl } from "./utils/avatar"; // ⬅️ helper avatar
 
 // Pages
 import Home from "./pages/Home";
@@ -54,6 +55,7 @@ const getInitials = (name = "") =>
     .join("") || "U";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const { fetchMe, ready, isAuthenticated, logout } = useAuth();
 
@@ -130,7 +132,12 @@ export default function Dashboard() {
   return (
     <div className="flex font-poppins h-screen w-screen overflow-hidden">
       {/* Sidebar */}
-      <Sidebar activeMenu={activeMenu} setActiveMenu={setActiveMenu} t={t} />
+      <Sidebar
+        activeMenu={activeMenu}
+        setActiveMenu={setActiveMenu}
+        t={t}
+        onGoLanding={() => navigate("/")} // ✅ kembali ke Landingpage tanpa logout
+      />
 
       {/* Main Content */}
       <div
@@ -190,7 +197,7 @@ export default function Dashboard() {
 }
 
 /* ================= Sidebar ================= */
-function Sidebar({ activeMenu, setActiveMenu, t }) {
+function Sidebar({ activeMenu, setActiveMenu, t, onGoLanding }) {
   return (
     <aside className="w-[220px] bg-white p-4 shadow-lg border-r flex flex-col items-center">
       <img src={logo} alt="logo" className="w-24 mb-6 mt-2" />
@@ -227,12 +234,25 @@ function Sidebar({ activeMenu, setActiveMenu, t }) {
         active={activeMenu === MENU.PACKAGES}
         onClick={() => setActiveMenu(MENU.PACKAGES)}
       />
-      {/* Settings via dropdown profil */}
+
+      {/* ✅ Tombol Kembali ke Landing (tetap login) */}
+      <div className="mt-auto w-full pt-3">
+        <div className="h-px bg-gray-100 mb-3" />
+        <SidebarButton
+          icon={HiOutlineHome}
+          text={t("dashboard.sidebar.backToLanding", {
+            defaultValue: "Kembali ke Beranda",
+          })}
+          active={false}
+          onClick={onGoLanding}
+          landing
+        />
+      </div>
     </aside>
   );
 }
 
-function SidebarButton({ icon: Icon, text, active, onClick }) {
+function SidebarButton({ icon: Icon, text, active, onClick, landing }) {
   return (
     <button
       onClick={onClick}
@@ -240,13 +260,21 @@ function SidebarButton({ icon: Icon, text, active, onClick }) {
         "w-full flex items-center gap-3 mb-6 px-4 py-3 rounded-2xl text-sm font-semibold transition",
         active
           ? "bg-[#5CC9AF] text-white shadow-sm"
+          : landing
+          ? "text-emerald-700 hover:bg-emerald-50 border border-emerald-100"
           : "text-gray-600 hover:bg-gray-50",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300",
       ].join(" ")}
     >
       <Icon
         size={18}
-        className={active ? "text-white shrink-0" : "text-gray-600 shrink-0"}
+        className={
+          active
+            ? "text-white shrink-0"
+            : landing
+            ? "text-emerald-700 shrink-0"
+            : "text-gray-600 shrink-0"
+        }
       />
       <span className="tracking-wide">{text}</span>
     </button>
@@ -268,15 +296,9 @@ function TopRightProfile({
   const plan =
     profile?.planName || profile?.package || profile?.subscription || "Gratis";
 
-  // 🔹 ambil raw avatar dari beberapa kemungkinan field
   const rawAvatar =
-    profile?.avatar ||
-    profile?.photo ||
-    profile?.avatarUrl ||
-    profile?.image ||
-    null;
+    profile?.avatar || profile?.photo || profile?.avatarUrl || profile?.image || null;
 
-  // 🔹 jadikan URL penuh (http://localhost:3000/uploads/xxx) TANPA /api
   const avatarUrl = rawAvatar ? resolveAvatarUrl(rawAvatar) : null;
 
   const dropdownId = "profile-dropdown";
