@@ -19,7 +19,7 @@ export default function Referral() {
   let REF_OFFSET = -100;
   let REF_SCALE = 0.9;
 
-  // === SETTING POSISI & SKALA TOMBOL "AYO BERGABUNG!" ===
+  // === SETTING POSISI & SKALA TOMBOL "AYO BERGABUNG!" (section paling bawah) ===
   // Contoh:
   //   ?btn_x=40      → geser tombol ke kanan 40px
   //   ?btn_x=-30     → geser tombol ke kiri 30px
@@ -28,7 +28,7 @@ export default function Referral() {
   //   ?btn_scale=1.2 → tombol sedikit lebih besar
   //   ?btn_scale=0.8 → tombol sedikit lebih kecil
   let BTN_OFFSET_X = -275;
-  let BTN_OFFSET_Y = -1750;
+  let BTN_OFFSET_Y = -2000;
   let BTN_SCALE = 1.25;
 
   // === SETTING POSISI & SKALA SectionKeunggulaan ===
@@ -48,6 +48,18 @@ export default function Referral() {
   //   ?yuk_y=40   → geser gambar YukGabung ke bawah 40px
   //   ?yuk_y=-30  → geser gambar YukGabung ke atas 30px
   let YUK_OFFSET_Y = 100;
+
+  // === SETTING POSISI & SKALA BUTTON "BERGABUNG & DAPATKAN HADIAH" DI DALAM YUKGABUNG ===
+  // Contoh:
+  //   ?join_btn_x=40      → geser tombol ke kanan 40px
+  //   ?join_btn_x=-30     → geser tombol ke kiri 30px
+  //   ?join_btn_y=20      → geser tombol ke bawah 20px
+  //   ?join_btn_y=-10     → geser tombol ke atas 10px
+  //   ?join_btn_scale=1.2 → tombol sedikit lebih besar
+  //   ?join_btn_scale=0.8 → tombol sedikit lebih kecil
+  let JOIN_BTN_OFFSET_X = 0;
+  let JOIN_BTN_OFFSET_Y = -55;
+  let JOIN_BTN_SCALE = 1.4;
 
   if (typeof window !== "undefined") {
     const qp = new URLSearchParams(window.location.search);
@@ -69,7 +81,7 @@ export default function Referral() {
       }
     }
 
-    // Tombol Ayo Bergabung
+    // Tombol Ayo Bergabung (section paling bawah)
     const rawBtnX = qp.get("btn_x");
     if (rawBtnX) {
       const parsedX = parseInt(rawBtnX, 10);
@@ -125,6 +137,31 @@ export default function Referral() {
       const parsedYukY = parseInt(rawYukY, 10);
       if (!Number.isNaN(parsedYukY)) {
         YUK_OFFSET_Y = parsedYukY;
+      }
+    }
+
+    // Button "Bergabung & Dapatkan Hadiah" di dalam YukGabung
+    const rawJoinBtnX = qp.get("join_btn_x");
+    if (rawJoinBtnX) {
+      const parsedJoinX = parseInt(rawJoinBtnX, 10);
+      if (!Number.isNaN(parsedJoinX)) {
+        JOIN_BTN_OFFSET_X = parsedJoinX;
+      }
+    }
+
+    const rawJoinBtnY = qp.get("join_btn_y");
+    if (rawJoinBtnY) {
+      const parsedJoinY = parseInt(rawJoinBtnY, 10);
+      if (!Number.isNaN(parsedJoinY)) {
+        JOIN_BTN_OFFSET_Y = parsedJoinY;
+      }
+    }
+
+    const rawJoinBtnScale = qp.get("join_btn_scale");
+    if (rawJoinBtnScale) {
+      const parsedJoinScale = parseFloat(rawJoinBtnScale);
+      if (!Number.isNaN(parsedJoinScale) && parsedJoinScale > 0) {
+        JOIN_BTN_SCALE = parsedJoinScale;
       }
     }
   }
@@ -205,7 +242,7 @@ export default function Referral() {
             {/* SECONDARY BUTTON */}
             <button
               type="button"
-              className="px-10 sm:px-12 py-3.5 sm:py-4 rounded-full bg-white/10 backdrop-blur-sm text-white font-semibold text-sm sm:text-base border border-white/80 shadow-[0_12px_30px_rgba(0,0,0,0.16)] hover:bg-white/18 hover:translate-y-[1px] transition-all duration-150"
+              className="px-10 sm:px-12 py-3.5 sm:py-4 rounded-full bg-white/10 backdrop-blur-sm text.white font-semibold text-sm sm:text-base border border-white/80 shadow-[0_12px_30px_rgba(0,0,0,0.16)] hover:bg-white/18 hover:translate-y-[1px] transition-all duration-150"
             >
               Pelajari Lebih Lanjut
             </button>
@@ -236,13 +273,13 @@ export default function Referral() {
       </section>
 
       {/* GAMBAR SectionKeunggulaan DI BAWAH SectionRef1 + SETTING POSISI & SKALA */}
-      <section className="w-full bg-white">
+      <section className="w-full bg.white">
         <div
           className="w-full overflow-hidden"
           style={{
             transform: `translate(${KEUNG_OFFSET_X}px, ${KEUNG_OFFSET_Y}px) scale(${KEUNG_SCALE})`,
             transformOrigin: "center top",
-            transition: "transform 0.25s ease-out",
+            transition: "transform 0.25s ease.out",
           }}
         >
           <img
@@ -255,18 +292,48 @@ export default function Referral() {
 
       {/* SECTION GAMBAR YUK GABUNG DI BAWAH SectionKeunggulaan + SETTING ATAS-BAWAH */}
       <section
-        className="w-full bg-white"
+        className="w-full bg.white"
         style={{
           transform: `translateY(${YUK_OFFSET_Y}px)`,
-          transition: "transform 0.25s ease-out",
+          transition: "transform 0.25s ease.out",
         }}
       >
-        <div className="w-full overflow-hidden">
+        <div className="w-full overflow-hidden relative">
           <img
             src={YukGabung}
             alt="Yuk Gabung Joyin Referral"
             className="w-full h-auto object-cover block"
           />
+
+          {/* TOMBOL PERSIS DI BAWAH TEKS "MULAI PERJALANANMU..." (OVERLAY) */}
+          <div
+            className="absolute top-[62%] left-1/2"
+            style={{
+              transform: `translate(-50%, 0) translate(${JOIN_BTN_OFFSET_X}px, ${JOIN_BTN_OFFSET_Y}px) scale(${JOIN_BTN_SCALE})`,
+              transformOrigin: "center center",
+              transition: "transform 0.25s ease-out",
+            }}
+          >
+            <button
+              type="button"
+              className="
+                inline-flex items-center justify-center
+                px-10 sm:px-12 py-3 sm:py-3.5
+                rounded-full
+                bg-white
+                font-semibold
+                text-sm sm:text-base
+                leading-none
+                text-[#A259FF]
+                shadow-[0_14px_30px_rgba(0,0,0,0.25)]
+                outline-none focus:outline-none focus-visible:outline-none
+                ring-0 focus:ring-0 focus-visible:ring-0
+                border-0
+              "
+            >
+              Bergabung &amp; Dapatkan Hadiah
+            </button>
+          </div>
         </div>
       </section>
 
@@ -284,16 +351,17 @@ export default function Referral() {
             <button
               type="button"
               className="
-                px-8 sm:px-10 py-2.5 sm:py-3 
-                rounded-full 
-                bg-[#FFB400] 
-                text-white 
-                font-semibold 
+                px-8 sm:px-10 py-2.5 sm:py-3
+                rounded-full
+                bg-[#FFB400]
+                text-white
+                font-semibold
                 text-sm sm:text-base
                 shadow-[0_6px_14px_rgba(0,0,0,0.18)]
                 hover:translate-y-[1px]
                 transition-transform duration-150
-                focus:outline-none
+                outline-none focus:outline-none focus-visible:outline-none
+                border-0
               "
             >
               Ayo Bergabung!

@@ -73,9 +73,11 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Footer bawah dengan garis hitam tipis di atas */}
-      <div className="text-black mt-10 pt-6 text-center text-[14px] border-t border-black/40">
-        &copy; {new Date().getFullYear()} Joyin.id. All rights reserved.
+      {/* Footer bawah dengan garis hitam penuh dari ujung kiri ke kanan */}
+      <div className="mt-10 -mx-6 lg:-mx-20 border-t border-black/20">
+        <div className="text-black pt-6 text-center text-[14px]">
+          &copy; {new Date().getFullYear()} Joyin.id. All rights reserved.
+        </div>
       </div>
     </footer>
   );
