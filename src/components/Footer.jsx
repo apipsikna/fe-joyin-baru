@@ -1,9 +1,10 @@
+// src/components/Footer.jsx
 import React from "react";
 import logo from "../assets/logo.png";
 
 export default function Footer() {
   return (
-    <footer className="bg-white text-black py-12 px-6 lg:px-20 border-t border-gray-200">
+    <footer className="bg-white text-black py-12 px-6 lg:px-20">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-start gap-12">
         {/* Kiri - Logo */}
         <div className="flex-1">
@@ -15,17 +16,41 @@ export default function Footer() {
           <div>
             <h3 className="font-bold text-[18px] mb-3">Quick Links</h3>
             <ul className="space-y-2 text-[16px] font-medium">
-              <li><a href="#" className="text-black font-semibold hover:underline">Fitur</a></li>
-              <li><a href="#" className="text-black font-semibold hover:underline">Reseller</a></li>
-              <li><a href="#" className="text-black font-semibold hover:underline">Tentang Kami</a></li>
+              <li>
+                <a href="#" className="text-black font-semibold hover:underline">
+                  Fitur
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-black font-semibold hover:underline">
+                  Reseller
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-black font-semibold hover:underline">
+                  Tentang Kami
+                </a>
+              </li>
             </ul>
           </div>
           <div>
             <h3 className="font-bold text-[18px] mb-3">Support</h3>
             <ul className="space-y-2 text-[16px] font-medium">
-              <li><a href="#" className="text-black font-semibold hover:underline">FAQ</a></li>
-              <li><a href="#" className="text-black font-semibold hover:underline">Kebijakan Privasi</a></li>
-              <li><a href="#" className="text-black font-semibold hover:underline">Syarat dan Ketentuan</a></li>
+              <li>
+                <a href="#" className="text-black font-semibold hover:underline">
+                  FAQ
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-black font-semibold hover:underline">
+                  Kebijakan Privasi
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-black font-semibold hover:underline">
+                  Syarat dan Ketentuan
+                </a>
+              </li>
             </ul>
           </div>
         </div>
@@ -41,14 +66,15 @@ export default function Footer() {
               <span>📞</span> <span>+62 812-5472-9989</span>
             </li>
             <li className="text-black font-semibold flex items-center gap-2">
-              <span>⏰</span> <span>Senin - Jumat, 09:00 - 17:00 WITA</span>
+              <span>⏰</span>{" "}
+              <span>Senin - Jumat, 09:00 - 17:00 WITA</span>
             </li>
           </ul>
         </div>
       </div>
 
-      {/* Footer bawah */}
-      <div className="text-black mt-10 border-t border-gray-200 pt-6 text-center text-[14px]">
+      {/* Footer bawah dengan garis hitam tipis di atas */}
+      <div className="text-black mt-10 pt-6 text-center text-[14px] border-t border-black/40">
         &copy; {new Date().getFullYear()} Joyin.id. All rights reserved.
       </div>
     </footer>
