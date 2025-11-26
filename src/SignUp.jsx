@@ -1,21 +1,30 @@
 // src/SignUp.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "./contexts/AuthContext"; // hook dari AuthContext
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "./contexts/AuthContext";
 import image from "./assets/gambarlogin.png";
 
+const REFERRAL_STORAGE_KEY = "signup_referral_code";
+const REFERRAL_DISCOUNT_PERCENT = 6;
+
 export default function SignUp({ onBack }) {
-  const { signup } = useAuth(); // ambil signup dari context
+  const { signup } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const refFromUrl = useMemo(() => {
+    const qp = new URLSearchParams(location.search);
+    return (qp.get("ref") || "").trim();
+  }, [location.search]);
 
   const [form, setForm] = useState({
     name: "",
     email: "",
     phone: "",
+    referralCode: "", // opsional
     password: "",
     confirmPassword: "",
-    // birthDate dihapus
     agree: false,
   });
 
@@ -23,6 +32,29 @@ export default function SignUp({ onBack }) {
   const [alert, setAlert] = useState(null); // { type: 'success' | 'error', message: string }
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  // Prefill referral:
+  // 1) dari URL (?ref=XXXX)
+  // 2) kalau tidak ada, dari localStorage (jika pernah tersimpan)
+  useEffect(() => {
+    try {
+      const stored = (localStorage.getItem(REFERRAL_STORAGE_KEY) || "").trim();
+      setForm((prev) => {
+        if (prev.referralCode) return prev;
+        if (refFromUrl) return { ...prev, referralCode: refFromUrl.toUpperCase().replace(/\s+/g, "") };
+        if (stored) return { ...prev, referralCode: stored.toUpperCase().replace(/\s+/g, "") };
+        return prev;
+      });
+    } catch {
+      if (refFromUrl) {
+        setForm((prev) =>
+          prev.referralCode
+            ? prev
+            : { ...prev, referralCode: refFromUrl.toUpperCase().replace(/\s+/g, "") }
+        );
+      }
+    }
+  }, [refFromUrl]);
 
   // Auto-hide alert
   useEffect(() => {
@@ -34,6 +66,14 @@ export default function SignUp({ onBack }) {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+
+    // Referral rapih: uppercase + tanpa spasi
+    if (name === "referralCode") {
+      const v = value.toUpperCase().replace(/\s+/g, "");
+      setForm((prev) => ({ ...prev, referralCode: v }));
+      return;
+    }
+
     setForm((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
@@ -59,15 +99,24 @@ export default function SignUp({ onBack }) {
     setAlert(null);
 
     try {
-      // 1) Panggil API signup via AuthContext (tanpa birthDate)
-      await signup({
+      // ✅ FE-only dulu: JANGAN kirim referralCode ke backend
+      // (Supaya tidak error jika BE belum mendukung field referralCode)
+      const payload = {
         name: form.name,
         email: form.email,
         phone: form.phone,
         password: form.password,
-      });
+      };
 
-      // 2) LANGSUNG redirect ke Verify OTP (tanpa setTimeout)
+      await signup(payload);
+
+      // ✅ Simpan referralCode agar Checkout otomatis diskon 6%
+      const code = (form.referralCode || "").trim();
+      try {
+        if (code) localStorage.setItem(REFERRAL_STORAGE_KEY, code);
+        else localStorage.removeItem(REFERRAL_STORAGE_KEY);
+      } catch {}
+
       navigate(`/verify-otp?email=${encodeURIComponent(form.email)}`, {
         replace: true,
         state: { email: form.email, flash: "OTP telah dikirim ke email kamu." },
@@ -101,6 +150,13 @@ export default function SignUp({ onBack }) {
     );
   };
 
+  const clearReferral = () => {
+    setForm((p) => ({ ...p, referralCode: "" }));
+    try {
+      localStorage.removeItem(REFERRAL_STORAGE_KEY);
+    } catch {}
+  };
+
   return (
     <AnimatePresence>
       <motion.div
@@ -121,6 +177,7 @@ export default function SignUp({ onBack }) {
           onClick={onBack}
           className="absolute top-4 left-4 p-2 rounded-full hover:bg-gray-100 transition"
           aria-label="Kembali"
+          type="button"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -154,6 +211,7 @@ export default function SignUp({ onBack }) {
               className="w-full border border-gray-300 px-4 py-3 rounded-full text-sm bg-white text-gray-500"
               required
             />
+
             <input
               type="email"
               name="email"
@@ -163,6 +221,7 @@ export default function SignUp({ onBack }) {
               className="w-full border border-gray-300 px-4 py-3 rounded-full text-sm bg-white text-gray-500"
               required
             />
+
             <input
               type="tel"
               name="phone"
@@ -172,6 +231,38 @@ export default function SignUp({ onBack }) {
               className="w-full border border-gray-300 px-4 py-3 rounded-full text-sm bg-white text-gray-500"
               required
             />
+
+            {/* Referral Code */}
+            <div className="space-y-2">
+              <input
+                type="text"
+                name="referralCode"
+                placeholder="Referral Code (optional)"
+                value={form.referralCode}
+                onChange={handleChange}
+                className="w-full border border-gray-300 px-4 py-3 rounded-full text-sm bg-white text-gray-500"
+                autoComplete="off"
+              />
+              <div className="flex items-center justify-between px-2">
+                <p className="text-[12px] text-gray-400">
+                  Isi jika punya kode referral (diskon {REFERRAL_DISCOUNT_PERCENT}% saat beli paket).
+                </p>
+                {form.referralCode ? (
+                  <button
+                    type="button"
+                    onClick={clearReferral}
+                    className="text-[12px] font-semibold text-[#52c8b0] hover:underline"
+                  >
+                    Hapus
+                  </button>
+                ) : null}
+              </div>
+              {refFromUrl ? (
+                <div className="px-2 text-[12px] text-emerald-700">
+                  Referral terdeteksi dari link: <span className="font-mono font-semibold">{refFromUrl.toUpperCase().replace(/\s+/g, "")}</span>
+                </div>
+              ) : null}
+            </div>
 
             {/* Password Field */}
             <div className="relative">
@@ -188,42 +279,17 @@ export default function SignUp({ onBack }) {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-4 flex items-center cursor-pointer text-gray-500"
                 aria-label="Toggle password visibility"
+                role="button"
+                tabIndex={0}
               >
                 {showPassword ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
                 ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 012.43-3.768M9.88 9.88a3 3 0 104.24 4.24M6.1 6.1L3 3m18 18l-3.1-3.1"
-                    />
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 012.43-3.768M9.88 9.88a3 3 0 104.24 4.24M6.1 6.1L3 3m18 18l-3.1-3.1" />
                   </svg>
                 )}
               </span>
@@ -244,48 +310,21 @@ export default function SignUp({ onBack }) {
                 onClick={() => setShowConfirm(!showConfirm)}
                 className="absolute inset-y-0 right-4 flex items-center cursor-pointer text-gray-500"
                 aria-label="Toggle confirm password visibility"
+                role="button"
+                tabIndex={0}
               >
                 {showConfirm ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
                 ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 012.43-3.768M9.88 9.88a3 3 0 104.24 4.24M6.1 6.1L3 3m18 18l-3.1-3.1"
-                    />
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 012.43-3.768M9.88 9.88a3 3 0 104.24 4.24M6.1 6.1L3 3m18 18l-3.1-3.1" />
                   </svg>
                 )}
               </span>
             </div>
-
-            {/* birthDate input DIHAPUS */}
 
             <div className="flex items-center text-sm text-gray-500 mt-2">
               <input

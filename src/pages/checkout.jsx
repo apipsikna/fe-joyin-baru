@@ -107,7 +107,7 @@ const BANKS = [
   },
 ];
 
-/* E–wallet (OVO sengaja tidak diaktifkan untuk contoh) */
+/* E–wallet */
 const EWALLETS = [
   {
     id: "gopay",
@@ -155,9 +155,12 @@ const MIDTRANS_CLIENT_KEY =
   (typeof process !== "undefined" &&
     process.env &&
     process.env.REACT_APP_MIDTRANS_CLIENT_KEY) ||
-  "SB-Mid-client-xxxxxxxx"; // gunakan prefix SB- saat sandbox
+  "SB-Mid-client-xxxxxxxx";
 
-/* ===== Collapsible (animasi tinggi + opacity) ===== */
+const REFERRAL_STORAGE_KEY = "signup_referral_code";
+const REFERRAL_DISCOUNT_PERCENT = 6;
+
+/* ===== Collapsible ===== */
 function Collapsible({ open, children, duration = 320 }) {
   const ref = useRef(null);
   const [height, setHeight] = useState(0);
@@ -205,9 +208,50 @@ export default function Checkout() {
   const [bank, setBank] = useState(null);
   const [ewallet, setEwallet] = useState(null);
 
+  // ✅ Referral FE-only
+  const [appliedReferralCode, setAppliedReferralCode] = useState(() => {
+    try {
+      return localStorage.getItem(REFERRAL_STORAGE_KEY) || "";
+    } catch {
+      return "";
+    }
+  });
+  const [refInput, setRefInput] = useState(() => {
+    try {
+      return localStorage.getItem(REFERRAL_STORAGE_KEY) || "";
+    } catch {
+      return "";
+    }
+  });
+  const [refMsg, setRefMsg] = useState("");
+
+  const isReferralApplied = (appliedReferralCode || "").trim().length > 0;
+
+  const applyReferral = () => {
+    const code = (refInput || "").trim();
+    if (!code) {
+      setRefMsg("Masukkan kode referral terlebih dahulu.");
+      return;
+    }
+    try {
+      localStorage.setItem(REFERRAL_STORAGE_KEY, code);
+    } catch {}
+    setAppliedReferralCode(code);
+    setRefMsg("Kode referral diterapkan. Diskon 6% aktif ✅");
+  };
+
+  const removeReferral = () => {
+    try {
+      localStorage.removeItem(REFERRAL_STORAGE_KEY);
+    } catch {}
+    setAppliedReferralCode("");
+    setRefInput("");
+    setRefMsg("Kode referral dihapus.");
+  };
+
   const [payInfo, setPayInfo] = useState({
     open: false,
-    type: null, // 'bank' | 'ewallet' | 'qris' | 'card'
+    type: null,
     orderId: null,
     va: null,
     bank: null,
@@ -227,7 +271,6 @@ export default function Checkout() {
   const pollRef = useRef(null);
 
   useEffect(() => {
-    // cleanup interval saat unmount
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
     };
@@ -241,7 +284,6 @@ export default function Checkout() {
     pollRef.current = setInterval(async () => {
       tries++;
       try {
-        // SESUAI DENGAN BACKEND: router.get("/core/status/:orderId", ...)
         const res = await api.get(`/payments/core/status/${orderId}`);
         const json = res.data;
 
@@ -250,7 +292,6 @@ export default function Checkout() {
           const pt = json.status?.payment_type;
           const amt = Number(json.status?.gross_amount || 0);
 
-          // success
           if (st === "capture" || st === "settlement") {
             clearInterval(pollRef.current);
             pollRef.current = null;
@@ -258,7 +299,7 @@ export default function Checkout() {
             setSuccess({ open: true, orderId, amount: amt, method: pt });
             return;
           }
-          // failure
+
           if (st === "deny" || st === "cancel" || st === "expire") {
             clearInterval(pollRef.current);
             pollRef.current = null;
@@ -267,14 +308,13 @@ export default function Checkout() {
           }
         }
       } catch (err) {
-        // boleh di-log kalau perlu debug
         console.warn(
           "Gagal cek status pembayaran:",
           err.response?.status,
           err.response?.data || err.message
         );
       }
-      // batasi durasi polling (3 menit = 60 x 3s)
+
       if (tries >= 60) {
         clearInterval(pollRef.current);
         pollRef.current = null;
@@ -289,7 +329,7 @@ export default function Checkout() {
     const s = document.createElement("script");
     s.src = "https://api.midtrans.com/v2/assets/js/midtrans-new-3ds.min.js";
     s.setAttribute("data-client-key", MIDTRANS_CLIENT_KEY);
-    s.setAttribute("data-environment", "sandbox"); // penting untuk sandbox
+    s.setAttribute("data-environment", "sandbox");
     s.setAttribute("data-midtrans", "new3ds");
     document.body.appendChild(s);
   }, []);
@@ -298,11 +338,20 @@ export default function Checkout() {
     () => PLANS.find((p) => p.id === planId),
     [planId]
   );
+
   const subtotal = useMemo(
     () => (selectedPlan?.price || 0) * months,
     [selectedPlan, months]
   );
-  const total = subtotal;
+
+  // ✅ Diskon 6% otomatis kalau referral ada (dan months >= 1)
+  const discount = useMemo(() => {
+    if (!isReferralApplied) return 0;
+    if (!Number.isFinite(subtotal) || subtotal <= 0) return 0;
+    return Math.round((subtotal * REFERRAL_DISCOUNT_PERCENT) / 100);
+  }, [subtotal, isReferralApplied]);
+
+  const total = Math.max(0, subtotal - discount);
 
   const cardOk =
     card.number.replace(/\s/g, "").length >= 12 &&
@@ -321,10 +370,8 @@ export default function Checkout() {
       ? !!ewallet
       : true);
 
-  // ⬇️ PANGGIL BACKEND MENGGUNAKAN AXIOS + TOKEN
   const callCharge = async (payload) => {
     try {
-      // SESUAI BACKEND: router.post("/core/charge", authenticateJWT, ...)
       const res = await api.post("/payments/core/charge", payload);
       const json = res.data;
 
@@ -347,7 +394,7 @@ export default function Checkout() {
     if (!canPay) return;
 
     const orderId = `ORDER-${Date.now()}`;
-    const grossAmount = total;
+    const grossAmount = total; // ✅ total sudah termasuk diskon referral
 
     try {
       if (method === "card") {
@@ -371,7 +418,6 @@ export default function Checkout() {
             }
             const tokenId = tokenResponse.token_id;
 
-            // Charge di server
             const { result } = await callCharge({
               method: "card",
               tokenId,
@@ -380,7 +426,6 @@ export default function Checkout() {
               customer: { first_name: card.name },
             });
 
-            // 3DS redirect / challenge
             if (result.redirect_url && window.MidtransNew3ds?.authenticate) {
               window.MidtransNew3ds.authenticate({
                 redirect_url: result.redirect_url,
@@ -402,7 +447,6 @@ export default function Checkout() {
                 },
               });
             } else {
-              // kalau tidak ada redirect_url di sandbox
               setPayInfo({
                 open: true,
                 type: "card",
@@ -443,7 +487,6 @@ export default function Checkout() {
             expire: result.expiry_time || result.expired_time,
           },
         });
-        // bank transfer biasanya pending lama, tidak auto polling agar tidak boros
         return;
       }
 
@@ -476,7 +519,6 @@ export default function Checkout() {
           additional: { provider: ewallet.toUpperCase() },
         });
 
-        // e-wallet biasanya cepat, mulai polling
         pollStatus(order_id);
         return;
       }
@@ -500,7 +542,6 @@ export default function Checkout() {
           qrString,
         });
 
-        // QRIS juga relatif cepat
         pollStatus(order_id);
         return;
       }
@@ -521,7 +562,6 @@ export default function Checkout() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
           {/* LEFT */}
           <div className="lg:col-span-2 bg-white border border-black/10 rounded-2xl p-4 md:p-6 space-y-6">
-            {/* PILIH PAKET */}
             <SectionTitle icon={HiOutlineCube} title="Pilih Paket" />
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 items-start">
@@ -538,14 +578,12 @@ export default function Checkout() {
               ))}
             </div>
 
-            {/* DURASI */}
             <DurasiBlock
               months={months}
               onDec={() => setMonths((m) => Math.max(0, m - 1))}
               onInc={() => setMonths((m) => Math.min(36, m + 1))}
             />
 
-            {/* METODE PEMBAYARAN */}
             <SectionTitleCustom />
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 items-start">
               {METHODS.map(({ id, label }) => {
@@ -578,7 +616,6 @@ export default function Checkout() {
               })}
             </div>
 
-            {/* DETAIL METHOD */}
             <div className="rounded-xl border border-gray-200 p-4 md:p-5">
               {method === "card" && (
                 <div className="grid grid-cols-1 gap-3">
@@ -647,7 +684,6 @@ export default function Checkout() {
               )}
             </div>
 
-            {/* CTA */}
             <button
               onClick={handlePay}
               disabled={!canPay}
@@ -664,12 +700,63 @@ export default function Checkout() {
 
           {/* RIGHT */}
           <aside className="bg-white border border-black/10 rounded-2xl p-4 md:p-6 h-fit">
-            <h3 className="text-base font-semibold mb-4">
-              Ringkasan Pembelian
-            </h3>
+            <h3 className="text-base font-semibold mb-4">Ringkasan Pembelian</h3>
 
-            {/* Summary plan card */}
             <SummaryPlanCard plan={selectedPlan} />
+
+            {/* ✅ Referral box */}
+            <div className="mt-4 rounded-xl border border-gray-200 p-4">
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-sm font-semibold">Kode Referral</div>
+                {isReferralApplied && (
+                  <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-full">
+                    Diskon 6% aktif
+                  </span>
+                )}
+              </div>
+
+              <div className="mt-3 flex gap-2">
+                <input
+                  value={refInput}
+                  onChange={(e) => {
+                    setRefInput(e.target.value);
+                    setRefMsg("");
+                  }}
+                  placeholder="Masukkan kode referral"
+                  className="flex-1 h-11 rounded-lg border border-gray-300 px-3 outline-none focus:border-[#5CC9AF] focus:ring-2 focus:ring-[#5CC9AF33] placeholder:text-gray-400"
+                />
+                {!isReferralApplied ? (
+                  <button
+                    type="button"
+                    onClick={applyReferral}
+                    className="h-11 px-4 rounded-lg bg-[#5CC9AF] text-white font-semibold hover:opacity-90"
+                  >
+                    Terapkan
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={removeReferral}
+                    className="h-11 px-4 rounded-lg border border-gray-300 font-semibold hover:bg-gray-50"
+                  >
+                    Hapus
+                  </button>
+                )}
+              </div>
+
+              {refMsg && (
+                <div className="mt-2 text-xs text-gray-600">{refMsg}</div>
+              )}
+
+              {isReferralApplied && (
+                <div className="mt-2 text-xs text-gray-500">
+                  Kode aktif:{" "}
+                  <span className="font-mono font-semibold text-gray-700">
+                    {appliedReferralCode}
+                  </span>
+                </div>
+              )}
+            </div>
 
             <dl className="space-y-2 text-sm mt-4">
               <Row label="Durasi :" value={`${months} bulan`} />
@@ -677,20 +764,20 @@ export default function Checkout() {
                 label="Metode Pembayaran :"
                 value={
                   method === "bank"
-                    ? `Transfer Bank (${
-                        BANKS.find((b) => b.id === bank)?.name || "-"
-                      })`
+                    ? `Transfer Bank (${BANKS.find((b) => b.id === bank)?.name || "-"})`
                     : method === "ewallet"
-                    ? `E–Wallet (${
-                        EWALLETS.find((w) => w.id === ewallet)?.name || "-"
-                      })`
+                    ? `E–Wallet (${EWALLETS.find((w) => w.id === ewallet)?.name || "-"})`
                     : METHODS.find((m) => m.id === method)?.label
                 }
               />
-              <Row
-                label="Harga / bulan :"
-                value={formatRupiah(selectedPlan?.price || 0)}
-              />
+              <Row label="Harga / bulan :" value={formatRupiah(selectedPlan?.price || 0)} />
+              <Row label="Subtotal :" value={formatRupiah(subtotal)} />
+              {isReferralApplied && discount > 0 && (
+                <Row
+                  label={`Diskon Referral (${REFERRAL_DISCOUNT_PERCENT}%) :`}
+                  value={`- ${formatRupiah(discount)}`}
+                />
+              )}
               <div className="h-px bg-gray-200 my-3" />
               <Row bold label="Total :" value={formatRupiah(total)} />
             </dl>
@@ -698,7 +785,6 @@ export default function Checkout() {
         </div>
       </div>
 
-      {/* Modal Instruksi Pembayaran */}
       {payInfo.open && (
         <PayInstructionModal
           info={payInfo}
@@ -707,7 +793,6 @@ export default function Checkout() {
         />
       )}
 
-      {/* Success Modal */}
       <SuccessModal
         open={success.open}
         amount={success.amount}
@@ -730,11 +815,9 @@ function SectionTitle({ icon: Icon, title }) {
   );
 }
 
-/* Ringkasan Paket di sisi kanan */
 function SummaryPlanCard({ plan }) {
   return (
     <div className="rounded-2xl overflow-hidden border border-gray-200">
-      {/* Header Gradient dgn judul & harga */}
       <div className="relative">
         <div
           className="h-28 w-full"
@@ -754,7 +837,6 @@ function SummaryPlanCard({ plan }) {
         </div>
       </div>
 
-      {/* Body putih + daftar benefit */}
       <div className="bg-white px-5 py-5 min-h-[260px]">
         {plan?.benefits?.length ? (
           <ul className="space-y-3 text-[13.5px] md:text-sm text-gray-800">
@@ -775,7 +857,6 @@ function SummaryPlanCard({ plan }) {
   );
 }
 
-/* ===== Durasi Block ===== */
 function DurasiBlock({ months, onDec, onInc }) {
   return (
     <div className="space-y-2">
@@ -784,9 +865,7 @@ function DurasiBlock({ months, onDec, onInc }) {
         <h2 className="text-sm md:text-base font-semibold">Durasi</h2>
       </div>
 
-      <div className="text-base md:text-lg font-medium text-black">
-        Per Bulan
-      </div>
+      <div className="text-base md:text-lg font-medium text-black">Per Bulan</div>
 
       <div className="flex items-center gap-2 md:gap-3 text-lg font-semibold">
         <CircleBtn ariaLabel="Kurangi durasi" onClick={onDec}>
@@ -809,7 +888,6 @@ function DurasiBlock({ months, onDec, onInc }) {
   );
 }
 
-/* Tombol bulat */
 function CircleBtn({ children, onClick, ariaLabel }) {
   return (
     <button
@@ -824,18 +902,29 @@ function CircleBtn({ children, onClick, ariaLabel }) {
   );
 }
 
-/* Ikon minus/plus */
 function MinusIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden className="block">
-      <path d="M5 10h10" fill="none" strokeLinecap="round" strokeWidth="2.25" stroke="white" />
+      <path
+        d="M5 10h10"
+        fill="none"
+        strokeLinecap="round"
+        strokeWidth="2.25"
+        stroke="white"
+      />
     </svg>
   );
 }
 function PlusIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden className="block">
-      <path d="M10 5v10M5 10h10" fill="none" strokeLinecap="round" strokeWidth="2.25" stroke="white" />
+      <path
+        d="M10 5v10M5 10h10"
+        fill="none"
+        strokeLinecap="round"
+        strokeWidth="2.25"
+        stroke="white"
+      />
     </svg>
   );
 }
@@ -868,7 +957,6 @@ function DottedClockIcon({ className = "" }) {
   );
 }
 
-/* Ikon judul "Metode Pembayaran" */
 function SectionTitleCustom() {
   return (
     <div className="flex items-center gap-2">
@@ -903,13 +991,11 @@ function SectionTitleCustom() {
   );
 }
 
-/** Kartu paket (kiri) */
 function PlanCard({ plan, onSelect, expanded, onToggleExpand }) {
   const priceText = formatRupiah(plan.price);
 
   return (
     <div className="w-full bg-white rounded-[26px] overflow-hidden border border-[#E6E6E6] shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-      {/* Header hijau */}
       <button
         type="button"
         onClick={onSelect}
@@ -922,13 +1008,10 @@ function PlanCard({ plan, onSelect, expanded, onToggleExpand }) {
         </div>
         <div className="mt-2 text-[16px] font-bold leading-tight text-center">
           {priceText}{" "}
-          <span className="text-white/80 font-medium text-[12px]">
-            / Bulan
-          </span>
+          <span className="text-white/80 font-medium text-[12px]">/ Bulan</span>
         </div>
       </button>
 
-      {/* Benefit dengan animasi turun */}
       <Collapsible open={expanded}>
         <ul className="space-y-2 text-[13px] text-gray-800">
           {plan.benefits?.map((b, i) => (
@@ -940,7 +1023,6 @@ function PlanCard({ plan, onSelect, expanded, onToggleExpand }) {
         </ul>
       </Collapsible>
 
-      {/* Footer toggle */}
       <button
         type="button"
         onClick={onToggleExpand}
@@ -997,7 +1079,10 @@ function IconWallet({ className = "w-14 h-8" }) {
   return (
     <svg viewBox="0 0 56 36" className={className} aria-hidden>
       <rect x="7" y="10" width="42" height="18" rx="4.5" fill="#5CC9AF" opacity="0.2" />
-      <path d="M9 14a4.5 4.5 0 0 1 4.5-4.5H34a3.5 3.5 0  0 1 3.5 3.5V15H9v-1Z" fill="#5CC9AF" />
+      <path
+        d="M9 14a4.5 4.5 0 0 1 4.5-4.5H34a3.5 3.5 0  0 1 3.5 3.5V15H9v-1Z"
+        fill="#5CC9AF"
+      />
       <rect x="35" y="16" width="12" height="9" rx="2.2" fill="#5CC9AF" />
       <circle cx="39" cy="20.5" r="1.7" fill="white" />
     </svg>
@@ -1078,7 +1163,6 @@ function EWalletSelector({ wallets, selected, onSelect }) {
   );
 }
 
-/* ---------- Helpers ---------- */
 function BrandLogo({ sources = [], alt }) {
   const placeholder =
     "data:image/svg+xml;utf8," +
@@ -1232,9 +1316,7 @@ function PayInstructionModal({ info, onClose, onCheckStatus }) {
                 <div className="font-semibold mb-3">{info.bank}</div>
                 <div className="text-xs text-gray-500 mb-1">Virtual Account</div>
                 <div className="flex items-center gap-2">
-                  <div className="font-mono text-base tracking-wide">
-                    {info.va}
-                  </div>
+                  <div className="font-mono text-base tracking-wide">{info.va}</div>
                   <button
                     onClick={() => copy(info.va)}
                     className="ml-auto text-xs px-3 py-1 rounded-lg border border-gray-300 hover:bg-gray-50"
@@ -1244,14 +1326,12 @@ function PayInstructionModal({ info, onClose, onCheckStatus }) {
                 </div>
                 {info.additional?.expire && (
                   <p className="mt-3 text-xs text-gray-500">
-                    Bayar sebelum:{" "}
-                    {new Date(info.additional.expire).toLocaleString()}
+                    Bayar sebelum: {new Date(info.additional.expire).toLocaleString()}
                   </p>
                 )}
               </div>
               <p className="text-xs text-gray-500">
-                Selesaikan pembayaran via ATM/Mobile Banking sesuai bank di
-                atas.
+                Selesaikan pembayaran via ATM/Mobile Banking sesuai bank di atas.
               </p>
             </>
           )}
@@ -1321,8 +1401,8 @@ function PayInstructionModal({ info, onClose, onCheckStatus }) {
                 {info.additional?.message || "Pembayaran kartu diproses."}
               </div>
               <p className="text-xs text-gray-500">
-                Jika kamu sudah menyelesaikan 3DS, status akan diperbarui
-                otomatis (atau klik Cek Status).
+                Jika kamu sudah menyelesaikan 3DS, status akan diperbarui otomatis
+                (atau klik Cek Status).
               </p>
             </>
           )}
@@ -1349,7 +1429,7 @@ function PayInstructionModal({ info, onClose, onCheckStatus }) {
   );
 }
 
-/* ======= Success Modal (ikon centang animasi) ======= */
+/* ======= Success Modal ======= */
 function SuccessModal({ open, onClose, amount }) {
   if (!open) return null;
 
@@ -1357,7 +1437,6 @@ function SuccessModal({ open, onClose, amount }) {
     <div className="fixed inset-0 z-[60] grid place-items-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
       <div className="relative bg-white w-[92vw] max-w-sm rounded-2xl shadow-xl border border-black/10 overflow-hidden p-6 text-center">
-        {/* Ikon centang */}
         <div className="mx-auto mb-4 h-20 w-20 rounded-full bg-emerald-100 grid place-items-center animate-[pop_320ms_ease-out]">
           <svg viewBox="0 0 52 52" className="h-10 w-10 text-emerald-500">
             <circle cx="26" cy="26" r="25" fill="none" className="opacity-0" />
@@ -1377,9 +1456,7 @@ function SuccessModal({ open, onClose, amount }) {
           </svg>
         </div>
 
-        <h3 className="text-lg font-extrabold text-gray-900">
-          Pembayaran Berhasil
-        </h3>
+        <h3 className="text-lg font-extrabold text-gray-900">Pembayaran Berhasil</h3>
         {Number.isFinite(amount) && amount > 0 && (
           <p className="mt-1 text-sm text-gray-600">
             Total:{" "}
@@ -1398,15 +1475,12 @@ function SuccessModal({ open, onClose, amount }) {
           Tutup
         </button>
 
-        {/* Keyframes lokal */}
         <style>{`
           @keyframes pop {
             0% { transform: scale(.8); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
           }
-          @keyframes draw {
-            to { stroke-dashoffset: 0; }
-          }
+          @keyframes draw { to { stroke-dashoffset: 0; } }
         `}</style>
       </div>
     </div>

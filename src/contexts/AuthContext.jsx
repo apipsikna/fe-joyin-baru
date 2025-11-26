@@ -48,9 +48,11 @@ export function AuthProvider({ children }) {
       null
     );
   };
+
+  // tetap aman walau bentuk response beda-beda
   const extractProfile = (data) => {
     const root = unwrap(data);
-    const u = root.user || root;
+    const u = root.user || root?.data?.user || root;
     return {
       id: u?.id ?? null,
       email: u?.email ?? null,
@@ -82,6 +84,8 @@ export function AuthProvider({ children }) {
 
   const saveAuth = ({ token, profile }) => {
     if (token) setAccessToken(token);
+
+    // simpan user jika ada
     if (profile?.email) {
       setUser(profile);
       if (USE_LOCAL_STORAGE) {
@@ -165,12 +169,30 @@ export function AuthProvider({ children }) {
     return res.data;
   };
 
-  // 🔻 birthDate dihapus dari parameter & payload
-  const signup = async ({ name, email, password, phone }) => {
-    const payload = { name, email, password, phone };
+  /**
+   * ✅ SIGNUP (SUPPORT referralCode OPTIONAL)
+   * - referralCode dikirim kalau user isi
+   * - kalau kosong, tidak dikirim sama sekali (biar BE gak salah parsing)
+   */
+  const signup = async ({ name, email, password, phone, referralCode }) => {
+    const payload = {
+      name,
+      email,
+      password,
+      phone,
+      ...(referralCode?.trim() ? { referralCode: referralCode.trim() } : {}),
+    };
+
     const res = await api.post("/auth/register", payload, {
       withCredentials: true,
     });
+
+    // biasanya register belum login (OTP flow), jadi tidak saveAuth di sini.
+    // tapi kalau BE kamu ternyata mengembalikan token juga, ini aman:
+    const token = extractToken(res.data);
+    const profile = extractProfile(res.data);
+    if (token) saveAuth({ token, profile });
+
     return res.data;
   };
 
@@ -230,7 +252,7 @@ export function AuthProvider({ children }) {
         } catch {}
       }
     }
-    return res.data; // tetap sama seperti versi kamu sebelumnya
+    return res.data;
   };
 
   // 🔹 Upload avatar ke BE + update user di context
@@ -262,7 +284,6 @@ export function AuthProvider({ children }) {
       });
     }
 
-    // return string avatar untuk dipakai di FE
     return avatar;
   };
 

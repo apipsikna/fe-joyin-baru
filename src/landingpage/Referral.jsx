@@ -1,16 +1,32 @@
 // src/landingpage/Referral.jsx
-import React, { useEffect } from "react";
-import { motion } from "framer-motion";
-import Navbar from "../components/Navbar1";
-import Footer from "../components/Footer"; // ⬅️ import Footer
+import React, { useEffect, useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
-import bintang from "../assets/bintang2.png"; // dipakai untuk semua bintang (besar & kecil)
-import BgReferral from "../assets/BgReferral.png"; // gambar background referral
-import SectionRef1 from "../assets/SectionRef1.png"; // gambar section bawah
-import SectionKeunggulaan from "../assets/SectionKeunggulan1.png"; // gambar keunggulan di bawah SectionRef1
-import YukGabung from "../assets/YukGabung.png"; // gambar section YukGabung
+import Navbar from "../components/Navbar1";
+import Footer from "../components/Footer";
+
+import { useAuth } from "../contexts/AuthContext";
+
+import bintang from "../assets/bintang2.png";
+import BgReferral from "../assets/BgReferral.png";
+import SectionRef1 from "../assets/SectionRef1.png";
+import SectionKeunggulaan from "../assets/SectionKeunggulan1.png";
+import YukGabung from "../assets/YukGabung.png";
+
+function buildApiUrl(base, path) {
+  const cleanBase = String(base || "").replace(/\/+$/, "");
+  // base boleh:
+  // - "http://localhost:3000"
+  // - "http://localhost:3000/api"
+  if (cleanBase.endsWith("/api")) return `${cleanBase}${path}`;
+  return `${cleanBase}/api${path}`;
+}
 
 export default function Referral() {
+  const navigate = useNavigate();
+  const { ready, isAuthenticated } = useAuth();
+
   // === SETTING OFFSET & UKURAN GAMBAR SectionRef1 (bisa digeser & di-zoom via query param) ===
   let REF_OFFSET = -100;
   let REF_SCALE = 0.9;
@@ -40,124 +56,236 @@ export default function Referral() {
     const rawOffset = qp.get("ref_offset");
     if (rawOffset) {
       const parsed = parseInt(rawOffset, 10);
-      if (!Number.isNaN(parsed)) {
-        REF_OFFSET = parsed;
-      }
+      if (!Number.isNaN(parsed)) REF_OFFSET = parsed;
     }
 
     const rawScale = qp.get("ref_scale");
     if (rawScale) {
       const parsedScale = parseFloat(rawScale);
-      if (!Number.isNaN(parsedScale) && parsedScale > 0) {
-        REF_SCALE = parsedScale;
-      }
+      if (!Number.isNaN(parsedScale) && parsedScale > 0) REF_SCALE = parsedScale;
     }
 
     // Tombol Ayo Bergabung (section paling bawah)
     const rawBtnX = qp.get("btn_x");
     if (rawBtnX) {
       const parsedX = parseInt(rawBtnX, 10);
-      if (!Number.isNaN(parsedX)) {
-        BTN_OFFSET_X = parsedX;
-      }
+      if (!Number.isNaN(parsedX)) BTN_OFFSET_X = parsedX;
     }
 
     const rawBtnY = qp.get("btn_y");
     if (rawBtnY) {
       const parsedY = parseInt(rawBtnY, 10);
-      if (!Number.isNaN(parsedY)) {
-        BTN_OFFSET_Y = parsedY;
-      }
+      if (!Number.isNaN(parsedY)) BTN_OFFSET_Y = parsedY;
     }
 
     const rawBtnScale = qp.get("btn_scale");
     if (rawBtnScale) {
       const parsedBtnScale = parseFloat(rawBtnScale);
-      if (!Number.isNaN(parsedBtnScale) && parsedBtnScale > 0) {
-        BTN_SCALE = parsedBtnScale;
-      }
+      if (!Number.isNaN(parsedBtnScale) && parsedBtnScale > 0) BTN_SCALE = parsedBtnScale;
     }
 
     // SectionKeunggulaan
     const rawKeunggX = qp.get("keungg_x");
     if (rawKeunggX) {
       const parsedKeunggX = parseInt(rawKeunggX, 10);
-      if (!Number.isNaN(parsedKeunggX)) {
-        KEUNG_OFFSET_X = parsedKeunggX;
-      }
+      if (!Number.isNaN(parsedKeunggX)) KEUNG_OFFSET_X = parsedKeunggX;
     }
 
     const rawKeunggY = qp.get("keungg_y");
     if (rawKeunggY) {
       const parsedKeunggY = parseInt(rawKeunggY, 10);
-      if (!Number.isNaN(parsedKeunggY)) {
-        KEUNG_OFFSET_Y = parsedKeunggY;
-      }
+      if (!Number.isNaN(parsedKeunggY)) KEUNG_OFFSET_Y = parsedKeunggY;
     }
 
     const rawKeunggScale = qp.get("keungg_scale");
     if (rawKeunggScale) {
       const parsedKeunggScale = parseFloat(rawKeunggScale);
-      if (!Number.isNaN(parsedKeunggScale) && parsedKeunggScale > 0) {
+      if (!Number.isNaN(parsedKeunggScale) && parsedKeunggScale > 0)
         KEUNG_SCALE = parsedKeunggScale;
-      }
     }
 
     // YukGabung (atas-bawah)
     const rawYukY = qp.get("yuk_y");
     if (rawYukY) {
       const parsedYukY = parseInt(rawYukY, 10);
-      if (!Number.isNaN(parsedYukY)) {
-        YUK_OFFSET_Y = parsedYukY;
-      }
+      if (!Number.isNaN(parsedYukY)) YUK_OFFSET_Y = parsedYukY;
     }
 
     // Button "Bergabung & Dapatkan Hadiah" di dalam YukGabung
     const rawJoinBtnX = qp.get("join_btn_x");
     if (rawJoinBtnX) {
       const parsedJoinX = parseInt(rawJoinBtnX, 10);
-      if (!Number.isNaN(parsedJoinX)) {
-        JOIN_BTN_OFFSET_X = parsedJoinX;
-      }
+      if (!Number.isNaN(parsedJoinX)) JOIN_BTN_OFFSET_X = parsedJoinX;
     }
 
     const rawJoinBtnY = qp.get("join_btn_y");
     if (rawJoinBtnY) {
       const parsedJoinY = parseInt(rawJoinBtnY, 10);
-      if (!Number.isNaN(parsedJoinY)) {
-        JOIN_BTN_OFFSET_Y = parsedJoinY;
-      }
+      if (!Number.isNaN(parsedJoinY)) JOIN_BTN_OFFSET_Y = parsedJoinY;
     }
 
     const rawJoinBtnScale = qp.get("join_btn_scale");
     if (rawJoinBtnScale) {
       const parsedJoinScale = parseFloat(rawJoinBtnScale);
-      if (!Number.isNaN(parsedJoinScale) && parsedJoinScale > 0) {
+      if (!Number.isNaN(parsedJoinScale) && parsedJoinScale > 0)
         JOIN_BTN_SCALE = parsedJoinScale;
-      }
     }
   }
 
   // === SCROLL KE ATAS SAAT HALAMAN REFERRAL DIBUKA DARI HALAMAN LAIN ===
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      window.scrollTo(0, 0); // langsung ke paling atas
-    }
+    if (typeof window !== "undefined") window.scrollTo(0, 0);
   }, []);
+
+  /* =========================
+     Referral Modal + API (Langkah C)
+     - FE hit GET /api/referrals/me
+     - Backend harus: get-or-create referralCode + return totalReferred
+  ========================== */
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || ""; // contoh: http://localhost:3000
+  const REFERRAL_ME_URL = useMemo(
+    () => buildApiUrl(API_BASE, "/referrals/me"),
+    [API_BASE]
+  );
+
+  const [showRefModal, setShowRefModal] = useState(false);
+  const [refLoading, setRefLoading] = useState(false);
+  const [refError, setRefError] = useState("");
+  const [refData, setRefData] = useState({ myReferralCode: "", totalReferred: 0 });
+  const [copied, setCopied] = useState("");
+
+  const referralLink = useMemo(() => {
+    const code = refData?.myReferralCode || "";
+    if (typeof window === "undefined" || !code) return "";
+    return `${window.location.origin}/signup?ref=${encodeURIComponent(code)}`;
+  }, [refData?.myReferralCode]);
+
+  const getAuthHeaders = () => {
+    // kalau kamu pakai cookies-only, header ini aman (boleh kosong)
+    const token =
+      localStorage.getItem("accessToken") ||
+      localStorage.getItem("token") ||
+      localStorage.getItem("access_token") ||
+      "";
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
+  const safeJson = async (res) => {
+    try {
+      return await res.json();
+    } catch {
+      return null;
+    }
+  };
+
+  const fetchReferralDetails = async () => {
+    setRefError("");
+    setRefLoading(true);
+
+    try {
+      const res = await fetch(REFERRAL_ME_URL, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders(),
+        },
+        credentials: "include",
+      });
+
+      const json = await safeJson(res);
+
+      // ✅ kalau 401 → suruh login
+      if (res.status === 401) {
+        throw new Error("Sesi kamu habis / belum login. Silakan login lagi.");
+      }
+
+      if (!res.ok) {
+        const msg =
+          json?.message ||
+          json?.error ||
+          `Gagal mengambil data referral (HTTP ${res.status})`;
+        throw new Error(msg);
+      }
+
+      // bentuk response kamu: { status:true, message:'..', data:{ myReferralCode, totalReferred } }
+      const data = json?.data || {};
+      const myReferralCode = String(data?.myReferralCode || "");
+      const totalReferred = Number(data?.totalReferred || 0);
+
+      // ✅ Langkah C: backend idealnya selalu mengembalikan code.
+      // Tapi biar aman kalau kosong:
+      if (!myReferralCode) {
+        throw new Error(
+          "Referral code kosong dari server. Pastikan endpoint /api/referrals/me melakukan get-or-create referralCode."
+        );
+      }
+
+      setRefData({ myReferralCode, totalReferred });
+    } catch (e) {
+      const msg = e?.message || "Terjadi kesalahan saat mengambil referral code.";
+      setRefError(msg);
+
+      // redirect login kalau auth issue
+      if (/login|sesi|401/i.test(msg)) {
+        // boleh tutup modal dulu biar halus
+        setTimeout(() => {
+          setShowRefModal(false);
+          navigate("/login");
+        }, 500);
+      }
+    } finally {
+      setRefLoading(false);
+    }
+  };
+
+  const handleGetReferral = async () => {
+    if (!ready) return;
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+    setShowRefModal(true);
+    await fetchReferralDetails();
+  };
+
+  const copyText = async (text, label = "Berhasil disalin!") => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(label);
+      setTimeout(() => setCopied(""), 1400);
+    } catch {
+      window.prompt("Copy manual:", text);
+    }
+  };
+
+  const TARGET = 20;
+  const progressPct = useMemo(() => {
+    const v = Number(refData?.totalReferred || 0);
+    return Math.max(0, Math.min(100, Math.round((v / TARGET) * 100)));
+  }, [refData?.totalReferred]);
+
+  const waShareLink = useMemo(() => {
+    const code = refData?.myReferralCode || "";
+    if (!code || !referralLink) return "";
+    const text =
+      `Pakai kode referral JOYIN-ku: ${code}\n` +
+      `Daftar lewat link ini: ${referralLink}\n` +
+      `Kamu dapat diskon 6% saat beli paket!`;
+    return `https://wa.me/?text=${encodeURIComponent(text)}`;
+  }, [refData?.myReferralCode, referralLink]);
 
   return (
     <div className="w-screen min-h-screen flex flex-col bg-white overflow-x-hidden font-poppins">
       {/* NAVBAR */}
       <Navbar active="referral" />
 
-      {/* ========= HERO: cinematic fade-up + floating stars ========= */}
+      {/* ========= HERO ========= */}
       <motion.main
         className="relative w-full flex justify-center bg-white overflow-hidden"
         initial={{ opacity: 0, y: 28 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       >
-        {/* Background hero dengan zoom-out lembut */}
         <motion.img
           src={BgReferral}
           alt="Background Referral Joyin"
@@ -167,17 +295,13 @@ export default function Referral() {
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
         />
 
-        {/* BINTANG KIRI ATAS (besar) – floating lembut */}
+        {/* stars */}
         <motion.img
           src={bintang}
           alt="bintang dekorasi"
           className="absolute left-10 top-32 w-16 md:w-18 drop-shadow-[0_10px_22px_rgba(0,0,0,0.18)] pointer-events-none select-none z-10"
           initial={{ opacity: 0, y: -20, scale: 0.7 }}
-          animate={{
-            opacity: 1,
-            y: [0, -6, 0],
-            scale: 1,
-          }}
+          animate={{ opacity: 1, y: [0, -6, 0], scale: 1 }}
           transition={{
             duration: 2.1,
             delay: 0.4,
@@ -186,18 +310,12 @@ export default function Referral() {
             repeatType: "mirror",
           }}
         />
-
-        {/* BINTANG KIRI BAWAH (kecil) – beda ritme */}
         <motion.img
           src={bintang}
           alt="bintang dekorasi"
           className="absolute left-32 top-60 md:top-64 w-10 md:w-11 drop-shadow-[0_8px_18px_rgba(0,0,0,0.2)] pointer-events-none select-none z-10"
           initial={{ opacity: 0, y: 10, scale: 0.7 }}
-          animate={{
-            opacity: 1,
-            y: [0, 5, 0],
-            scale: 1,
-          }}
+          animate={{ opacity: 1, y: [0, 5, 0], scale: 1 }}
           transition={{
             duration: 2.4,
             delay: 0.6,
@@ -206,18 +324,12 @@ export default function Referral() {
             repeatType: "mirror",
           }}
         />
-
-        {/* BINTANG KANAN ATAS (besar) */}
         <motion.img
           src={bintang}
           alt="bintang dekorasi"
           className="absolute right-10 top-36 w-16 md:w-18 drop-shadow-[0_10px_22px_rgba(0,0,0,0.18)] pointer-events-none select-none z-10"
           initial={{ opacity: 0, y: -20, scale: 0.7 }}
-          animate={{
-            opacity: 1,
-            y: [0, -5, 0],
-            scale: 1,
-          }}
+          animate={{ opacity: 1, y: [0, -5, 0], scale: 1 }}
           transition={{
             duration: 2.2,
             delay: 0.7,
@@ -226,18 +338,12 @@ export default function Referral() {
             repeatType: "mirror",
           }}
         />
-
-        {/* BINTANG KANAN TENGAH (kecil) */}
         <motion.img
           src={bintang}
           alt="bintang dekorasi"
           className="absolute right-32 top-64 md:top-72 w-10 md:w-11 drop-shadow-[0_8px_18px_rgba(0,0,0,0.2)] pointer-events-none select-none z-10"
           initial={{ opacity: 0, y: 10, scale: 0.7 }}
-          animate={{
-            opacity: 1,
-            y: [0, 6, 0],
-            scale: 1,
-          }}
+          animate={{ opacity: 1, y: [0, 6, 0], scale: 1 }}
           transition={{
             duration: 2.5,
             delay: 0.8,
@@ -247,7 +353,7 @@ export default function Referral() {
           }}
         />
 
-        {/* KONTEN TENGAH HERO */}
+        {/* konten hero */}
         <motion.section
           className="
             absolute inset-x-0 top-0
@@ -276,15 +382,15 @@ export default function Referral() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.55, ease: "easeOut" }}
           >
-            Temanmu dapat diskon spesial, kamu pun dapat hadiah menarik.
-            Semakin banyak yang bergabung, semakin banyak untung yang kamu
-            dapat!
+            Temanmu dapat diskon spesial, kamu pun dapat hadiah menarik. Semakin banyak yang
+            bergabung, semakin banyak untung yang kamu dapat!
           </motion.p>
 
-          {/* Tombol hero */}
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+            {/* ✅ Langkah C: backend get-or-create via GET /api/referrals/me */}
             <motion.button
               type="button"
+              onClick={handleGetReferral}
               className="px-10 sm:px-12 py-3.5 sm:py-4 rounded-full bg-white text-[#2BB673] font-semibold text-sm sm:text-base shadow-[0_14px_34px_rgba(0,0,0,0.2)] border border-white hover:translate-y-[1px] transition-transform duration-150"
               initial={{ opacity: 0, y: 20, scale: 0.92 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -303,6 +409,10 @@ export default function Referral() {
               transition={{ duration: 0.55, delay: 0.8, ease: "easeOut" }}
               whileHover={{ scale: 1.05, y: 1 }}
               whileTap={{ scale: 0.96 }}
+              onClick={() => {
+                const el = document.getElementById("ref-info");
+                if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
             >
               Pelajari Lebih Lanjut
             </motion.button>
@@ -310,8 +420,9 @@ export default function Referral() {
         </motion.section>
       </motion.main>
 
-      {/* ========= SECTION 1: SectionRef1 ========= */}
+      {/* ========= SECTION 1 ========= */}
       <motion.section
+        id="ref-info"
         className="w-full bg-white"
         initial={{ opacity: 0, y: REF_OFFSET + 90 }}
         whileInView={{ opacity: 1, y: REF_OFFSET }}
@@ -331,7 +442,7 @@ export default function Referral() {
         </div>
       </motion.section>
 
-      {/* ========= SECTION 2: Keunggulan ========= */}
+      {/* ========= SECTION 2 ========= */}
       <section className="w-full bg-white">
         <motion.div
           className="w-full overflow-hidden"
@@ -351,10 +462,7 @@ export default function Referral() {
             rotate: 0,
           }}
           viewport={{ once: true, amount: 0.35 }}
-          transition={{
-            duration: 0.85,
-            ease: [0.16, 1, 0.3, 1],
-          }}
+          transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
         >
           <motion.img
             src={SectionKeunggulaan}
@@ -368,16 +476,13 @@ export default function Referral() {
         </motion.div>
       </section>
 
-      {/* ========= SECTION 3: Yuk Gabung ========= */}
+      {/* ========= SECTION 3 ========= */}
       <motion.section
         className="w-full bg-white"
         initial={{ opacity: 0, x: 70, y: YUK_OFFSET_Y + 90 }}
         whileInView={{ opacity: 1, x: 0, y: YUK_OFFSET_Y }}
         viewport={{ once: true, amount: 0.35 }}
-        transition={{
-          duration: 0.85,
-          ease: [0.16, 1, 0.3, 1],
-        }}
+        transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="w-full overflow-hidden relative">
           <motion.img
@@ -390,7 +495,6 @@ export default function Referral() {
             transition={{ duration: 0.8, ease: "easeOut" }}
           />
 
-          {/* TOMBOL "Bergabung & Dapatkan Hadiah" */}
           <div className="absolute top-[62%] left-1/2 -translate-x-1/2">
             <motion.div
               initial={{
@@ -406,12 +510,7 @@ export default function Referral() {
                 scale: JOIN_BTN_SCALE,
               }}
               viewport={{ once: true, amount: 0.55 }}
-              transition={{
-                type: "spring",
-                stiffness: 260,
-                damping: 22,
-                delay: 0.1,
-              }}
+              transition={{ type: "spring", stiffness: 260, damping: 22, delay: 0.1 }}
             >
               <motion.button
                 type="button"
@@ -431,6 +530,7 @@ export default function Referral() {
                 "
                 whileHover={{ scale: 1.07, y: 1 }}
                 whileTap={{ scale: 0.96 }}
+                onClick={() => navigate("/signup")}
               >
                 Bergabung &amp; Dapatkan Hadiah
               </motion.button>
@@ -439,7 +539,7 @@ export default function Referral() {
         </div>
       </motion.section>
 
-      {/* ========= SECTION 4: CTA "Ayo Bergabung!" ========= */}
+      {/* ========= SECTION 4 ========= */}
       <section className="w-full bg-white py-12 md:py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <motion.div
@@ -457,11 +557,7 @@ export default function Referral() {
               scale: BTN_SCALE,
             }}
             viewport={{ once: true, amount: 0.45 }}
-            transition={{
-              type: "spring",
-              stiffness: 220,
-              damping: 24,
-            }}
+            transition={{ type: "spring", stiffness: 220, damping: 24 }}
           >
             <motion.button
               type="button"
@@ -480,6 +576,7 @@ export default function Referral() {
               "
               whileHover={{ scale: 1.08, y: 1 }}
               whileTap={{ scale: 0.96 }}
+              onClick={() => navigate("/signup")}
             >
               Ayo Bergabung!
             </motion.button>
@@ -487,8 +584,179 @@ export default function Referral() {
         </div>
       </section>
 
-      {/* FOOTER DI PALING BAWAH */}
       <Footer />
+
+      {/* ===================== MODAL: Referral Code ===================== */}
+      <AnimatePresence>
+        {showRefModal && (
+          <motion.div
+            className="fixed inset-0 z-[999] flex items-center justify-center px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            aria-modal="true"
+            role="dialog"
+          >
+            {/* overlay */}
+            <div
+              className="absolute inset-0 bg-black/45 backdrop-blur-[2px]"
+              onClick={() => setShowRefModal(false)}
+            />
+
+            {/* modal box */}
+            <motion.div
+              className="relative w-full max-w-[520px] rounded-2xl bg-white shadow-[0_20px_70px_rgba(0,0,0,0.35)] overflow-hidden"
+              initial={{ y: 18, scale: 0.98, opacity: 0 }}
+              animate={{ y: 0, scale: 1, opacity: 1 }}
+              exit={{ y: 14, scale: 0.98, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 380, damping: 30 }}
+            >
+              <div className="p-5 sm:p-6 border-b border-emerald-100">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center">
+                    <span className="text-emerald-700 font-black">%</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-[16px] font-extrabold text-gray-900">
+                      Kode Referral Kamu
+                    </h3>
+                    <p className="text-[12px] text-gray-500">
+                      Bagikan kode ini ke temanmu. Temanmu dapat diskon 6% saat beli paket.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowRefModal(false)}
+                    className="text-gray-400 hover:text-gray-700 text-xl leading-none"
+                    aria-label="Close"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-5 sm:p-6">
+                {refLoading ? (
+                  <div className="py-10 text-center">
+                    <div className="inline-flex items-center gap-2 text-gray-600">
+                      <span className="w-4 h-4 rounded-full border-2 border-gray-300 border-t-transparent animate-spin" />
+                      Mengambil kode referral...
+                    </div>
+                  </div>
+                ) : refError ? (
+                  <div className="py-4">
+                    <div className="rounded-xl bg-red-50 border border-red-100 p-4 text-red-700 text-sm">
+                      {refError}
+                    </div>
+                    <div className="mt-4 flex gap-2">
+                      <button
+                        onClick={fetchReferralDetails}
+                        className="px-4 py-2 rounded-xl bg-emerald-600 text-white font-semibold text-sm hover:brightness-110"
+                      >
+                        Coba Lagi
+                      </button>
+                      <button
+                        onClick={() => setShowRefModal(false)}
+                        className="px-4 py-2 rounded-xl bg-gray-100 text-gray-700 font-semibold text-sm hover:bg-gray-200"
+                      >
+                        Tutup
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Code box */}
+                    <div className="rounded-2xl border border-emerald-100 bg-emerald-50/40 p-4">
+                      <div className="text-[11px] font-semibold text-emerald-700 mb-2">
+                        KODE
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="font-black tracking-[0.25em] text-[20px] text-gray-900 truncate">
+                            {refData.myReferralCode}
+                          </div>
+                          <div className="mt-2 text-[12px] text-gray-500">
+                            1 orang hanya bisa pakai 1x kode referral saat registrasi.
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => copyText(refData.myReferralCode, "Kode tersalin!")}
+                          className="shrink-0 px-4 py-2 rounded-xl bg-white border border-emerald-200 text-emerald-700 font-semibold text-sm hover:bg-emerald-50"
+                        >
+                          Copy
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* progress */}
+                    <div className="mt-4 rounded-2xl border border-gray-100 bg-white p-4">
+                      <div className="flex items-center justify-between">
+                        <p className="text-[12px] font-bold text-gray-900">
+                          Progress hadiah paket Pro 1 bulan
+                        </p>
+                        <p className="text-[12px] font-extrabold text-emerald-700">
+                          {refData.totalReferred}/{TARGET}
+                        </p>
+                      </div>
+                      <div className="mt-2 h-2 rounded-full bg-gray-100 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-emerald-500"
+                          style={{ width: `${progressPct}%` }}
+                        />
+                      </div>
+                      <p className="mt-2 text-[11px] text-gray-500">
+                        Ajak {TARGET} orang menggunakan kode referralmu untuk dapat hadiah.
+                      </p>
+                    </div>
+
+                    {/* share actions */}
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      <button
+                        onClick={() => copyText(referralLink, "Link tersalin!")}
+                        disabled={!referralLink}
+                        className="px-4 py-2 rounded-xl bg-gray-100 text-gray-800 font-semibold text-sm hover:bg-gray-200 disabled:opacity-50"
+                      >
+                        Copy Link
+                      </button>
+                      <a
+                        href={waShareLink || "#"}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={`px-4 py-2 rounded-xl font-semibold text-sm text-center ${
+                          waShareLink
+                            ? "bg-emerald-600 text-white hover:brightness-110"
+                            : "bg-gray-100 text-gray-400 pointer-events-none"
+                        }`}
+                      >
+                        Share WA
+                      </a>
+                      <button
+                        onClick={() => setShowRefModal(false)}
+                        className="px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-800 font-semibold text-sm hover:bg-gray-50"
+                      >
+                        Selesai
+                      </button>
+                    </div>
+
+                    {/* toast */}
+                    <AnimatePresence>
+                      {!!copied && (
+                        <motion.div
+                          className="mt-3 text-center text-[12px] font-semibold text-emerald-700"
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 6 }}
+                        >
+                          {copied}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
