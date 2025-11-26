@@ -1,7 +1,15 @@
 // src/pages/Checkout.jsx
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import { HiOutlineCube } from "react-icons/hi";
-import api from "../api/axios"; // ⬅️ pakai axios instance yang sudah include token
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import api from "../api/axios";
+import { useAuth } from "../contexts/AuthContext";
+
+/* ====================== Referral Config ====================== */
+const REFERRAL_STORAGE_KEY = "signup_referral_code";
+const REFERRAL_DISCOUNT_RATE = 0.06; // 6%
+const RECEIPT_STORAGE_KEY = "last_receipt";
 
 /* ====================== Data ====================== */
 const PLANS = [
@@ -71,7 +79,6 @@ const METHODS = [
   { id: "qris", label: "QRIS" },
 ];
 
-/* Logo bank */
 const BANKS = [
   {
     id: "bni",
@@ -107,7 +114,6 @@ const BANKS = [
   },
 ];
 
-/* E–wallet */
 const EWALLETS = [
   {
     id: "gopay",
@@ -135,7 +141,6 @@ const EWALLETS = [
   },
 ];
 
-/* ====================== Utils ====================== */
 function classNames(...arr) {
   return arr.filter(Boolean).join(" ");
 }
@@ -147,7 +152,6 @@ function formatRupiah(n) {
   }).format(Number.isFinite(n) ? n : 0);
 }
 
-/* ====== Env helpers (Vite & CRA) ====== */
 const MIDTRANS_CLIENT_KEY =
   (typeof import.meta !== "undefined" &&
     import.meta.env &&
@@ -157,8 +161,14 @@ const MIDTRANS_CLIENT_KEY =
     process.env.REACT_APP_MIDTRANS_CLIENT_KEY) ||
   "SB-Mid-client-xxxxxxxx";
 
-const REFERRAL_STORAGE_KEY = "signup_referral_code";
-const REFERRAL_DISCOUNT_PERCENT = 6;
+const MIDTRANS_ENV =
+  (typeof import.meta !== "undefined" &&
+    import.meta.env &&
+    import.meta.env.VITE_MIDTRANS_ENV) ||
+  (typeof process !== "undefined" &&
+    process.env &&
+    process.env.REACT_APP_MIDTRANS_ENV) ||
+  "sandbox";
 
 /* ===== Collapsible ===== */
 function Collapsible({ open, children, duration = 320 }) {
@@ -199,6 +209,46 @@ function Collapsible({ open, children, duration = 320 }) {
 
 /* ====================== Page ====================== */
 export default function Checkout() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const reduce = useReducedMotion();
+
+  // ===== Page animation variants =====
+  const pageV = useMemo(
+    () => ({
+      hidden: { opacity: 0, y: reduce ? 0 : 16 },
+      show: {
+        opacity: 1,
+        y: 0,
+        transition: {
+          duration: reduce ? 0.01 : 0.55,
+          ease: [0.22, 1, 0.36, 1],
+          when: "beforeChildren",
+          staggerChildren: reduce ? 0 : 0.06,
+        },
+      },
+      exit: {
+        opacity: 0,
+        y: reduce ? 0 : -10,
+        transition: { duration: reduce ? 0.01 : 0.22 },
+      },
+    }),
+    [reduce]
+  );
+
+  const itemV = useMemo(
+    () => ({
+      hidden: { opacity: 0, y: reduce ? 0 : 12, filter: "blur(4px)" },
+      show: {
+        opacity: 1,
+        y: 0,
+        filter: "blur(0px)",
+        transition: { duration: reduce ? 0.01 : 0.45, ease: [0.22, 1, 0.36, 1] },
+      },
+    }),
+    [reduce]
+  );
+
   const [planId, setPlanId] = useState("basic");
   const [expandedPlan, setExpandedPlan] = useState(null);
   const [months, setMonths] = useState(0);
@@ -208,46 +258,31 @@ export default function Checkout() {
   const [bank, setBank] = useState(null);
   const [ewallet, setEwallet] = useState(null);
 
-  // ✅ Referral FE-only
-  const [appliedReferralCode, setAppliedReferralCode] = useState(() => {
+  // ===== Referral state (ambil dari localStorage) =====
+  const purchaseKey = useMemo(() => {
+    const who = user?.id ?? user?.email ?? "unknown";
+    return `first_purchase_done:${who}`;
+  }, [user?.id, user?.email]);
+
+  const [referralCode, setReferralCode] = useState("");
+  const [hasPurchased, setHasPurchased] = useState(false);
+
+  useEffect(() => {
     try {
-      return localStorage.getItem(REFERRAL_STORAGE_KEY) || "";
+      const code = (localStorage.getItem(REFERRAL_STORAGE_KEY) || "")
+        .trim()
+        .toUpperCase();
+      setReferralCode(code);
     } catch {
-      return "";
+      setReferralCode("");
     }
-  });
-  const [refInput, setRefInput] = useState(() => {
+
     try {
-      return localStorage.getItem(REFERRAL_STORAGE_KEY) || "";
+      setHasPurchased(localStorage.getItem(purchaseKey) === "1");
     } catch {
-      return "";
+      setHasPurchased(false);
     }
-  });
-  const [refMsg, setRefMsg] = useState("");
-
-  const isReferralApplied = (appliedReferralCode || "").trim().length > 0;
-
-  const applyReferral = () => {
-    const code = (refInput || "").trim();
-    if (!code) {
-      setRefMsg("Masukkan kode referral terlebih dahulu.");
-      return;
-    }
-    try {
-      localStorage.setItem(REFERRAL_STORAGE_KEY, code);
-    } catch {}
-    setAppliedReferralCode(code);
-    setRefMsg("Kode referral diterapkan. Diskon 6% aktif ✅");
-  };
-
-  const removeReferral = () => {
-    try {
-      localStorage.removeItem(REFERRAL_STORAGE_KEY);
-    } catch {}
-    setAppliedReferralCode("");
-    setRefInput("");
-    setRefMsg("Kode referral dihapus.");
-  };
+  }, [purchaseKey]);
 
   const [payInfo, setPayInfo] = useState({
     open: false,
@@ -261,13 +296,6 @@ export default function Checkout() {
     additional: null,
   });
 
-  // --- SUCCESS MODAL STATE + POLLING ---
-  const [success, setSuccess] = useState({
-    open: false,
-    orderId: null,
-    amount: 0,
-    method: null,
-  });
   const pollRef = useRef(null);
 
   useEffect(() => {
@@ -276,12 +304,97 @@ export default function Checkout() {
     };
   }, []);
 
+  const selectedPlan = useMemo(
+    () => PLANS.find((p) => p.id === planId),
+    [planId]
+  );
+
+  const subtotal = useMemo(
+    () => (selectedPlan?.price || 0) * months,
+    [selectedPlan, months]
+  );
+
+  const discountEligible = useMemo(() => {
+    return Boolean(referralCode) && !hasPurchased && months >= 1;
+  }, [referralCode, hasPurchased, months]);
+
+  const discountAmount = useMemo(() => {
+    if (!discountEligible) return 0;
+    return Math.floor(subtotal * REFERRAL_DISCOUNT_RATE);
+  }, [subtotal, discountEligible]);
+
+  const total = useMemo(() => {
+    return Math.max(0, subtotal - discountAmount);
+  }, [subtotal, discountAmount]);
+
+  const markFirstPurchaseDone = async (orderId) => {
+    try {
+      localStorage.setItem(purchaseKey, "1");
+    } catch {}
+    setHasPurchased(true);
+
+    try {
+      localStorage.removeItem(REFERRAL_STORAGE_KEY);
+    } catch {}
+    setReferralCode("");
+
+    if (referralCode) {
+      try {
+        await api.post("/referrals/complete-first-purchase", {
+          orderId,
+          referralCode,
+        });
+      } catch {
+        // ignore untuk FE-only
+      }
+    }
+  };
+
+  const paymentTypeToLabel = (pt, fallbackMethod) => {
+    const x = String(pt || "").toLowerCase();
+    if (!x) {
+      const y = String(fallbackMethod || "").toLowerCase();
+      if (y === "bank") return "Transfer Bank";
+      if (y === "card") return "Kartu Kredit";
+      if (y === "ewallet") return "E–Wallet";
+      if (y === "qris") return "QRIS";
+      return "-";
+    }
+    if (x.includes("credit_card")) return "Kartu Kredit";
+    if (x.includes("bank_transfer")) return "Transfer Bank";
+    if (x.includes("qris")) return "QRIS";
+    return x.toUpperCase();
+  };
+
+  const gotoReceipt = ({ orderId, amount, paymentType }) => {
+    const payload = {
+      orderId,
+      amount,
+      paymentType,
+      methodLabel: paymentTypeToLabel(paymentType, method),
+      planName: selectedPlan?.name || "-",
+      months,
+      subtotal,
+      discountAmount,
+      total: amount || total,
+      paidAt: new Date().toISOString(),
+      statusLabel: "Berhasil",
+    };
+
+    try {
+      localStorage.setItem(RECEIPT_STORAGE_KEY, JSON.stringify(payload));
+    } catch {}
+
+    navigate("/bukti-pembayaran", { state: payload, replace: true });
+  };
+
   const pollStatus = (orderId) => {
     if (!orderId) return;
     if (pollRef.current) clearInterval(pollRef.current);
 
     let tries = 0;
-    pollRef.current = setInterval(async () => {
+
+    const checkOnce = async () => {
       tries++;
       try {
         const res = await api.get(`/payments/core/status/${orderId}`);
@@ -293,15 +406,18 @@ export default function Checkout() {
           const amt = Number(json.status?.gross_amount || 0);
 
           if (st === "capture" || st === "settlement") {
-            clearInterval(pollRef.current);
+            if (pollRef.current) clearInterval(pollRef.current);
             pollRef.current = null;
+
             setPayInfo((s) => ({ ...s, open: false }));
-            setSuccess({ open: true, orderId, amount: amt, method: pt });
+            await markFirstPurchaseDone(orderId);
+
+            gotoReceipt({ orderId, amount: amt, paymentType: pt });
             return;
           }
 
           if (st === "deny" || st === "cancel" || st === "expire") {
-            clearInterval(pollRef.current);
+            if (pollRef.current) clearInterval(pollRef.current);
             pollRef.current = null;
             alert(`Pembayaran gagal: ${st}`);
             return;
@@ -316,42 +432,56 @@ export default function Checkout() {
       }
 
       if (tries >= 60) {
-        clearInterval(pollRef.current);
+        if (pollRef.current) clearInterval(pollRef.current);
         pollRef.current = null;
       }
-    }, 3000);
+    };
+
+    checkOnce();
+    pollRef.current = setInterval(checkOnce, 3000);
   };
 
-  // Muat Midtrans New 3DS & tokenization script
+  // ===== Load Midtrans 3DS script (sandbox / production) + ready flag =====
+  const [ccReady, setCcReady] = useState(
+    Boolean(window?.MidtransNew3ds?.getCardToken)
+  );
+
   useEffect(() => {
+    if (window?.MidtransNew3ds?.getCardToken) {
+      setCcReady(true);
+      return;
+    }
+
     const existing = document.querySelector('script[data-midtrans="new3ds"]');
-    if (existing) return;
+    if (existing) {
+      const t = setInterval(() => {
+        if (window?.MidtransNew3ds?.getCardToken) {
+          setCcReady(true);
+          clearInterval(t);
+        }
+      }, 200);
+      return () => clearInterval(t);
+    }
+
     const s = document.createElement("script");
-    s.src = "https://api.midtrans.com/v2/assets/js/midtrans-new-3ds.min.js";
+    const envLower =
+      String(MIDTRANS_ENV).toLowerCase() === "production"
+        ? "production"
+        : "sandbox";
+    const base =
+      envLower === "production"
+        ? "https://api.midtrans.com"
+        : "https://api.sandbox.midtrans.com";
+
+    s.src = `${base}/v2/assets/js/midtrans-new-3ds.min.js`;
+    s.async = true;
     s.setAttribute("data-client-key", MIDTRANS_CLIENT_KEY);
-    s.setAttribute("data-environment", "sandbox");
+    s.setAttribute("data-environment", envLower);
     s.setAttribute("data-midtrans", "new3ds");
+    s.onload = () => setCcReady(Boolean(window?.MidtransNew3ds?.getCardToken));
+    s.onerror = () => setCcReady(false);
     document.body.appendChild(s);
   }, []);
-
-  const selectedPlan = useMemo(
-    () => PLANS.find((p) => p.id === planId),
-    [planId]
-  );
-
-  const subtotal = useMemo(
-    () => (selectedPlan?.price || 0) * months,
-    [selectedPlan, months]
-  );
-
-  // ✅ Diskon 6% otomatis kalau referral ada (dan months >= 1)
-  const discount = useMemo(() => {
-    if (!isReferralApplied) return 0;
-    if (!Number.isFinite(subtotal) || subtotal <= 0) return 0;
-    return Math.round((subtotal * REFERRAL_DISCOUNT_PERCENT) / 100);
-  }, [subtotal, isReferralApplied]);
-
-  const total = Math.max(0, subtotal - discount);
 
   const cardOk =
     card.number.replace(/\s/g, "").length >= 12 &&
@@ -363,7 +493,7 @@ export default function Checkout() {
     months >= 1 &&
     !!selectedPlan &&
     (method === "card"
-      ? cardOk
+      ? cardOk && ccReady
       : method === "bank"
       ? !!bank
       : method === "ewallet"
@@ -371,37 +501,31 @@ export default function Checkout() {
       : true);
 
   const callCharge = async (payload) => {
-    try {
-      const res = await api.post("/payments/core/charge", payload);
-      const json = res.data;
-
-      if (!json?.ok) {
-        throw new Error(json?.message || "Charge failed");
-      }
-      return json;
-    } catch (err) {
-      console.error(
-        "Midtrans charge error:",
-        err.response?.status,
-        err.response?.data || err.message
-      );
-      throw err;
-    }
+    const res = await api.post("/payments/core/charge", payload);
+    const json = res.data;
+    if (!json?.ok) throw new Error(json?.message || "Charge failed");
+    return json;
   };
 
   const handlePay = async (e) => {
     e.preventDefault();
-    if (!canPay) return;
+    if (!canPay) {
+      if (months < 1) alert("Pilih durasi minimal 1 bulan dulu ya.");
+      else if (method === "card" && !ccReady)
+        alert("Midtrans 3DS belum siap. Coba refresh / tunggu sebentar.");
+      return;
+    }
 
-    const orderId = `ORDER-${Date.now()}`;
-    const grossAmount = total; // ✅ total sudah termasuk diskon referral
+    const orderIdLocal = `ORDER-${Date.now()}`;
+    const grossAmount = total;
 
     try {
       if (method === "card") {
         if (!window.MidtransNew3ds?.getCardToken) {
-          alert("Midtrans 3DS script belum termuat. Coba beberapa detik lagi.");
+          alert("Midtrans 3DS script belum termuat. Coba refresh.");
           return;
         }
+
         const [mm, yy] = card.expiry.split("/");
         window.MidtransNew3ds.getCardToken(
           {
@@ -412,48 +536,70 @@ export default function Checkout() {
             gross_amount: grossAmount,
           },
           async (tokenResponse) => {
-            if (tokenResponse.status_code !== "200") {
-              alert(`Tokenisasi gagal: ${tokenResponse.status_message}`);
-              return;
-            }
-            const tokenId = tokenResponse.token_id;
+            try {
+              if (
+                !tokenResponse ||
+                String(tokenResponse.status_code) !== "200"
+              ) {
+                alert(
+                  `Tokenisasi gagal: ${
+                    tokenResponse?.status_message || "Unknown error"
+                  }`
+                );
+                return;
+              }
 
-            const { result } = await callCharge({
-              method: "card",
-              tokenId,
-              amount: grossAmount,
-              orderId,
-              customer: { first_name: card.name },
-            });
+              const tokenId = tokenResponse.token_id;
 
-            if (result.redirect_url && window.MidtransNew3ds?.authenticate) {
-              window.MidtransNew3ds.authenticate({
-                redirect_url: result.redirect_url,
-                callback: function (authResult) {
-                  setPayInfo({
-                    open: true,
-                    type: "card",
-                    orderId,
-                    additional: {
-                      message:
-                        authResult?.redirect_status === "success"
-                          ? "Verifikasi 3DS sukses. Kami akan cek status pembayaran."
-                          : "Verifikasi 3DS gagal/dibatalkan.",
-                    },
-                  });
-                  if (authResult?.redirect_status === "success") {
-                    pollStatus(orderId);
-                  }
-                },
+              const { result, order_id } = await callCharge({
+                method: "card",
+                tokenId,
+                amount: grossAmount,
+                orderId: orderIdLocal,
+                customer: { first_name: card.name },
               });
-            } else {
-              setPayInfo({
-                open: true,
-                type: "card",
-                orderId,
-                additional: { message: "Pembayaran kartu diproses." },
-              });
-              pollStatus(orderId);
+
+              const oid = order_id || result?.order_id || orderIdLocal;
+
+              if (result?.redirect_url && window.MidtransNew3ds?.authenticate) {
+                window.MidtransNew3ds.authenticate({
+                  redirect_url: result.redirect_url,
+                  callback: function (authResult) {
+                    setPayInfo({
+                      open: true,
+                      type: "card",
+                      orderId: oid,
+                      additional: {
+                        message:
+                          authResult?.redirect_status === "success"
+                            ? "Verifikasi 3DS sukses. Kami cek status pembayaran..."
+                            : "Verifikasi 3DS gagal/dibatalkan.",
+                      },
+                    });
+                    if (authResult?.redirect_status === "success") {
+                      pollStatus(oid);
+                    }
+                  },
+                });
+              } else {
+                setPayInfo({
+                  open: true,
+                  type: "card",
+                  orderId: oid,
+                  additional: {
+                    message:
+                      "Pembayaran kartu diproses. Kami cek status pembayaran...",
+                  },
+                });
+                pollStatus(oid);
+              }
+            } catch (err) {
+              console.error(err);
+              alert(
+                err?.response?.data?.message ||
+                  err.message ||
+                  "Pembayaran kartu gagal."
+              );
             }
           }
         );
@@ -465,7 +611,7 @@ export default function Checkout() {
           method: "bank",
           bank,
           amount: grossAmount,
-          orderId,
+          orderId: orderIdLocal,
         });
 
         const va =
@@ -480,13 +626,13 @@ export default function Checkout() {
         setPayInfo({
           open: true,
           type: "bank",
-          orderId: order_id,
+          orderId: order_id || orderIdLocal,
           va,
           bank: (bankCode || "").toUpperCase(),
-          additional: {
-            expire: result.expiry_time || result.expired_time,
-          },
+          additional: { expire: result.expiry_time || result.expired_time },
         });
+
+        pollStatus(order_id || orderIdLocal);
         return;
       }
 
@@ -495,15 +641,11 @@ export default function Checkout() {
           alert("Pilih e-wallet terlebih dahulu");
           return;
         }
-        if (ewallet === "ovo") {
-          alert("OVO belum diaktifkan di contoh ini.");
-          return;
-        }
         const { result, order_id } = await callCharge({
           method: "ewallet",
           ewallet,
           amount: grossAmount,
-          orderId,
+          orderId: orderIdLocal,
         });
 
         const actions = result.actions || [];
@@ -513,13 +655,13 @@ export default function Checkout() {
         setPayInfo({
           open: true,
           type: "ewallet",
-          orderId: order_id,
+          orderId: order_id || orderIdLocal,
           deeplink: deeplink || null,
           qrUrl: qr || null,
           additional: { provider: ewallet.toUpperCase() },
         });
 
-        pollStatus(order_id);
+        pollStatus(order_id || orderIdLocal);
         return;
       }
 
@@ -527,7 +669,7 @@ export default function Checkout() {
         const { result, order_id } = await callCharge({
           method: "qris",
           amount: grossAmount,
-          orderId,
+          orderId: orderIdLocal,
         });
 
         const actions = result.actions || [];
@@ -537,17 +679,17 @@ export default function Checkout() {
         setPayInfo({
           open: true,
           type: "qris",
-          orderId: order_id,
+          orderId: order_id || orderIdLocal,
           qrUrl: qr || null,
           qrString,
         });
 
-        pollStatus(order_id);
+        pollStatus(order_id || orderIdLocal);
         return;
       }
     } catch (err) {
       console.error(err);
-      alert(err.message);
+      alert(err?.response?.data?.message || err.message || "Pembayaran gagal.");
     }
   };
 
@@ -555,252 +697,297 @@ export default function Checkout() {
     setCard((s) => ({ ...s, [key]: e.target.value }));
 
   return (
-    <div className="w-screen min-h-screen bg-[#EFEFEF] px-4 md:px-8 py-6">
-      <div className="mx-auto">
-        <h1 className="text-2xl md:text-3xl font-bold mb-4">Checkout</h1>
+    <>
+      <motion.div
+        className="w-screen min-h-screen bg-[#EFEFEF] px-4 md:px-8 py-6"
+        variants={pageV}
+        initial="hidden"
+        animate="show"
+        exit="exit"
+      >
+        <div className="mx-auto">
+          <motion.h1
+            variants={itemV}
+            className="text-2xl md:text-3xl font-bold mb-4"
+          >
+            Checkout
+          </motion.h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
-          {/* LEFT */}
-          <div className="lg:col-span-2 bg-white border border-black/10 rounded-2xl p-4 md:p-6 space-y-6">
-            <SectionTitle icon={HiOutlineCube} title="Pilih Paket" />
+          {/* Banner referral */}
+          <AnimatePresence mode="popLayout">
+            {referralCode && !hasPurchased && (
+              <motion.div
+                variants={itemV}
+                initial="hidden"
+                animate="show"
+                exit={{ opacity: 0, y: reduce ? 0 : -8 }}
+                className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
+              >
+                Kamu pakai referral{" "}
+                <span className="font-mono font-semibold">{referralCode}</span> —
+                diskon <span className="font-semibold">6%</span> otomatis untuk
+                pembelian pertama.
+              </motion.div>
+            )}
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 items-start">
-              {PLANS.map((p) => (
-                <PlanCard
-                  key={p.id}
-                  plan={p}
-                  expanded={expandedPlan === p.id}
-                  onSelect={() => setPlanId(p.id)}
-                  onToggleExpand={() =>
-                    setExpandedPlan((cur) => (cur === p.id ? null : p.id))
+            {hasPurchased && (
+              <motion.div
+                variants={itemV}
+                initial="hidden"
+                animate="show"
+                exit={{ opacity: 0, y: reduce ? 0 : -8 }}
+                className="mb-4 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700"
+              >
+                Pembelian pertama sudah pernah dilakukan. Diskon referral tidak
+                berlaku lagi.
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <motion.div
+            variants={itemV}
+            className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6"
+          >
+            {/* LEFT */}
+            <motion.div
+              variants={itemV}
+              className="lg:col-span-2 bg-white border border-black/10 rounded-2xl p-4 md:p-6 space-y-6"
+            >
+              <SectionTitle icon={HiOutlineCube} title="Pilih Paket" />
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 items-start">
+                {PLANS.map((p, idx) => (
+                  <motion.div
+                    key={p.id}
+                    initial={{ opacity: 0, y: reduce ? 0 : 10 }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                      transition: {
+                        delay: reduce ? 0 : 0.05 + idx * 0.04,
+                        duration: reduce ? 0.01 : 0.35,
+                        ease: [0.22, 1, 0.36, 1],
+                      },
+                    }}
+                    whileHover={reduce ? undefined : { y: -3 }}
+                    whileTap={reduce ? undefined : { scale: 0.98 }}
+                  >
+                    <PlanCard
+                      plan={p}
+                      expanded={expandedPlan === p.id}
+                      onSelect={() => setPlanId(p.id)}
+                      onToggleExpand={() =>
+                        setExpandedPlan((cur) => (cur === p.id ? null : p.id))
+                      }
+                    />
+                  </motion.div>
+                ))}
+              </div>
+
+              <motion.div variants={itemV}>
+                <DurasiBlock
+                  months={months}
+                  onDec={() => setMonths((m) => Math.max(0, m - 1))}
+                  onInc={() => setMonths((m) => Math.min(36, m + 1))}
+                />
+              </motion.div>
+
+              <motion.div variants={itemV}>
+                <SectionTitleCustom />
+              </motion.div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 items-start">
+                {METHODS.map(({ id, label }, idx) => {
+                  const active = method === id;
+                  const Icon =
+                    id === "card"
+                      ? IconCreditCard
+                      : id === "bank"
+                      ? IconBankTransfer
+                      : id === "ewallet"
+                      ? IconWallet
+                      : IconQris;
+
+                  return (
+                    <motion.button
+                      key={id}
+                      onClick={() => setMethod(id)}
+                      className={classNames(
+                        "group flex flex-col items-center justify-center gap-3 rounded-[18px] border bg-white px-4 py-5 md:py-6 text-sm shadow-[0_6px_16px_rgba(0,0,0,0.06)] transition",
+                        active
+                          ? "border-[#5CC9AF] ring-1 ring-[#5CC9AF]"
+                          : "border-[#E7E7E7] hover:border-[#5CC9AF]",
+                        "focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
+                      )}
+                      style={{ WebkitTapHighlightColor: "transparent" }}
+                      type="button"
+                      initial={{ opacity: 0, y: reduce ? 0 : 10 }}
+                      animate={{
+                        opacity: 1,
+                        y: 0,
+                        transition: {
+                          delay: reduce ? 0 : 0.08 + idx * 0.04,
+                          duration: reduce ? 0.01 : 0.35,
+                          ease: [0.22, 1, 0.36, 1],
+                        },
+                      }}
+                      whileHover={reduce ? undefined : { y: -2 }}
+                      whileTap={reduce ? undefined : { scale: 0.98 }}
+                    >
+                      <Icon className="h-8 w-14" />
+                      <span className="font-medium text-gray-800">{label}</span>
+                    </motion.button>
+                  );
+                })}
+              </div>
+
+              <motion.div variants={itemV} className="rounded-xl border border-gray-200 p-4 md:p-5">
+                {method === "card" && (
+                  <div className="grid grid-cols-1 gap-3">
+                    <LabeledInput
+                      label="No. Kartu"
+                      placeholder="4811 1111 1111 1114"
+                      value={card.number}
+                      onChange={onCardChange("number")}
+                      inputMode="numeric"
+                      maxLength={23}
+                    />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <LabeledInput
+                        label="Tanggal Kedaluwarsa"
+                        placeholder="MM/YY (contoh: 12/30)"
+                        value={card.expiry}
+                        onChange={onCardChange("expiry")}
+                        maxLength={5}
+                      />
+                      <LabeledInput
+                        label="CVV"
+                        placeholder="123"
+                        value={card.cvv}
+                        onChange={onCardChange("cvv")}
+                        inputMode="numeric"
+                        maxLength={4}
+                      />
+                      <LabeledInput
+                        label="Nama di Kartu"
+                        placeholder="AFIF TEST"
+                        value={card.name}
+                        onChange={onCardChange("name")}
+                      />
+                    </div>
+
+                    <div className="text-xs text-gray-500">
+                      Midtrans 3DS:{" "}
+                      <span
+                        className={
+                          ccReady
+                            ? "text-emerald-600 font-semibold"
+                            : "text-red-500 font-semibold"
+                        }
+                      >
+                        {ccReady ? "Siap" : "Belum siap"}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-gray-500">
+                      Nomor kartu & CVV tidak dikirim ke server kami. Tokenisasi dilakukan aman langsung ke Midtrans.
+                    </p>
+                  </div>
+                )}
+
+                {method === "bank" && (
+                  <BankSelector banks={BANKS} selected={bank} onSelect={setBank} />
+                )}
+
+                {method === "ewallet" && (
+                  <>
+                    <EWalletSelector
+                      wallets={EWALLETS}
+                      selected={ewallet}
+                      onSelect={setEwallet}
+                    />
+                    <p className="text-xs text-gray-500 mt-2">
+                      Setelah klik bayar, kami tampilkan tautan/deeplink untuk menyelesaikan lewat aplikasi{" "}
+                      {ewallet ? ewallet.toUpperCase() : "e-wallet"}.
+                    </p>
+                  </>
+                )}
+
+                {method === "qris" && (
+                  <PlaceholderInfo
+                    title="QRIS"
+                    desc="Setelah klik Bayar, QR akan muncul di layar untuk kamu scan."
+                  />
+                )}
+              </motion.div>
+
+              <motion.button
+                onClick={handlePay}
+                disabled={!canPay}
+                className={classNames(
+                  "w-full mt-2 h-12 rounded-xl font-semibold text-white transition",
+                  canPay
+                    ? "bg-[#5CC9AF] hover:opacity-90"
+                    : "bg-gray-300 cursor-not-allowed"
+                )}
+                type="button"
+                variants={itemV}
+                whileHover={canPay && !reduce ? { y: -1 } : undefined}
+                whileTap={canPay && !reduce ? { scale: 0.99 } : undefined}
+              >
+                Bayar Sekarang - {formatRupiah(total)}
+              </motion.button>
+            </motion.div>
+
+            {/* RIGHT */}
+            <motion.aside
+              variants={itemV}
+              className="bg-white border border-black/10 rounded-2xl p-4 md:p-6 h-fit"
+            >
+              <h3 className="text-base font-semibold mb-4">Ringkasan Pembelian</h3>
+
+              <SummaryPlanCard plan={selectedPlan} />
+
+              <dl className="space-y-2 text-sm mt-4">
+                <Row label="Durasi :" value={`${months} bulan`} />
+                <Row
+                  label="Metode Pembayaran :"
+                  value={
+                    method === "bank"
+                      ? `Transfer Bank (${
+                          BANKS.find((b) => b.id === bank)?.name || "-"
+                        })`
+                      : method === "ewallet"
+                      ? `E–Wallet (${
+                          EWALLETS.find((w) => w.id === ewallet)?.name || "-"
+                        })`
+                      : METHODS.find((m) => m.id === method)?.label
                   }
                 />
-              ))}
-            </div>
-
-            <DurasiBlock
-              months={months}
-              onDec={() => setMonths((m) => Math.max(0, m - 1))}
-              onInc={() => setMonths((m) => Math.min(36, m + 1))}
-            />
-
-            <SectionTitleCustom />
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 items-start">
-              {METHODS.map(({ id, label }) => {
-                const active = method === id;
-                const Icon =
-                  id === "card"
-                    ? IconCreditCard
-                    : id === "bank"
-                    ? IconBankTransfer
-                    : id === "ewallet"
-                    ? IconWallet
-                    : IconQris;
-                return (
-                  <button
-                    key={id}
-                    onClick={() => setMethod(id)}
-                    className={classNames(
-                      "group flex flex-col items-center justify-center gap-3 rounded-[18px] border bg-white px-4 py-5 md:py-6 text-sm shadow-[0_6px_16px_rgba(0,0,0,0.06)] transition",
-                      active
-                        ? "border-[#5CC9AF] ring-1 ring-[#5CC9AF]"
-                        : "border-[#E7E7E7] hover:border-[#5CC9AF]",
-                      "focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
-                    )}
-                    style={{ WebkitTapHighlightColor: "transparent" }}
-                  >
-                    <Icon className="h-8 w-14" />
-                    <span className="font-medium text-gray-800">{label}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="rounded-xl border border-gray-200 p-4 md:p-5">
-              {method === "card" && (
-                <div className="grid grid-cols-1 gap-3">
-                  <LabeledInput
-                    label="No. Kartu"
-                    placeholder="1234 5678 9012 3456"
-                    value={card.number}
-                    onChange={onCardChange("number")}
-                    inputMode="numeric"
-                    maxLength={23}
-                  />
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <LabeledInput
-                      label="Tanggal Kedaluwarsa"
-                      placeholder="MM/YY"
-                      value={card.expiry}
-                      onChange={onCardChange("expiry")}
-                      maxLength={5}
-                    />
-                    <LabeledInput
-                      label="CVV"
-                      placeholder="3-4 digit"
-                      value={card.cvv}
-                      onChange={onCardChange("cvv")}
-                      inputMode="numeric"
-                      maxLength={4}
-                    />
-                    <LabeledInput
-                      label="Nama di Kartu"
-                      placeholder="Nama Pemilik"
-                      value={card.name}
-                      onChange={onCardChange("name")}
-                    />
-                  </div>
-                  <p className="text-xs text-gray-500">
-                    Nomor kartu & CVV tidak dikirim ke server kami. Tokenisasi
-                    dilakukan aman langsung ke Midtrans.
-                  </p>
-                </div>
-              )}
-
-              {method === "bank" && (
-                <BankSelector banks={BANKS} selected={bank} onSelect={setBank} />
-              )}
-
-              {method === "ewallet" && (
-                <>
-                  <EWalletSelector
-                    wallets={EWALLETS}
-                    selected={ewallet}
-                    onSelect={setEwallet}
-                  />
-                  <p className="text-xs text-gray-500 mt-2">
-                    Setelah klik bayar, kami tampilkan tautan/deeplink untuk
-                    menyelesaikan lewat aplikasi{" "}
-                    {ewallet ? ewallet.toUpperCase() : "e-wallet"}.
-                  </p>
-                </>
-              )}
-
-              {method === "qris" && (
-                <PlaceholderInfo
-                  title="QRIS"
-                  desc="Setelah klik Bayar, QR akan muncul di layar untuk kamu scan."
-                />
-              )}
-            </div>
-
-            <button
-              onClick={handlePay}
-              disabled={!canPay}
-              className={classNames(
-                "w-full mt-2 h-12 rounded-xl font-semibold text-white transition",
-                canPay
-                  ? "bg-[#5CC9AF] hover:opacity-90"
-                  : "bg-gray-300 cursor-not-allowed"
-              )}
-            >
-              Bayar Sekarang  -  {formatRupiah(total)}
-            </button>
-          </div>
-
-          {/* RIGHT */}
-          <aside className="bg-white border border-black/10 rounded-2xl p-4 md:p-6 h-fit">
-            <h3 className="text-base font-semibold mb-4">Ringkasan Pembelian</h3>
-
-            <SummaryPlanCard plan={selectedPlan} />
-
-            {/* ✅ Referral box */}
-            <div className="mt-4 rounded-xl border border-gray-200 p-4">
-              <div className="flex items-center justify-between gap-2">
-                <div className="text-sm font-semibold">Kode Referral</div>
-                {isReferralApplied && (
-                  <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-full">
-                    Diskon 6% aktif
-                  </span>
+                <Row label="Harga / bulan :" value={formatRupiah(selectedPlan?.price || 0)} />
+                <Row label="Subtotal :" value={formatRupiah(subtotal)} />
+                {discountEligible && (
+                  <Row label="Diskon Referral (6%) :" value={`- ${formatRupiah(discountAmount)}`} />
                 )}
-              </div>
-
-              <div className="mt-3 flex gap-2">
-                <input
-                  value={refInput}
-                  onChange={(e) => {
-                    setRefInput(e.target.value);
-                    setRefMsg("");
-                  }}
-                  placeholder="Masukkan kode referral"
-                  className="flex-1 h-11 rounded-lg border border-gray-300 px-3 outline-none focus:border-[#5CC9AF] focus:ring-2 focus:ring-[#5CC9AF33] placeholder:text-gray-400"
-                />
-                {!isReferralApplied ? (
-                  <button
-                    type="button"
-                    onClick={applyReferral}
-                    className="h-11 px-4 rounded-lg bg-[#5CC9AF] text-white font-semibold hover:opacity-90"
-                  >
-                    Terapkan
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={removeReferral}
-                    className="h-11 px-4 rounded-lg border border-gray-300 font-semibold hover:bg-gray-50"
-                  >
-                    Hapus
-                  </button>
-                )}
-              </div>
-
-              {refMsg && (
-                <div className="mt-2 text-xs text-gray-600">{refMsg}</div>
-              )}
-
-              {isReferralApplied && (
-                <div className="mt-2 text-xs text-gray-500">
-                  Kode aktif:{" "}
-                  <span className="font-mono font-semibold text-gray-700">
-                    {appliedReferralCode}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            <dl className="space-y-2 text-sm mt-4">
-              <Row label="Durasi :" value={`${months} bulan`} />
-              <Row
-                label="Metode Pembayaran :"
-                value={
-                  method === "bank"
-                    ? `Transfer Bank (${BANKS.find((b) => b.id === bank)?.name || "-"})`
-                    : method === "ewallet"
-                    ? `E–Wallet (${EWALLETS.find((w) => w.id === ewallet)?.name || "-"})`
-                    : METHODS.find((m) => m.id === method)?.label
-                }
-              />
-              <Row label="Harga / bulan :" value={formatRupiah(selectedPlan?.price || 0)} />
-              <Row label="Subtotal :" value={formatRupiah(subtotal)} />
-              {isReferralApplied && discount > 0 && (
-                <Row
-                  label={`Diskon Referral (${REFERRAL_DISCOUNT_PERCENT}%) :`}
-                  value={`- ${formatRupiah(discount)}`}
-                />
-              )}
-              <div className="h-px bg-gray-200 my-3" />
-              <Row bold label="Total :" value={formatRupiah(total)} />
-            </dl>
-          </aside>
+                <div className="h-px bg-gray-200 my-3" />
+                <Row bold label="Total :" value={formatRupiah(total)} />
+              </dl>
+            </motion.aside>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
-      {payInfo.open && (
-        <PayInstructionModal
-          info={payInfo}
-          onClose={() => setPayInfo((s) => ({ ...s, open: false }))}
-          onCheckStatus={() => pollStatus(payInfo.orderId)}
-        />
-      )}
-
-      <SuccessModal
-        open={success.open}
-        amount={success.amount}
-        onClose={() =>
-          setSuccess({ open: false, orderId: null, amount: 0, method: null })
-        }
-      />
-    </div>
+      {/* Modal animasi */}
+      <AnimatePresence>
+        {payInfo.open && (
+          <PayInstructionModal
+            info={payInfo}
+            onClose={() => setPayInfo((s) => ({ ...s, open: false }))}
+            onCheckStatus={() => pollStatus(payInfo.orderId)}
+          />
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
@@ -905,54 +1092,23 @@ function CircleBtn({ children, onClick, ariaLabel }) {
 function MinusIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden className="block">
-      <path
-        d="M5 10h10"
-        fill="none"
-        strokeLinecap="round"
-        strokeWidth="2.25"
-        stroke="white"
-      />
+      <path d="M5 10h10" fill="none" strokeLinecap="round" strokeWidth="2.25" stroke="white" />
     </svg>
   );
 }
 function PlusIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden className="block">
-      <path
-        d="M10 5v10M5 10h10"
-        fill="none"
-        strokeLinecap="round"
-        strokeWidth="2.25"
-        stroke="white"
-      />
+      <path d="M10 5v10M5 10h10" fill="none" strokeLinecap="round" strokeWidth="2.25" stroke="white" />
     </svg>
   );
 }
 
 function DottedClockIcon({ className = "" }) {
   return (
-    <svg
-      viewBox="0 0 28 28"
-      className={className}
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden
-    >
-      <circle
-        cx="14"
-        cy="14"
-        r="11"
-        stroke="currentColor"
-        strokeWidth="2"
-        fill="none"
-        strokeDasharray="2 4"
-      />
-      <path
-        d="M14 7.5v6l4.2 2.2"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        fill="none"
-      />
+    <svg viewBox="0 0 28 28" className={className} xmlns="http://www.w3.org/2000/svg" aria-hidden>
+      <circle cx="14" cy="14" r="11" stroke="currentColor" strokeWidth="2" fill="none" strokeDasharray="2 4" />
+      <path d="M14 7.5v6l4.2 2.2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
     </svg>
   );
 }
@@ -960,31 +1116,12 @@ function DottedClockIcon({ className = "" }) {
 function SectionTitleCustom() {
   return (
     <div className="flex items-center gap-2">
-      <svg
-        width="22"
-        height="22"
-        viewBox="0 0 22 22"
-        className="text-[#5CC9AF]"
-        aria-hidden
-      >
-        <rect
-          x="2"
-          y="6"
-          width="18"
-          height="10"
-          rx="2.5"
-          fill="currentColor"
-          opacity="0.15"
-        />
+      <svg width="22" height="22" viewBox="0 0 22 22" className="text-[#5CC9AF]" aria-hidden>
+        <rect x="2" y="6" width="18" height="10" rx="2.5" fill="currentColor" opacity="0.15" />
         <rect x="2" y="6" width="18" height="4" rx="2" fill="currentColor" />
         <circle cx="6.5" cy="13" r="1.2" fill="currentColor" />
         <circle cx="10.5" cy="13" r="1.2" fill="currentColor" />
-        <path
-          d="M17 4l1.6 1.6M17 4l-1.6 1.6"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-        />
+        <path d="M17 4l1.6 1.6M17 4l-1.6 1.6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
       </svg>
       <h2 className="text-sm md:text-base font-semibold">Metode Pembayaran</h2>
     </div>
@@ -999,8 +1136,7 @@ function PlanCard({ plan, onSelect, expanded, onToggleExpand }) {
       <button
         type="button"
         onClick={onSelect}
-        className="w-full bg-[#5CC9AF] text-white h-[104px] flex flex-col items-center justify-center px-4
-                   focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
+        className="w-full bg-[#5CC9AF] text-white h-[104px] flex flex-col items-center justify-center px-4 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
         style={{ WebkitTapHighlightColor: "transparent" }}
       >
         <div className="text-[15px] font-semibold leading-tight text-center">
@@ -1046,7 +1182,6 @@ function PlanCard({ plan, onSelect, expanded, onToggleExpand }) {
   );
 }
 
-/* ---------- SVG ICONS (metode pembayaran) ---------- */
 function IconCreditCard({ className = "w-14 h-8" }) {
   return (
     <svg viewBox="0 0 56 36" className={className} aria-hidden>
@@ -1066,12 +1201,7 @@ function IconBankTransfer({ className = "w-14 h-8" }) {
       <rect x="19" y="16" width="3.5" height="10" rx="1.2" fill="#5CC9AF" />
       <rect x="25" y="16" width="3.5" height="10" rx="1.2" fill="#5CC9AF" />
       <rect x="31" y="16" width="3.5" height="10" rx="1.2" fill="#5CC9AF" />
-      <path
-        d="M37 11h7m0 0-2.3-2.3M44 11l-2.3 2.3"
-        stroke="#5CC9AF"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
+      <path d="M37 11h7m0 0-2.3-2.3M44 11l-2.3 2.3" stroke="#5CC9AF" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }
@@ -1079,10 +1209,7 @@ function IconWallet({ className = "w-14 h-8" }) {
   return (
     <svg viewBox="0 0 56 36" className={className} aria-hidden>
       <rect x="7" y="10" width="42" height="18" rx="4.5" fill="#5CC9AF" opacity="0.2" />
-      <path
-        d="M9 14a4.5 4.5 0 0 1 4.5-4.5H34a3.5 3.5 0  0 1 3.5 3.5V15H9v-1Z"
-        fill="#5CC9AF"
-      />
+      <path d="M9 14a4.5 4.5 0 0 1 4.5-4.5H34a3.5 3.5 0  0 1 3.5 3.5V15H9v-1Z" fill="#5CC9AF" />
       <rect x="35" y="16" width="12" height="9" rx="2.2" fill="#5CC9AF" />
       <circle cx="39" cy="20.5" r="1.7" fill="white" />
     </svg>
@@ -1099,7 +1226,6 @@ function IconQris({ className = "w-14 h-8" }) {
   );
 }
 
-/* ---------- BANK & E-WALLET SELECTOR ---------- */
 function BankSelector({ banks, selected, onSelect }) {
   return (
     <div className="border border-gray-200 rounded-2xl p-3 md:p-4">
@@ -1228,6 +1354,7 @@ function LabeledInput({ label, ...props }) {
     </label>
   );
 }
+
 function PlaceholderInfo({ title, desc }) {
   return (
     <div>
@@ -1236,6 +1363,7 @@ function PlaceholderInfo({ title, desc }) {
     </div>
   );
 }
+
 function Row({ label, value, bold = false }) {
   return (
     <div className="flex items-center justify-between">
@@ -1247,48 +1375,24 @@ function Row({ label, value, bold = false }) {
 
 function ChevronDownMini({ className = "" }) {
   return (
-    <svg
-      width="18"
-      height="10"
-      viewBox="0 0 18 10"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden
-      className={className}
-    >
-      <path
-        d="M3 2.5L9 7.5L15 2.5"
-        stroke="#2F2F2F"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg width="18" height="10" viewBox="0 0 18 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden className={className}>
+      <path d="M3 2.5L9 7.5L15 2.5" stroke="#2F2F2F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
 function CheckIcon({ className = "" }) {
   return (
-    <svg
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      aria-hidden
-    >
-      <path
-        d="M16 5L8.5 12.5L5 9"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} aria-hidden>
+      <path d="M16 5L8.5 12.5L5 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-/* ============ Modal Instruksi Pembayaran ============ */
+/* ====================== Modal (animated) ====================== */
 function PayInstructionModal({ info, onClose, onCheckStatus }) {
+  const reduce = useReducedMotion();
+
   const copy = async (text) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -1299,9 +1403,27 @@ function PayInstructionModal({ info, onClose, onCheckStatus }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white w-[92vw] max-w-md rounded-2xl shadow-xl border border-black/10 overflow-hidden">
+    <motion.div
+      className="fixed inset-0 z-50 grid place-items-center"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div
+        className="absolute inset-0 bg-black/40"
+        onClick={onClose}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      />
+
+      <motion.div
+        className="relative bg-white w-[92vw] max-w-md rounded-2xl shadow-xl border border-black/10 overflow-hidden"
+        initial={{ opacity: 0, y: reduce ? 0 : 14, scale: reduce ? 1 : 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: reduce ? 0 : 10, scale: reduce ? 1 : 0.98 }}
+        transition={{ duration: reduce ? 0.01 : 0.28, ease: [0.22, 1, 0.36, 1] }}
+      >
         <div className="bg-[#5CC9AF] text-white px-5 py-4">
           <div className="text-lg font-bold">Instruksi Pembayaran</div>
           <div className="text-xs opacity-90">Order ID: {info.orderId}</div>
@@ -1320,6 +1442,7 @@ function PayInstructionModal({ info, onClose, onCheckStatus }) {
                   <button
                     onClick={() => copy(info.va)}
                     className="ml-auto text-xs px-3 py-1 rounded-lg border border-gray-300 hover:bg-gray-50"
+                    type="button"
                   >
                     Salin
                   </button>
@@ -1387,6 +1510,7 @@ function PayInstructionModal({ info, onClose, onCheckStatus }) {
                 <button
                   onClick={() => copy(info.qrString)}
                   className="mt-3 w-full h-10 rounded-xl border border-gray-300 hover:bg-gray-50 text-sm"
+                  type="button"
                 >
                   Salin QR String
                 </button>
@@ -1401,8 +1525,7 @@ function PayInstructionModal({ info, onClose, onCheckStatus }) {
                 {info.additional?.message || "Pembayaran kartu diproses."}
               </div>
               <p className="text-xs text-gray-500">
-                Jika kamu sudah menyelesaikan 3DS, status akan diperbarui otomatis
-                (atau klik Cek Status).
+                Jika sudah menyelesaikan 3DS, status akan dicek otomatis (atau klik Cek Status).
               </p>
             </>
           )}
@@ -1411,6 +1534,7 @@ function PayInstructionModal({ info, onClose, onCheckStatus }) {
             <button
               onClick={onClose}
               className="w-full h-11 rounded-xl border border-gray-300 hover:bg-gray-50 font-semibold"
+              type="button"
             >
               Tutup
             </button>
@@ -1418,71 +1542,14 @@ function PayInstructionModal({ info, onClose, onCheckStatus }) {
               <button
                 onClick={onCheckStatus}
                 className="w-full h-11 rounded-xl bg-[#5CC9AF] text-white font-semibold hover:opacity-90"
+                type="button"
               >
                 Cek Status Pembayaran
               </button>
             )}
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-/* ======= Success Modal ======= */
-function SuccessModal({ open, onClose, amount }) {
-  if (!open) return null;
-
-  return (
-    <div className="fixed inset-0 z-[60] grid place-items-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white w-[92vw] max-w-sm rounded-2xl shadow-xl border border-black/10 overflow-hidden p-6 text-center">
-        <div className="mx-auto mb-4 h-20 w-20 rounded-full bg-emerald-100 grid place-items-center animate-[pop_320ms_ease-out]">
-          <svg viewBox="0 0 52 52" className="h-10 w-10 text-emerald-500">
-            <circle cx="26" cy="26" r="25" fill="none" className="opacity-0" />
-            <path
-              d="M14 27l8 8 16-18"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              style={{
-                strokeDasharray: 60,
-                strokeDashoffset: 60,
-                animation: "draw 550ms 140ms ease-out forwards",
-              }}
-            />
-          </svg>
-        </div>
-
-        <h3 className="text-lg font-extrabold text-gray-900">Pembayaran Berhasil</h3>
-        {Number.isFinite(amount) && amount > 0 && (
-          <p className="mt-1 text-sm text-gray-600">
-            Total:{" "}
-            {new Intl.NumberFormat("id-ID", {
-              style: "currency",
-              currency: "IDR",
-              maximumFractionDigits: 0,
-            }).format(amount)}
-          </p>
-        )}
-
-        <button
-          onClick={onClose}
-          className="mt-5 inline-flex items-center justify-center h-11 w-full rounded-xl bg-[#5CC9AF] text-white font-semibold hover:opacity-90"
-        >
-          Tutup
-        </button>
-
-        <style>{`
-          @keyframes pop {
-            0% { transform: scale(.8); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-          }
-          @keyframes draw { to { stroke-dashoffset: 0; } }
-        `}</style>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

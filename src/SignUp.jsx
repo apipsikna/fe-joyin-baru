@@ -22,38 +22,34 @@ export default function SignUp({ onBack }) {
     name: "",
     email: "",
     phone: "",
-    referralCode: "", // opsional
+    referralCode: "",
     password: "",
     confirmPassword: "",
     agree: false,
   });
 
   const [loading, setLoading] = useState(false);
-  const [alert, setAlert] = useState(null); // { type: 'success' | 'error', message: string }
+  const [alert, setAlert] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  // Prefill referral:
-  // 1) dari URL (?ref=XXXX)
-  // 2) kalau tidak ada, dari localStorage (jika pernah tersimpan)
+  // Auto-fill referral dari URL (?ref=XXXX) atau dari localStorage (jika ada)
   useEffect(() => {
+    let stored = "";
     try {
-      const stored = (localStorage.getItem(REFERRAL_STORAGE_KEY) || "").trim();
-      setForm((prev) => {
-        if (prev.referralCode) return prev;
-        if (refFromUrl) return { ...prev, referralCode: refFromUrl.toUpperCase().replace(/\s+/g, "") };
-        if (stored) return { ...prev, referralCode: stored.toUpperCase().replace(/\s+/g, "") };
-        return prev;
-      });
-    } catch {
-      if (refFromUrl) {
-        setForm((prev) =>
-          prev.referralCode
-            ? prev
-            : { ...prev, referralCode: refFromUrl.toUpperCase().replace(/\s+/g, "") }
-        );
-      }
-    }
+      stored = (localStorage.getItem(REFERRAL_STORAGE_KEY) || "").trim();
+    } catch {}
+
+    const picked = (refFromUrl || stored || "").trim();
+    if (!picked) return;
+
+    setForm((prev) => {
+      if (prev.referralCode) return prev;
+      return {
+        ...prev,
+        referralCode: picked.toUpperCase().replace(/\s+/g, ""),
+      };
+    });
   }, [refFromUrl]);
 
   // Auto-hide alert
@@ -64,13 +60,22 @@ export default function SignUp({ onBack }) {
     }
   }, [alert]);
 
+  const persistReferral = (code) => {
+    try {
+      const v = (code || "").trim();
+      if (v) localStorage.setItem(REFERRAL_STORAGE_KEY, v);
+      else localStorage.removeItem(REFERRAL_STORAGE_KEY);
+    } catch {}
+  };
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    // Referral rapih: uppercase + tanpa spasi
     if (name === "referralCode") {
       const v = value.toUpperCase().replace(/\s+/g, "");
       setForm((prev) => ({ ...prev, referralCode: v }));
+      // ✅ simpan langsung agar diskon otomatis nanti
+      persistReferral(v);
       return;
     }
 
@@ -78,6 +83,11 @@ export default function SignUp({ onBack }) {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+  };
+
+  const clearReferral = () => {
+    setForm((p) => ({ ...p, referralCode: "" }));
+    persistReferral("");
   };
 
   const handleSubmit = async (e) => {
@@ -88,10 +98,7 @@ export default function SignUp({ onBack }) {
       return;
     }
     if (!form.agree) {
-      setAlert({
-        type: "error",
-        message: "You must agree to the terms & policy.",
-      });
+      setAlert({ type: "error", message: "You must agree to the terms & policy." });
       return;
     }
 
@@ -99,8 +106,8 @@ export default function SignUp({ onBack }) {
     setAlert(null);
 
     try {
-      // ✅ FE-only dulu: JANGAN kirim referralCode ke backend
-      // (Supaya tidak error jika BE belum mendukung field referralCode)
+      // ✅ FE dulu: tidak perlu kirim referralCode ke BE (biar aman kalau BE belum support)
+      // Referral sudah disimpan di localStorage untuk dipakai otomatis saat checkout pertama.
       const payload = {
         name: form.name,
         email: form.email,
@@ -109,13 +116,6 @@ export default function SignUp({ onBack }) {
       };
 
       await signup(payload);
-
-      // ✅ Simpan referralCode agar Checkout otomatis diskon 6%
-      const code = (form.referralCode || "").trim();
-      try {
-        if (code) localStorage.setItem(REFERRAL_STORAGE_KEY, code);
-        else localStorage.removeItem(REFERRAL_STORAGE_KEY);
-      } catch {}
 
       navigate(`/verify-otp?email=${encodeURIComponent(form.email)}`, {
         replace: true,
@@ -150,13 +150,6 @@ export default function SignUp({ onBack }) {
     );
   };
 
-  const clearReferral = () => {
-    setForm((p) => ({ ...p, referralCode: "" }));
-    try {
-      localStorage.removeItem(REFERRAL_STORAGE_KEY);
-    } catch {}
-  };
-
   return (
     <AnimatePresence>
       <motion.div
@@ -179,28 +172,16 @@ export default function SignUp({ onBack }) {
           aria-label="Kembali"
           type="button"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 text-black"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </motion.button>
 
         {/* Kiri - Form */}
         <div className="w-full lg:w-1/2 flex flex-col justify-center px-10">
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col space-y-4 max-w-md mx-auto w-full"
-          >
+          <form onSubmit={handleSubmit} className="flex flex-col space-y-4 max-w-md mx-auto w-full">
             <h2 className="text-2xl font-bold text-black text-center">Sign Up</h2>
-            <p className="text-center text-gray-500 text-sm mb-2">
-              Create your account
-            </p>
+            <p className="text-center text-gray-500 text-sm mb-2">Create your account</p>
 
             <input
               type="text"
@@ -232,7 +213,7 @@ export default function SignUp({ onBack }) {
               required
             />
 
-            {/* Referral Code */}
+            {/* Referral Code (Opsional, hanya 1x di register) */}
             <div className="space-y-2">
               <input
                 type="text"
@@ -245,7 +226,7 @@ export default function SignUp({ onBack }) {
               />
               <div className="flex items-center justify-between px-2">
                 <p className="text-[12px] text-gray-400">
-                  Isi jika punya kode referral (diskon {REFERRAL_DISCOUNT_PERCENT}% saat beli paket).
+                  Isi jika punya kode referral (diskon {REFERRAL_DISCOUNT_PERCENT}% otomatis saat pembelian pertama).
                 </p>
                 {form.referralCode ? (
                   <button
@@ -257,11 +238,6 @@ export default function SignUp({ onBack }) {
                   </button>
                 ) : null}
               </div>
-              {refFromUrl ? (
-                <div className="px-2 text-[12px] text-emerald-700">
-                  Referral terdeteksi dari link: <span className="font-mono font-semibold">{refFromUrl.toUpperCase().replace(/\s+/g, "")}</span>
-                </div>
-              ) : null}
             </div>
 
             {/* Password Field */}
@@ -279,8 +255,6 @@ export default function SignUp({ onBack }) {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-4 flex items-center cursor-pointer text-gray-500"
                 aria-label="Toggle password visibility"
-                role="button"
-                tabIndex={0}
               >
                 {showPassword ? (
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -310,8 +284,6 @@ export default function SignUp({ onBack }) {
                 onClick={() => setShowConfirm(!showConfirm)}
                 className="absolute inset-y-0 right-4 flex items-center cursor-pointer text-gray-500"
                 aria-label="Toggle confirm password visibility"
-                role="button"
-                tabIndex={0}
               >
                 {showConfirm ? (
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

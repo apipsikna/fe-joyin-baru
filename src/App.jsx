@@ -28,6 +28,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import ForgotPassword from "./ForgotPassword";
 import TentangKami from "./landingpage/TentangKami";
 import Referral from "./landingpage/Referral"; // ⬅️ halaman referral
+import BuktiPembayaran from "./pages/BuktiPembayaran";
 
 /* ================== Landing Page ================== */
 function LandingPage() {
@@ -172,6 +173,7 @@ function AppInner() {
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/bukti-pembayaran" element={<BuktiPembayaran />} />
         </Routes>
       </Router>
     </>
