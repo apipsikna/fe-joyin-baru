@@ -1,11 +1,6 @@
 // src/App.jsx
 import React, { useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 import "./i18n";
 import { useTranslation } from "react-i18next";
@@ -13,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import Dashboard from "./Dashboard";
 import Login from "./Login";
 import GoogleCallback from "./GoogleCallback";
-import Navbar from "./components/Navbar1"; // ⬅️ pakai Navbar1
+import Navbar from "./components/Navbar1";
 import HeroSection from "./components/HeroSection";
 import Keunggulan from "./components/Keunggulan";
 import FiturJoyin from "./components/FiturJoyin";
@@ -27,8 +22,51 @@ import ResetPassword from "./ResetPassword";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import ForgotPassword from "./ForgotPassword";
 import TentangKami from "./landingpage/TentangKami";
-import Referral from "./landingpage/Referral"; // ⬅️ halaman referral
+import Referral from "./landingpage/Referral";
 import BuktiPembayaran from "./pages/BuktiPembayaran";
+
+// ✅ import halaman tutorial baru
+import Tutorial from "./pages/Tutorial";
+
+/* ================== FORCE LIGHT THEME ================== */
+function ForceLightTheme() {
+  useEffect(() => {
+    document.documentElement.style.colorScheme = "light";
+    document.body.style.colorScheme = "light";
+
+    document.documentElement.style.backgroundColor = "#ffffff";
+    document.body.style.backgroundColor = "#ffffff";
+    document.body.style.color = "#111827";
+
+    document.documentElement.classList.remove("dark");
+
+    const ensureMeta = (name, content) => {
+      let el = document.querySelector(`meta[name="${name}"]`);
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute("name", name);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", content);
+    };
+
+    ensureMeta("color-scheme", "light");
+    ensureMeta("supported-color-schemes", "light");
+  }, []);
+
+  return (
+    <style>{`
+      :root { color-scheme: light; }
+      html, body { background: #fff !important; color: #111827 !important; }
+
+      @media (prefers-color-scheme: dark) {
+        :root { color-scheme: light; }
+        html, body { background: #fff !important; color: #111827 !important; }
+        input, textarea, select, button { color-scheme: light; }
+      }
+    `}</style>
+  );
+}
 
 /* ================== Landing Page ================== */
 function LandingPage() {
@@ -44,7 +82,7 @@ function LandingPage() {
   }, []);
 
   return (
-    <div className="w-screen min-h-screen font-poppins overflow-x-hidden">
+    <div className="w-screen min-h-screen font-poppins overflow-x-hidden bg-white text-black">
       <Navbar />
 
       <section id="beranda" className="scroll-mt-24">
@@ -55,6 +93,7 @@ function LandingPage() {
         <Keunggulan />
       </section>
 
+      {/* ini boleh tetap ada */}
       <section id="tutorial" className="scroll-mt-24">
         <FiturJoyin />
       </section>
@@ -76,22 +115,18 @@ function LandingPage() {
 function HtmlLangSync() {
   const { i18n } = useTranslation();
   useEffect(() => {
-    document.documentElement.lang = i18n.language?.startsWith("en")
-      ? "en"
-      : "id";
+    document.documentElement.lang = i18n.language?.startsWith("en") ? "en" : "id";
   }, [i18n.language]);
   return null;
 }
 
 /* ================= Route Guards ================= */
-// Privat: butuh login. Jika belum login → arahkan ke /login (bukan ke beranda).
 function RequireAuth({ children }) {
   const { isAuthenticated, ready } = useAuth();
   if (!ready) return null;
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 }
 
-// Publik-umum: redirect jika SUDAH login & user lengkap (tetap dipakai untuk callback)
 function PublicOnly({ children }) {
   const { isAuthenticated, ready, user } = useAuth();
   if (!ready) return null;
@@ -99,7 +134,6 @@ function PublicOnly({ children }) {
   return ok ? <Navigate to="/dashboard" replace /> : children;
 }
 
-// Publik-khusus LOGIN
 function PublicOnlyLogin({ children }) {
   const { isAuthenticated, ready } = useAuth();
   if (!ready) return null;
@@ -109,7 +143,9 @@ function PublicOnlyLogin({ children }) {
 function AppInner() {
   return (
     <>
+      <ForceLightTheme />
       <HtmlLangSync />
+
       <Router>
         <Routes>
           {/* Landing page */}
@@ -143,7 +179,13 @@ function AppInner() {
 
           {/* Publik */}
           <Route path="/tentang" element={<TentangKami />} />
-          <Route path="/referral" element={<Referral />} /> {/* ⬅️ route baru */}
+          <Route path="/referral" element={<Referral />} />
+
+          {/* ✅ Tutorial page */}
+          <Route path="/tutorial" element={<Tutorial />} />
+
+          {/* Bukti Pembayaran */}
+          <Route path="/bukti-pembayaran" element={<BuktiPembayaran />} />
 
           {/* Privat */}
           <Route
@@ -173,7 +215,6 @@ function AppInner() {
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
-          <Route path="/bukti-pembayaran" element={<BuktiPembayaran />} />
         </Routes>
       </Router>
     </>

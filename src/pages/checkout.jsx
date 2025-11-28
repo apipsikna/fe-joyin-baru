@@ -11,6 +11,9 @@ const REFERRAL_STORAGE_KEY = "signup_referral_code";
 const REFERRAL_DISCOUNT_RATE = 0.06; // 6%
 const RECEIPT_STORAGE_KEY = "last_receipt";
 
+/* ====================== TAX (PPN) ====================== */
+const TAX_RATE = 0.11; // 11%
+
 /* ====================== Data ====================== */
 const PLANS = [
   {
@@ -309,6 +312,7 @@ export default function Checkout() {
     [planId]
   );
 
+  // ===== Harga dasar (belum diskon, belum pajak) =====
   const subtotal = useMemo(
     () => (selectedPlan?.price || 0) * months,
     [selectedPlan, months]
@@ -323,9 +327,20 @@ export default function Checkout() {
     return Math.floor(subtotal * REFERRAL_DISCOUNT_RATE);
   }, [subtotal, discountEligible]);
 
-  const total = useMemo(() => {
+  // ===== DPP (setelah diskon) =====
+  const dpp = useMemo(() => {
     return Math.max(0, subtotal - discountAmount);
   }, [subtotal, discountAmount]);
+
+  // ===== PPN 11% =====
+  const tax = useMemo(() => {
+    return Math.round(dpp * TAX_RATE);
+  }, [dpp]);
+
+  // ===== Total bayar (DPP + PPN) =====
+  const total = useMemo(() => {
+    return Math.max(0, dpp + tax);
+  }, [dpp, tax]);
 
   const markFirstPurchaseDone = async (orderId) => {
     try {
@@ -367,16 +382,27 @@ export default function Checkout() {
   };
 
   const gotoReceipt = ({ orderId, amount, paymentType }) => {
+    const paidAmount =
+      Number.isFinite(Number(amount)) && Number(amount) > 0
+        ? Math.round(Number(amount))
+        : total;
+
     const payload = {
       orderId,
-      amount,
+      amount: paidAmount,
       paymentType,
       methodLabel: paymentTypeToLabel(paymentType, method),
       planName: selectedPlan?.name || "-",
       months,
-      subtotal,
+
+      // Rincian
+      subtotal, // harga normal (sebelum diskon & pajak)
       discountAmount,
-      total: amount || total,
+      dpp, // setelah diskon (sebelum pajak)
+      taxAmount: tax,
+      total: paidAmount, // total akhir (dpp + ppn)
+
+      transactionTime: new Date().toISOString(),
       paidAt: new Date().toISOString(),
       statusLabel: "Berhasil",
     };
@@ -517,7 +543,7 @@ export default function Checkout() {
     }
 
     const orderIdLocal = `ORDER-${Date.now()}`;
-    const grossAmount = total;
+    const grossAmount = total; // ✅ total sudah termasuk PPN
 
     try {
       if (method === "card") {
@@ -841,7 +867,10 @@ export default function Checkout() {
                 })}
               </div>
 
-              <motion.div variants={itemV} className="rounded-xl border border-gray-200 p-4 md:p-5">
+              <motion.div
+                variants={itemV}
+                className="rounded-xl border border-gray-200 p-4 md:p-5"
+              >
                 {method === "card" && (
                   <div className="grid grid-cols-1 gap-3">
                     <LabeledInput
@@ -890,13 +919,18 @@ export default function Checkout() {
                     </div>
 
                     <p className="text-xs text-gray-500">
-                      Nomor kartu & CVV tidak dikirim ke server kami. Tokenisasi dilakukan aman langsung ke Midtrans.
+                      Nomor kartu & CVV tidak dikirim ke server kami. Tokenisasi
+                      dilakukan aman langsung ke Midtrans.
                     </p>
                   </div>
                 )}
 
                 {method === "bank" && (
-                  <BankSelector banks={BANKS} selected={bank} onSelect={setBank} />
+                  <BankSelector
+                    banks={BANKS}
+                    selected={bank}
+                    onSelect={setBank}
+                  />
                 )}
 
                 {method === "ewallet" && (
@@ -907,7 +941,8 @@ export default function Checkout() {
                       onSelect={setEwallet}
                     />
                     <p className="text-xs text-gray-500 mt-2">
-                      Setelah klik bayar, kami tampilkan tautan/deeplink untuk menyelesaikan lewat aplikasi{" "}
+                      Setelah klik bayar, kami tampilkan tautan/deeplink untuk
+                      menyelesaikan lewat aplikasi{" "}
                       {ewallet ? ewallet.toUpperCase() : "e-wallet"}.
                     </p>
                   </>
@@ -964,11 +999,30 @@ export default function Checkout() {
                       : METHODS.find((m) => m.id === method)?.label
                   }
                 />
-                <Row label="Harga / bulan :" value={formatRupiah(selectedPlan?.price || 0)} />
+                <Row
+                  label="Harga / bulan :"
+                  value={formatRupiah(selectedPlan?.price || 0)}
+                />
+
                 <Row label="Subtotal :" value={formatRupiah(subtotal)} />
+
                 {discountEligible && (
-                  <Row label="Diskon Referral (6%) :" value={`- ${formatRupiah(discountAmount)}`} />
+                  <Row
+                    label="Diskon Referral (6%) :"
+                    value={`- ${formatRupiah(discountAmount)}`}
+                  />
                 )}
+
+                {discountEligible && (
+                  <Row
+                    label="Subtotal Setelah Diskon :"
+                    value={formatRupiah(dpp)}
+                  />
+                )}
+
+                {/* ✅ PPN */}
+                <Row label="PPN (11%) :" value={formatRupiah(tax)} />
+
                 <div className="h-px bg-gray-200 my-3" />
                 <Row bold label="Total :" value={formatRupiah(total)} />
               </dl>

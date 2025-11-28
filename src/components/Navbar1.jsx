@@ -4,7 +4,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   HiOutlineHome,
-  HiOutlineCog6Tooth,
   HiOutlineArrowRightOnRectangle,
   HiOutlineGlobeAlt,
 } from "react-icons/hi2";
@@ -14,12 +13,15 @@ import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { resolveAvatarUrl } from "../utils/avatar";
 
-// ====== Menu config (tetap) ======
+// ====== Menu config ======
 const NAV_ITEMS = [
   { id: "referral", label: "Referral", kind: "route", target: "/referral" },
   { id: "paket", label: "Paket", kind: "hash", target: "#paket" },
   { id: "beranda", label: "Beranda", kind: "hash", target: "#beranda" },
-  { id: "tutorial", label: "Tutorial", kind: "hash", target: "#tutorial" },
+
+  // ✅ Tutorial sekarang langsung ke halaman tutorial
+  { id: "tutorial", label: "Tutorial", kind: "route", target: "/tutorial" },
+
   { id: "tentang", label: "Tentang Kami", kind: "route", target: "/tentang" },
 ];
 
@@ -29,12 +31,14 @@ const deriveActiveFromLocation = (loc) => {
 
   if (pathname === "/tentang") return "tentang";
   if (pathname === "/referral") return "referral";
+  if (pathname === "/tutorial") return "tutorial";
+
   if (pathname === "/") {
     const map = {
       "#referral": "referral",
       "#paket": "paket",
       "#beranda": "beranda",
-      "#tutorial": "tutorial",
+      "#tutorial": "tutorial", // masih aman kalau kamu tetap pakai anchor di beranda
     };
     return map[hash] || "beranda";
   }
@@ -60,11 +64,7 @@ export default function Navbar() {
   const [active, setActive] = useState(() => deriveActiveFromLocation(location));
   const menuRef = useRef(null);
   const itemRefs = useRef({});
-  const [indicator, setIndicator] = useState({
-    left: 0,
-    width: 0,
-    ready: false,
-  });
+  const [indicator, setIndicator] = useState({ left: 0, width: 0, ready: false });
 
   // ===== Profile state (untuk tampil di landing) =====
   const [profile, setProfile] = useState({});
@@ -72,12 +72,10 @@ export default function Navbar() {
   const [openProfile, setOpenProfile] = useState(false);
   const dropdownWrapRef = useRef(null);
 
-  // Sinkronkan active jika URL berubah (pindah halaman / hash)
   useEffect(() => {
     setActive(deriveActiveFromLocation(location));
   }, [location]);
 
-  // Hitung posisi & lebar indikator (garis bawah)
   const updateIndicator = () => {
     const menu = menuRef.current;
     const el = itemRefs.current[active];
@@ -86,12 +84,9 @@ export default function Navbar() {
     const menuRect = menu.getBoundingClientRect();
     const elRect = el.getBoundingClientRect();
 
-    const left = elRect.left - menuRect.left;
-    const width = elRect.width;
-
     setIndicator({
-      left,
-      width,
+      left: elRect.left - menuRect.left,
+      width: elRect.width,
       ready: true,
     });
   };
@@ -99,9 +94,7 @@ export default function Navbar() {
   useLayoutEffect(() => {
     updateIndicator();
     if (document?.fonts?.ready) {
-      document.fonts.ready.then(() => {
-        requestAnimationFrame(updateIndicator);
-      });
+      document.fonts.ready.then(() => requestAnimationFrame(updateIndicator));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
@@ -123,6 +116,7 @@ export default function Navbar() {
       return;
     }
 
+    // hash navigation
     if (location.pathname !== "/") {
       setActive(item.id);
       navigate({ pathname: "/", hash: item.target });
@@ -138,7 +132,7 @@ export default function Navbar() {
     }
   };
 
-  // ✅ Fetch profil kalau user masih login (supaya muncul di landing)
+  // Fetch profil kalau user login
   useEffect(() => {
     let cancelled = false;
 
@@ -207,20 +201,16 @@ export default function Navbar() {
       <div ref={menuRef} className="relative hidden lg:flex items-center gap-8 text-sm">
         {NAV_ITEMS.map((item) => {
           const isActive = active === item.id;
-          const href = item.target;
 
           return (
             <a
               key={item.id}
-              href={href}
+              href={item.target}
               ref={(el) => (itemRefs.current[item.id] = el)}
               onClick={(e) => handleClick(e, item)}
-              className={`relative inline-block font-bold transition-colors duration-200
-                ${
-                  isActive
-                    ? "text-emerald-600"
-                    : "text-gray-900 hover:text-emerald-600"
-                }`}
+              className={`relative inline-block font-bold transition-colors duration-200 ${
+                isActive ? "text-emerald-600" : "text-gray-900 hover:text-emerald-600"
+              }`}
               aria-current={isActive ? "page" : undefined}
             >
               {item.label}
@@ -233,14 +223,11 @@ export default function Navbar() {
           className={`pointer-events-none absolute -bottom-1 h-[2px] rounded-full bg-emerald-500
                       transition-[left,width,opacity] duration-300 ease-out
                       ${indicator.ready ? "opacity-100" : "opacity-0"}`}
-          style={{
-            left: indicator.left,
-            width: indicator.width,
-          }}
+          style={{ left: indicator.left, width: indicator.width }}
         />
       </div>
 
-      {/* ✅ Right side: Login ATAU Profile */}
+      {/* Right side: Login atau Profile */}
       <div className="flex items-center gap-3" ref={dropdownWrapRef}>
         {ready && isAuthenticated ? (
           <LandingProfile
@@ -278,7 +265,7 @@ export default function Navbar() {
   );
 }
 
-/* ================= LandingProfile (untuk Navbar1) ================= */
+/* ================= LandingProfile ================= */
 function LandingProfile({
   profile,
   firstName,
@@ -290,8 +277,7 @@ function LandingProfile({
   onLogout,
   loaded,
 }) {
-  const plan =
-    profile?.planName || profile?.package || profile?.subscription || "Gratis";
+  const plan = profile?.planName || profile?.package || profile?.subscription || "Gratis";
 
   const rawAvatar =
     profile?.avatar || profile?.photo || profile?.avatarUrl || profile?.image || null;
@@ -332,8 +318,10 @@ function LandingProfile({
 
         <div className="text-left leading-tight">
           <p className="text-[12px] font-semibold text-gray-900">{firstName}</p>
-          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-[2px] rounded-full
-                           bg-emerald-50 text-emerald-700 border border-emerald-100">
+          <span
+            className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-[2px] rounded-full
+                       bg-emerald-50 text-emerald-700 border border-emerald-100"
+          >
             {plan}
           </span>
         </div>
@@ -367,6 +355,7 @@ function LandingProfile({
                   </span>
                 )}
               </div>
+
               <div className="min-w-0">
                 <p className="text-[12px] font-bold text-gray-900 truncate">
                   {profile?.name || "Pengguna"}
@@ -375,6 +364,7 @@ function LandingProfile({
                   <p className="text-[11px] text-gray-500 truncate">{profile.email}</p>
                 )}
               </div>
+
               <button
                 onClick={onGoDashboard}
                 className="ml-auto text-[10px] font-semibold px-2 py-1 rounded-full

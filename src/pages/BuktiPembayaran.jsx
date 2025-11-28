@@ -92,22 +92,46 @@ export default function BuktiPembayaran() {
     return { scale, x, y, rotate };
   }, [location.search]);
 
+  // ===== Total (sudah termasuk PPN) =====
   const total = useMemo(() => {
     const t = Number(data.total ?? data.amount ?? 0);
     return Number.isFinite(t) ? Math.round(t) : 0;
   }, [data.total, data.amount]);
 
-  const { subtotal, tax } = useMemo(() => {
-    if (!total) return { subtotal: 0, tax: 0 };
-    const sub = Math.round(total / (1 + TAX_RATE));
-    const ppn = Math.max(0, total - sub);
-    return { subtotal: sub, tax: ppn };
-  }, [total]);
+  // ===== Subtotal normal (sebelum diskon & pajak) =====
+  const subtotal = useMemo(() => {
+    const s = Number(data.subtotal ?? 0);
+    if (Number.isFinite(s) && s > 0) return Math.round(s);
+    // fallback: kira-kira balik dari total (jika data lama)
+    if (!total) return 0;
+    return Math.round(total / (1 + TAX_RATE));
+  }, [data.subtotal, total]);
+
+  // ===== Diskon referral (jika ada) =====
+  const discountAmount = useMemo(() => {
+    const d = Number(data.discountAmount ?? 0);
+    return Number.isFinite(d) ? Math.max(0, Math.round(d)) : 0;
+  }, [data.discountAmount]);
+
+  // ===== DPP (setelah diskon) =====
+  const dpp = useMemo(() => {
+    const x = Number(data.dpp ?? 0);
+    if (Number.isFinite(x) && x >= 0) return Math.round(x);
+    return Math.max(0, subtotal - discountAmount);
+  }, [data.dpp, subtotal, discountAmount]);
+
+  // ===== Pajak (PPN 11%) =====
+  const tax = useMemo(() => {
+    const t = Number(data.taxAmount ?? 0);
+    if (Number.isFinite(t) && t >= 0) return Math.round(t);
+    if (total && dpp) return Math.max(0, Math.round(total - dpp));
+    return Math.round(dpp * TAX_RATE);
+  }, [data.taxAmount, total, dpp]);
 
   const transactionId =
     data.transactionId || data.trxId || data.orderId || "TRX-XXXX";
   const transactionTime =
-    data.transactionTime || data.time || new Date().toISOString();
+    data.transactionTime || data.time || data.paidAt || new Date().toISOString();
   const methodLabel = data.methodLabel || "Transfer Bank BCA";
   const receiver = data.receiver || "PT Joyin ID";
   const paket = data.planName || "Paket Basic";
@@ -164,7 +188,10 @@ export default function BuktiPembayaran() {
           <motion.div
             initial={{ opacity: 0, y: reduce ? 0 : 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduce ? 0.01 : 0.45, ease: [0.22, 1, 0.36, 1] }}
+            transition={{
+              duration: reduce ? 0.01 : 0.45,
+              ease: [0.22, 1, 0.36, 1],
+            }}
           >
             <img
               src={StrukBg}
@@ -180,7 +207,10 @@ export default function BuktiPembayaran() {
           </motion.div>
 
           <div className="absolute inset-0 z-10 flex flex-col px-8 pt-12 pb-8">
-            <motion.div variants={itemV} className="text-center text-[28px] font-extrabold leading-tight text-gray-700">
+            <motion.div
+              variants={itemV}
+              className="text-center text-[28px] font-extrabold leading-tight text-gray-700"
+            >
               Pembayaran
               <br />
               Berhasil
@@ -219,8 +249,25 @@ export default function BuktiPembayaran() {
 
                 <div className="mt-6 h-px bg-gray-200" />
 
+                {/* ===== Rincian Harga: Harga normal + PPN 11% ===== */}
                 <div className="pt-4 space-y-3">
                   <Row label="Subtotal" value={formatStrukRupiah(subtotal)} />
+
+                  {discountAmount > 0 && (
+                    <Row
+                      label="Diskon Referral"
+                      value={`- ${formatStrukRupiah(discountAmount)}`}
+                    />
+                  )}
+
+                  {/* DPP opsional ditampilkan hanya kalau ada diskon */}
+                  {discountAmount > 0 && (
+                    <Row
+                      label="Subtotal Setelah Diskon"
+                      value={formatStrukRupiah(dpp)}
+                    />
+                  )}
+
                   <Row label="PPN (11%)" value={formatStrukRupiah(tax)} />
                 </div>
 
