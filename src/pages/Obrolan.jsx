@@ -14,7 +14,7 @@ const PAKET_SAYA_CFG = {
 
   // ✅ Teks judul di atas gambar (bisa digeser & di-scale)
   title: {
-    text: "Laporan",
+    text: "Obrolan",
 
     // posisi (px) relatif terhadap posisi default (center)
     x: 0, // + ke kanan, - ke kiri

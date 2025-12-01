@@ -13,6 +13,20 @@ const STRUK_DEFAULT = {
   rotate: 0,
 };
 
+// ✅ Mapping paket -> route halaman PaketDashboard
+// Pastikan kamu sudah bikin route-nya di App.jsx (React Router) ke komponen:
+// /paket-dashboard/basic      -> src/PaketDashboard/Basic.jsx
+// /paket-dashboard/pro        -> src/PaketDashboard/Pro.jsx
+// /paket-dashboard/bisnis     -> src/PaketDashboard/Bisnis.jsx
+// /paket-dashboard/enterprise -> src/PaketDashboard/Enterprise.jsx
+const PLAN_ROUTE = {
+  basic: "/paket-dashboard/basic",
+  pro: "/paket-dashboard/pro",
+  bisnis: "/paket-dashboard/bisnis",
+  business: "/paket-dashboard/bisnis",
+  enterprise: "/paket-dashboard/enterprise",
+};
+
 const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
 
 function readNum(qp, key, fallback) {
@@ -75,6 +89,23 @@ function CopyIcon({ className = "" }) {
   );
 }
 
+function normalizePlanKey(input) {
+  const s = String(input || "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+
+  // prioritas: tangkap kata kunci
+  if (s.includes("enterprise")) return "enterprise";
+  if (s.includes("bisnis")) return "bisnis";
+  if (s.includes("business")) return "business";
+  if (s.includes("pro")) return "pro";
+  if (s.includes("basic")) return "basic";
+
+  // fallback: kalau input cuma "b", "p", dll tidak valid
+  return "";
+}
+
 export default function BuktiPembayaran() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -102,7 +133,6 @@ export default function BuktiPembayaran() {
   const subtotal = useMemo(() => {
     const s = Number(data.subtotal ?? 0);
     if (Number.isFinite(s) && s > 0) return Math.round(s);
-    // fallback: kira-kira balik dari total (jika data lama)
     if (!total) return 0;
     return Math.round(total / (1 + TAX_RATE));
   }, [data.subtotal, total]);
@@ -134,7 +164,18 @@ export default function BuktiPembayaran() {
     data.transactionTime || data.time || data.paidAt || new Date().toISOString();
   const methodLabel = data.methodLabel || "Transfer Bank BCA";
   const receiver = data.receiver || "PT Joyin ID";
-  const paket = data.planName || "Paket Basic";
+
+  const paket =
+    data.planName || data.plan || data.packageName || data.paket || "Paket Basic";
+
+  // ✅ Tentukan tujuan berdasarkan paket yang dibeli
+  const targetPath = useMemo(() => {
+    const planKey =
+      normalizePlanKey(data.planKey || data.planId || data.planName || paket) ||
+      normalizePlanKey(paket);
+
+    return PLAN_ROUTE[planKey] || "/dashboard";
+  }, [data.planKey, data.planId, data.planName, paket]);
 
   const copyText = async (text) => {
     try {
@@ -260,7 +301,6 @@ export default function BuktiPembayaran() {
                     />
                   )}
 
-                  {/* DPP opsional ditampilkan hanya kalau ada diskon */}
                   {discountAmount > 0 && (
                     <Row
                       label="Subtotal Setelah Diskon"
@@ -295,14 +335,15 @@ export default function BuktiPembayaran() {
                 Download Struk
               </motion.button>
 
+              {/* ✅ SEKARANG tombol ini akan pindah sesuai paket yang dibeli */}
               <motion.button
                 type="button"
-                onClick={() => navigate("/dashboard", { replace: true })}
+                onClick={() => navigate(targetPath, { replace: true })}
                 className="h-12 rounded-2xl bg-emerald-400 text-white font-semibold shadow-sm hover:opacity-90"
                 whileHover={reduce ? undefined : { y: -1 }}
                 whileTap={reduce ? undefined : { scale: 0.99 }}
               >
-                Kembali
+                Lanjut
               </motion.button>
             </motion.div>
 

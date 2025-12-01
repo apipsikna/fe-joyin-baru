@@ -3,6 +3,7 @@ import React, { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import karakter from "../assets/karakter_dashboard.png";
+import gelombang from "../assets/gelombang.png";
 import bintang from "../assets/bintang2.png";
 
 // Recharts
@@ -19,15 +20,28 @@ import {
 } from "recharts";
 
 /* ==================== LAYOUT CONFIG (untuk developer) ==================== */
-// Ubah ini kalau mau lebar container utama beda.
-// Contoh:
-// - "max-w-4xl mx-auto"  → lebih sempit
-// - "max-w-5xl mx-auto"  → sedang
-// - "max-w-6xl mx-auto"  → lebar
-// - "w-full"            → full width
 const HOME_LAYOUT = {
   mainContainerWidth: "max-w-7xl mx-auto",
 };
+
+/* ==================== GELOMBANG CONFIG (bisa digeser/zoom/rotate) ==================== */
+const GELOMBANG_CFG = {
+  // posisi relatif terhadap center karakter
+  x: -70, // + ke kanan, - ke kiri (px)
+  y: 120, // + ke bawah, - ke atas (px)
+
+  // ukuran
+  w: 520, // px (mobile)
+  wMd: 600, // px (md ke atas)
+
+  // rotasi (derajat)
+  rot: 30,
+
+  // tampilan
+  opacity: 0.95,
+};
+
+const px = (n) => `${n}px`;
 
 // ==================== Home Page ====================
 export default function Home({ profile }) {
@@ -86,6 +100,8 @@ export default function Home({ profile }) {
 
 // ==================== Welcome Section ====================
 function WelcomeSection({ profileName, t }) {
+  const g = GELOMBANG_CFG;
+
   return (
     <div className="flex justify-between items-center flex-wrap relative z-0 overflow-visible w-full px-6 md:px-12">
       <motion.img
@@ -104,6 +120,7 @@ function WelcomeSection({ profileName, t }) {
         alt="bintang-kiri"
         className="absolute top-[120px] right-[390px] w-10 h-10 z-10"
       />
+
       <motion.div
         initial={{ x: -250, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -118,14 +135,51 @@ function WelcomeSection({ profileName, t }) {
           {t("home.subtitle", { defaultValue: "Joyin siap nemenin bisnismu." })}
         </p>
       </motion.div>
-      <motion.img
+
+      {/* ✅ Wrapper karakter + gelombang (gelombang di belakang persis) */}
+      <motion.div
         initial={{ y: 150, opacity: 0 }}
         animate={{ y: 0, opacity: 1, rotate: -24 }}
         transition={{ duration: 1.2 }}
-        src={karakter}
-        alt="karakter"
-        className="h-[410px] object-contain mt-4 md:mt-0 relative right-[-80px] rotate-[-40deg] scale-[1.4] z-0"
-      />
+        className="mt-4 md:mt-0 relative right-[-80px] rotate-[-40deg] scale-[1.4] z-0"
+      >
+        {/* Gelombang (di belakang karakter) */}
+        <img
+          src={gelombang}
+          alt="gelombang"
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none z-0"
+          style={{
+            width: px(g.w),
+            opacity: g.opacity,
+            transform: `translate(-50%, -50%) translate(${g.x}px, ${g.y}px) rotate(${g.rot}deg)`,
+          }}
+        />
+
+        {/* md+ width */}
+        <style>{`
+          @media (min-width: 768px){
+            .gelombang-md-width {
+              width: ${px(g.wMd)};
+            }
+          }
+        `}</style>
+
+        {/* apply md width via extra class (supaya gampang & stabil) */}
+        <img
+          src={gelombang}
+          alt=""
+          aria-hidden="true"
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none z-0 gelombang-md-width opacity-0"
+          style={{}}
+        />
+
+        {/* Karakter (di depan gelombang) */}
+        <img
+          src={karakter}
+          alt="karakter"
+          className="relative h-[410px] object-contain pointer-events-none select-none z-10"
+        />
+      </motion.div>
     </div>
   );
 }
@@ -234,7 +288,6 @@ const StatisticsSection = React.memo(function StatisticsSectionInner({ t }) {
         </select>
       </div>
 
-      {/* Chart container full width, tinggi fix */}
       <div className="w-full rounded-2xl border border-emerald-100 shadow-[0_10px_30px_rgba(92,201,175,.15)] p-3">
         <div className="w-full h-[340px]">
           <ResponsiveContainer width="100%" height="100%">
@@ -244,7 +297,6 @@ const StatisticsSection = React.memo(function StatisticsSectionInner({ t }) {
               barCategoryGap={18}
             >
               <defs>
-                {/* Gradient bar */}
                 <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#5CC9AF" />
                   <stop offset="100%" stopColor="#D7E96F" />
@@ -261,7 +313,7 @@ const StatisticsSection = React.memo(function StatisticsSectionInner({ t }) {
                 tick={{ fill: "#6b7280", fontSize: 12 }}
                 axisLine={false}
                 tickLine={false}
-                interval={0} // paksa semua bulan tampil
+                interval={0}
                 allowDuplicatedCategory={false}
                 tickMargin={8}
                 minTickGap={0}
@@ -279,7 +331,6 @@ const StatisticsSection = React.memo(function StatisticsSectionInner({ t }) {
                 cursor={{ fill: "rgba(16,185,129,0.06)" }}
               />
 
-              {/* Garis rata-rata dengan label terlihat */}
               <ReferenceLine
                 y={avg}
                 stroke="#10b981"
@@ -301,7 +352,7 @@ const StatisticsSection = React.memo(function StatisticsSectionInner({ t }) {
                 fill="url(#barGradient)"
                 radius={[12, 12, 8, 8]}
                 maxBarSize={38}
-                isAnimationActive={false} // matikan animasi bar biar stabil
+                isAnimationActive={false}
               >
                 <LabelList
                   dataKey="value"
@@ -341,7 +392,6 @@ function KelolaBotSection({ t }) {
                    px-6 md:px-10 py-8 flex items-center justify-between overflow-hidden
                    hover:shadow-xl"
       >
-        {/* Aksen kurva kiri */}
         <div
           aria-hidden
           className="absolute left-0 top-1/2 -translate-y-1/2 h-[78%] w-[6px] rounded-full"

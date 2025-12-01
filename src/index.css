@@ -1,6 +1,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@layer base {
+  :root { color-scheme: light; }
+  html, body { background: #fff; color: #111827; }
+
+  /* Paksa kontrol native tetap light */
+  button, input, textarea, select, option {
+    color-scheme: light;
+  }
+}
+
 
 
 :root {

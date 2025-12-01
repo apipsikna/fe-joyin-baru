@@ -12,28 +12,12 @@ const PAKET_SAYA_CFG = {
   y: 0,
   maxW: 900,
 
-  // ✅ Teks judul di atas gambar (bisa digeser & di-scale)
-  title: {
-    text: "Laporan",
-
-    // posisi (px) relatif terhadap posisi default (center)
-    x: 0, // + ke kanan, - ke kiri
-    y: -50, // + ke bawah, - ke atas
-
-    // jarak default dari teks ke gambar (px)
-    mb: 14,
-
-    // ukuran & skala
-    size: 28, // px (base size)
-    scale: 1, // 1 = normal, 1.1 lebih besar, dst
-  },
-
   btn: {
     bottomPct: 20,
     w: 260,
     h: 58,
     radius: 12,
-    scale: 0.8,
+    scale: 0.8, // ✅ tambah: scale tombol (1 = normal, 1.1 lebih besar, dst)
   },
 };
 
@@ -47,31 +31,17 @@ export default function MyPackages() {
   const cfg = PAKET_SAYA_CFG;
 
   return (
-    <div className="w-full min-h-full flex flex-col px-4 md:px-8 pt-6 pb-0 overflow-hidden font-poppins">
+    <div className="w-full min-h-full flex flex-col px-4 md:px-8 pt-6 pb-0 overflow-hidden">
       <div className="mt-auto w-full max-w-7xl mx-auto flex items-end justify-center">
         <div className="relative w-full flex justify-center">
           <div
-            className="relative flex flex-col items-center"
+            className="relative"
             style={{
               transform: `translate(${cfg.x}px, ${cfg.y}px) scale(${cfg.scale})`,
               transformOrigin: "center bottom",
               willChange: "transform",
             }}
           >
-            {/* ✅ Teks di atas gambar (bisa digeser & di-scale) */}
-            <h1
-              className="text-white font-bold select-none"
-              style={{
-                marginBottom: `${cfg.title.mb}px`,
-                fontSize: `${cfg.title.size}px`,
-                transform: `translate(${cfg.title.x}px, ${cfg.title.y}px) scale(${cfg.title.scale})`,
-                transformOrigin: "center",
-                willChange: "transform",
-              }}
-            >
-              {cfg.title.text}
-            </h1>
-
             <img
               src={PaketSaya}
               alt="Paket Saya"
@@ -97,6 +67,8 @@ export default function MyPackages() {
                 height: `${cfg.btn.h}px`,
                 borderRadius: `${cfg.btn.radius}px`,
                 backgroundColor: "#5FCAAC",
+
+                // ✅ scale tombol (tetap center)
                 transform: `translateX(-50%) scale(${cfg.btn.scale})`,
                 transformOrigin: "center",
               }}

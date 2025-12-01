@@ -1,6 +1,11 @@
 // src/App.jsx
 import React, { useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
 import "./i18n";
 import { useTranslation } from "react-i18next";
@@ -16,7 +21,10 @@ import PaketHarga from "./components/PaketHarga";
 import TestimoniCarousel from "./components/TestimoniCarousel";
 import Footer from "./components/Footer";
 import Setting from "./pages/Setting";
+
+// ✅ FIX: sesuaikan dengan nama file aslinya (Checkout.jsx)
 import Checkout from "./pages/checkout";
+
 import VerifyOtp from "./VerifyOtp";
 import ResetPassword from "./ResetPassword";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
@@ -25,21 +33,31 @@ import TentangKami from "./landingpage/TentangKami";
 import Referral from "./landingpage/Referral";
 import BuktiPembayaran from "./pages/BuktiPembayaran";
 
-// ✅ import halaman tutorial baru
+// ✅ import halaman tutorial
 import Tutorial from "./pages/Tutorial";
 
-/* ================== FORCE LIGHT THEME ================== */
+// ✅ Paket Dashboard Routes
+import Basic from "./PaketDashboard/Basic";
+import Pro from "./PaketDashboard/Pro";
+import Bisnis from "./PaketDashboard/Bisnis";
+import Enterprise from "./PaketDashboard/Enterprise";
+
+/* ================== FORCE LIGHT THEME (tetap putih walau Chrome/System Dark) ================== */
 function ForceLightTheme() {
   useEffect(() => {
+    // 1) Paksa color-scheme browser ke light
     document.documentElement.style.colorScheme = "light";
     document.body.style.colorScheme = "light";
 
+    // 2) Pastikan background & text default tetap light
     document.documentElement.style.backgroundColor = "#ffffff";
     document.body.style.backgroundColor = "#ffffff";
     document.body.style.color = "#111827";
 
+    // 3) Pastikan tidak ada class dark (buat Tailwind darkMode: "class")
     document.documentElement.classList.remove("dark");
 
+    // 4) Tambah meta agar browser tahu ini website light
     const ensureMeta = (name, content) => {
       let el = document.querySelector(`meta[name="${name}"]`);
       if (!el) {
@@ -50,8 +68,12 @@ function ForceLightTheme() {
       el.setAttribute("content", content);
     };
 
+    // Safari/iOS & browser modern
     ensureMeta("color-scheme", "light");
     ensureMeta("supported-color-schemes", "light");
+
+    // Warna address bar (mobile Chrome)
+    ensureMeta("theme-color", "#ffffff");
   }, []);
 
   return (
@@ -59,6 +81,7 @@ function ForceLightTheme() {
       :root { color-scheme: light; }
       html, body { background: #fff !important; color: #111827 !important; }
 
+      /* Tetap light meskipun user device/Chrome prefer dark */
       @media (prefers-color-scheme: dark) {
         :root { color-scheme: light; }
         html, body { background: #fff !important; color: #111827 !important; }
@@ -93,7 +116,6 @@ function LandingPage() {
         <Keunggulan />
       </section>
 
-      {/* ini boleh tetap ada */}
       <section id="tutorial" className="scroll-mt-24">
         <FiturJoyin />
       </section>
@@ -180,12 +202,44 @@ function AppInner() {
           {/* Publik */}
           <Route path="/tentang" element={<TentangKami />} />
           <Route path="/referral" element={<Referral />} />
-
-          {/* ✅ Tutorial page */}
           <Route path="/tutorial" element={<Tutorial />} />
 
           {/* Bukti Pembayaran */}
           <Route path="/bukti-pembayaran" element={<BuktiPembayaran />} />
+
+          {/* ✅ PRIVATE: Paket Dashboard per paket */}
+          <Route
+            path="/paket-dashboard/basic"
+            element={
+              <RequireAuth>
+                <Basic />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/paket-dashboard/pro"
+            element={
+              <RequireAuth>
+                <Pro />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/paket-dashboard/bisnis"
+            element={
+              <RequireAuth>
+                <Bisnis />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/paket-dashboard/enterprise"
+            element={
+              <RequireAuth>
+                <Enterprise />
+              </RequireAuth>
+            }
+          />
 
           {/* Privat */}
           <Route

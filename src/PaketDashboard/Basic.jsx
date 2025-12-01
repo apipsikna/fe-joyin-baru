@@ -11,20 +11,20 @@ import {
   HiOutlineShare,
 } from "react-icons/hi2";
 import { motion, AnimatePresence } from "framer-motion";
-import logo from "./assets/logo.png";
-import LoadingSpinner from "./components/LoadingSpinner";
-import ProfileModal from "./components/profile/ProfileModal";
-import { useAuth } from "./contexts/AuthContext";
+import logo from "../assets/logo.png";
+import LoadingSpinner from "../components/LoadingSpinner";
+import ProfileModal from "../components/profile/ProfileModal";
+import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
-import { resolveAvatarUrl } from "./utils/avatar";
+import { resolveAvatarUrl } from "../utils/avatar";
 
 // Pages
-import Home from "./pages/Home";
-import Reports from "./pages/Report";
-import MyPackages from "./pages/MyPackages";
-import BotSettings from "./pages/BotSettings";
-import Setting from "./pages/Setting";
-import Obrolan from "./pages/Obrolan"; // ✅ Tambah ini
+import Home from "../pages/Home";
+import Reports from "../pages/Report";
+import MyPackages from "../pages/MyPackages";
+import BotSettings from "../pages/BotSettings";
+import Setting from "../pages/Setting";
+import Obrolan from "../pages/Obrolan"; // ✅ Tambah ini
 
 // ===== Menu keys (stabil, tidak tergantung terjemahan)
 const MENU = {
