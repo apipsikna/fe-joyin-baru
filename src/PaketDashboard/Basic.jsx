@@ -1,3 +1,4 @@
+// src/PaketDashboard/Basic.jsx
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -21,10 +22,10 @@ import { resolveAvatarUrl } from "../utils/avatar";
 // Pages
 import Home from "../pages/Home";
 import Reports from "../pages/Report";
-import MyPackages from "../pages/MyPackages";
-import BotSettings from "../pages/BotSettings";
 import Setting from "../pages/Setting";
-import Obrolan from "../pages/Obrolan"; // ✅ Tambah ini
+import Obrolan from "../pages/Obrolan"; // ✅ Obrolan
+import MyPackagesBasic from "./SectionBasic/MyPackagesBasic"; // ✅ Paket Basic
+import BotSettingsBasic from "./SectionBasic/BotSettingsBasic"; // ✅ Pengaturan Bot Basic
 
 // ===== Menu keys (stabil, tidak tergantung terjemahan)
 const MENU = {
@@ -206,11 +207,16 @@ export default function Dashboard() {
 
         {/* Render Page */}
         {activeMenu === MENU.HOME && <Home profile={profile} />}
-        {activeMenu === MENU.CHAT && <Obrolan profile={profile} />} {/* ✅ CHANGE */}
-        {activeMenu === MENU.BOT_SETTINGS && <BotSettings />}
+        {activeMenu === MENU.CHAT && <Obrolan profile={profile} />}
+
+        {/* ✅ Pengaturan Bot sekarang membuka BotSettingsBasic */}
+        {activeMenu === MENU.BOT_SETTINGS && <BotSettingsBasic profile={profile} />}
+
         {activeMenu === MENU.REPORTS && <Reports />}
-        {activeMenu === MENU.PACKAGES && <MyPackages />}
-        {activeMenu === MENU.REFERRAL && <ReferralPlaceholder profile={profile} />}
+        {activeMenu === MENU.PACKAGES && <MyPackagesBasic />}
+        {activeMenu === MENU.REFERRAL && (
+          <ReferralPlaceholder profile={profile} />
+        )}
         {activeMenu === MENU.SETTINGS && (
           <Setting onBack={() => setActiveMenu(MENU.HOME)} />
         )}
@@ -244,7 +250,7 @@ function Sidebar({ activeMenu, setActiveMenu, t, onGoLanding }) {
         icon={HiOutlineChatBubbleLeftRight}
         text={t("dashboard.sidebar.chat", { defaultValue: "Obrolan" })}
         active={activeMenu === MENU.CHAT}
-        onClick={() => setActiveMenu(MENU.CHAT)} // ✅ tetap ini
+        onClick={() => setActiveMenu(MENU.CHAT)}
       />
       <SidebarButton
         icon={HiOutlineCog6Tooth}

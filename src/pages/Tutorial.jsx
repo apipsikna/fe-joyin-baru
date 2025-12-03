@@ -123,9 +123,19 @@ function ImagePlaceholder() {
   );
 }
 
-function TutorialCard({ date, title }) {
+function TutorialCard({ date, title, mounted, delayMs = 0 }) {
   return (
-    <div className="rounded-[28px] overflow-hidden bg-white border border-gray-100 shadow-[0_18px_40px_rgba(0,0,0,0.06)]">
+    <div
+      className="rounded-[28px] overflow-hidden bg-white border border-gray-100 shadow-[0_18px_40px_rgba(0,0,0,0.06)] hover:shadow-[0_22px_50px_rgba(0,0,0,0.09)] transition-shadow duration-500"
+      style={{
+        opacity: mounted ? 1 : 0,
+        transform: mounted ? "translateY(0px) scale(1)" : "translateY(26px) scale(0.97)",
+        transition:
+          "opacity 620ms ease-out, transform 620ms cubic-bezier(0.16,0.75,0.13,1.01), box-shadow 400ms ease-out",
+        transitionDelay: `${delayMs}ms`,
+        willChange: "opacity, transform",
+      }}
+    >
       <div className="h-[160px] md:h-[190px] bg-[#EEEEEE] flex items-center justify-center">
         <ImagePlaceholder />
       </div>
@@ -158,9 +168,13 @@ export default function Tutorial() {
   const location = useLocation();
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
+    // aktifkan animasi setelah mount
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
   }, []);
 
   // ✅ query param untuk gambar:
@@ -225,9 +239,15 @@ export default function Tutorial() {
               draggable={false}
               className="w-full h-auto select-none pointer-events-none block"
               style={{
-                transform: `translate3d(${img.x}px, ${img.y}px, 0) scale(${img.scale})`,
+                transform: `translate3d(${img.x}px, ${
+                  img.y + (mounted ? 0 : 34)
+                }px, 0) scale(${img.scale * (mounted ? 1 : 1.06)})`,
                 transformOrigin: "center top",
-                willChange: "transform",
+                willChange: "transform, opacity, filter",
+                opacity: mounted ? 1 : 0,
+                filter: mounted ? "blur(0px)" : "blur(8px)",
+                transition:
+                  "opacity 680ms ease-out, transform 900ms cubic-bezier(0.16,0.75,0.13,1.01), filter 650ms ease-out",
               }}
             />
           </div>
@@ -239,9 +259,14 @@ export default function Tutorial() {
             <div
               className="relative"
               style={{
-                transform: `translate3d(${searchCfg.x}px, ${searchCfg.y}px, 0) scale(${searchCfg.scale})`,
+                transform: `translate3d(${searchCfg.x}px, ${
+                  searchCfg.y + (mounted ? 0 : 18)
+                }px, 0) scale(${searchCfg.scale * (mounted ? 1 : 0.98)})`,
                 transformOrigin: "center top",
-                willChange: "transform",
+                willChange: "transform, opacity",
+                opacity: mounted ? 1 : 0,
+                transition:
+                  "opacity 560ms 120ms ease-out, transform 720ms 120ms cubic-bezier(0.16,0.75,0.13,1.01)",
               }}
             >
               <div className="mx-auto" style={{ width: `${searchCfg.w * 100}%` }}>
@@ -271,14 +296,29 @@ export default function Tutorial() {
         {/* GRID 3 KOLOM (1 halaman berisi 9 kartu) */}
         <section className="w-full mx-auto px-4 md:px-10 mt-12 md:mt-14 pb-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 xl:gap-10">
-            {pageItems.map((t) => (
-              <TutorialCard key={t.id} date={t.date} title={t.title} />
+            {pageItems.map((t, idx) => (
+              <TutorialCard
+                key={t.id}
+                date={t.date}
+                title={t.title}
+                mounted={mounted}
+                delayMs={220 + idx * 80}
+              />
             ))}
           </div>
 
           {/* ✅ TOMBOL HALAMAN (di bawah kolom paling bawah) */}
           {totalPages > 1 && (
-            <div className="mt-16 md:mt-20 flex items-center justify-center gap-6">
+            <div
+              className="mt-16 md:mt-20 flex items-center justify-center gap-6"
+              style={{
+                opacity: mounted ? 1 : 0,
+                transform: mounted ? "translateY(0px)" : "translateY(18px)",
+                transition:
+                  "opacity 620ms 260ms ease-out, transform 620ms 260ms cubic-bezier(0.16,0.75,0.13,1.01)",
+                willChange: "opacity, transform",
+              }}
+            >
               {/* Prev */}
               <button
                 type="button"
@@ -307,7 +347,7 @@ export default function Tutorial() {
                       className={`h-11 w-11 rounded-xl border text-[14px] font-semibold transition
                         ${
                           active
-                            ? "bg-emerald-500 border-emerald-500 text-white"
+                            ? "bg-emerald-500 border-emerald-500 text-white shadow-[0_10px_26px_rgba(16,185,129,0.45)]"
                             : "bg-white border-gray-200 text-gray-300 hover:border-emerald-200 hover:text-emerald-500"
                         }`}
                       aria-current={active ? "page" : undefined}

@@ -241,6 +241,40 @@ function AppInner() {
             }
           />
 
+          {/* ✅ TAMBAHAN (ALIAS) - route baru tanpa mengganti route lama */}
+          <Route
+            path="/dashboard/basic"
+            element={
+              <RequireAuth>
+                <Basic />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/dashboard/pro"
+            element={
+              <RequireAuth>
+                <Pro />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/dashboard/bisnis"
+            element={
+              <RequireAuth>
+                <Bisnis />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/dashboard/enterprise"
+            element={
+              <RequireAuth>
+                <Enterprise />
+              </RequireAuth>
+            }
+          />
+
           {/* Privat */}
           <Route
             path="/dashboard"
