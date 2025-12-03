@@ -1,0 +1,341 @@
+// src/PaketDashboard/SectionBasic/ObrolanBasic.jsx
+import React, { useMemo, useRef, useState, useEffect } from "react";
+import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
+
+const GRADIENT_FROM = "#5FCAAC";
+const GRADIENT_TO = "#DAEC75";
+
+/**
+ * ✅ SETTING CONTAINER PUTIH (biar gampang kamu atur)
+ * - sidePad: jarak kiri/kanan (semakin kecil = makin lebar)
+ * - topPad : jarak dari judul ke container putih
+ * - radiusTop: lengkungan bagian atas
+ */
+const WHITE_CONTAINER_CFG = {
+  sidePad: 10, // px (ubah: 0, 8, 16, 24, 32, dst)
+  topPad: 24, // px
+  radiusTop: 44, // px (atas tetap rounded seperti contoh)
+};
+
+function Avatar({ src, alt = "avatar", size = 46 }) {
+  if (!src) {
+    return (
+      <div
+        className="grid place-items-center rounded-full bg-gray-200 text-gray-500"
+        style={{ width: size, height: size }}
+        aria-label={alt}
+      >
+        <svg
+          width={Math.floor(size * 0.55)}
+          height={Math.floor(size * 0.55)}
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="currentColor"
+            d="M12 12a4 4 0 1 0-4-4a4 4 0 0 0 4 4m0 2c-4.42 0-8 2-8 4.5V21h16v-2.5c0-2.5-3.58-4.5-8-4.5"
+          />
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className="rounded-full object-cover"
+      style={{ width: size, height: size }}
+      loading="lazy"
+    />
+  );
+}
+
+function formatTime(t) {
+  return t;
+}
+
+function getNowTime() {
+  const d = new Date();
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return `${hh}.${mm}`;
+}
+
+export default function ObrolanBasic() {
+  const [search, setSearch] = useState("");
+  const [activeId, setActiveId] = useState("c1");
+  const [draft, setDraft] = useState("");
+
+  const conversations = useMemo(
+    () => [
+      {
+        id: "c1",
+        name: "Ahmad Afif",
+        preview: "Apakah ada promo bulan ini?",
+        online: true,
+        avatar: "",
+      },
+      {
+        id: "c2",
+        name: "Achmad Akbar",
+        preview: "Apakah ada promo bulan ini?",
+        online: false,
+        avatar: "",
+      },
+    ],
+    []
+  );
+
+  /**
+   * role:
+   * - "customer"  => kiri (putih)
+   * - "agent"     => kanan (hijau)  ✅ pesan dari input
+   */
+  const [threads, setThreads] = useState(() => ({
+    c1: [
+      {
+        id: "m1",
+        role: "customer",
+        text: "Halo, saya butuh bantuan dengan\nproduk yang saya beli",
+        time: "10.50",
+      },
+      {
+        id: "m2",
+        role: "agent",
+        time: "10.51",
+        text:
+          "Hai! 👋 Selamat datang di YayaStore. Tentu,\n" +
+          "saya akan bantu. Bisa beri tahu jenis\n" +
+          "bantuan yang Anda butuhkan?\n" +
+          "1. Produk rusak / tidak berfungsi ⚠️\n" +
+          "2. Salah produk / tidak sesuai pesanan 📦\n" +
+          "3. Tanya garansi atau retur ♻️\n" +
+          "4. Lainnya ✍️",
+      },
+      { id: "m3", role: "customer", text: "1", time: "10.55" },
+    ],
+    c2: [],
+  }));
+
+  const activeConv = useMemo(
+    () => conversations.find((c) => c.id === activeId) || conversations[0],
+    [conversations, activeId]
+  );
+
+  const filteredConversations = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return conversations;
+    return conversations.filter(
+      (c) =>
+        c.name.toLowerCase().includes(q) ||
+        (c.preview || "").toLowerCase().includes(q)
+    );
+  }, [conversations, search]);
+
+  const messages = threads[activeId] || [];
+  const listRef = useRef(null);
+
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+  }, [activeId]);
+
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+  }, [messages.length]);
+
+  const send = () => {
+    const text = draft.trim();
+    if (!text) return;
+
+    setThreads((prev) => ({
+      ...prev,
+      [activeId]: [
+        ...(prev[activeId] || []),
+        { id: `a_${Date.now()}`, role: "agent", text, time: getNowTime() },
+      ],
+    }));
+
+    setDraft("");
+  };
+
+  const sidePad = WHITE_CONTAINER_CFG.sidePad;
+  const topPad = WHITE_CONTAINER_CFG.topPad;
+  const radiusTop = WHITE_CONTAINER_CFG.radiusTop;
+
+  return (
+    <div
+      className="w-full min-h-screen h-full overflow-hidden font-poppins flex flex-col"
+      style={{
+        background: `linear-gradient(90deg, ${GRADIENT_FROM} 0%, ${GRADIENT_TO} 100%)`,
+      }}
+    >
+      {/* TOP BAR */}
+      <div className="relative w-full px-6 pt-6 shrink-0">
+        <h1 className="text-center text-white font-semibold text-[44px] leading-none tracking-wide">
+          Obrolan
+        </h1>
+        {/* ✅ Profil pojok kanan atas dihapus */}
+      </div>
+
+      {/* MAIN WHITE CONTAINER */}
+      <div
+        className="w-full flex-1 min-h-0 pb-0"
+        style={{
+          paddingLeft: sidePad,
+          paddingRight: sidePad,
+          paddingTop: topPad,
+        }}
+      >
+        <div
+          className="w-full h-full bg-white overflow-hidden shadow-[0_24px_80px_rgba(0,0,0,0.12)]"
+          style={{
+            borderTopLeftRadius: radiusTop,
+            borderTopRightRadius: radiusTop,
+            borderBottomLeftRadius: 0,
+            borderBottomRightRadius: 0,
+          }}
+        >
+          <div className="w-full h-full flex">
+            {/* LEFT SIDEBAR */}
+            <aside className="w-[360px] shrink-0 border-r border-gray-200">
+              {/* Search */}
+              <div className="p-6">
+                <div className="relative">
+                  <input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder=""
+                    className="w-full h-[44px] rounded-full border border-gray-200 px-5 pr-12 text-[14px] text-gray-900 outline-none focus:border-gray-300"
+                  />
+                  <HiOutlineMagnifyingGlass className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                </div>
+              </div>
+
+              {/* Conversation list */}
+              <div className="px-4 pb-6 space-y-3">
+                {filteredConversations.map((c) => {
+                  const active = c.id === activeId;
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => setActiveId(c.id)}
+                      className={[
+                        "w-full flex items-center gap-4 text-left",
+                        "px-4 py-4 rounded-2xl",
+                        active ? "bg-[#D8FBEF]" : "bg-white",
+                        active ? "" : "hover:bg-gray-50",
+                        "transition-colors",
+                      ].join(" ")}
+                    >
+                      <Avatar src={c.avatar} alt={c.name} size={46} />
+                      <div className="min-w-0">
+                        <p className="text-[16px] font-semibold text-gray-900 leading-tight">
+                          {c.name}
+                        </p>
+                        <p className="mt-1 text-[12px] text-gray-400 truncate max-w-[230px]">
+                          {c.preview}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </aside>
+
+            {/* RIGHT CHAT AREA */}
+            <section className="flex-1 min-w-0 flex flex-col">
+              {/* Header chat */}
+              <div className="h-[82px] px-8 flex items-center gap-4 border-b border-gray-200">
+                <div className="relative">
+                  <Avatar
+                    src={activeConv.avatar}
+                    alt={activeConv.name}
+                    size={50}
+                  />
+                </div>
+                <div className="leading-tight">
+                  <p className="text-[20px] font-semibold text-gray-900">
+                    {activeConv.name}
+                  </p>
+                  <p className="text-[12px] text-gray-400">
+                    {activeConv.online ? "Online" : "Offline"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Messages */}
+              <div
+                ref={listRef}
+                className="flex-1 min-h-0 overflow-y-auto px-10 py-8"
+              >
+                <div className="h-6" />
+
+                {messages.map((m) => {
+                  const isCustomer = m.role === "customer";
+                  return (
+                    <div key={m.id} className="mb-10">
+                      {isCustomer ? (
+                        // kiri putih
+                        <div className="flex items-end gap-4">
+                          <Avatar
+                            src={activeConv.avatar}
+                            alt={activeConv.name}
+                            size={44}
+                          />
+                          <div>
+                            <div className="bg-white rounded-xl px-8 py-6 shadow-[0_6px_14px_rgba(0,0,0,0.12)] border border-gray-100 max-w-[540px]">
+                              <p className="text-[22px] leading-snug text-gray-900 whitespace-pre-line">
+                                {m.text}
+                              </p>
+                            </div>
+                            <p className="mt-1 ml-2 text-[12px] text-gray-400">
+                              {formatTime(m.time)}
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        // kanan hijau
+                        <div className="ml-auto max-w-[650px]">
+                          <div className="bg-[#CFFBE9] rounded-xl px-10 py-8 shadow-[0_6px_14px_rgba(0,0,0,0.12)] border border-[#BFF2DE]">
+                            <p className="text-[20px] leading-relaxed text-gray-900 whitespace-pre-line">
+                              {m.text}
+                            </p>
+                          </div>
+                          <p className="mt-2 text-right text-[12px] text-gray-400">
+                            {formatTime(m.time)}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                <div className="h-8" />
+              </div>
+
+              {/* Composer */}
+              <div className="px-10 pb-10">
+                <div className="flex items-center">
+                  <input
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") send();
+                    }}
+                    className="w-full h-[56px] rounded-full border border-gray-200 px-6 text-[14px] outline-none focus:border-gray-300"
+                    placeholder=""
+                  />
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

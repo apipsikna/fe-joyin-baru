@@ -21,13 +21,16 @@ import { resolveAvatarUrl } from "../utils/avatar";
 
 // Pages
 import Home from "../pages/Home";
-import Reports from "../pages/Report";
 import Setting from "../pages/Setting";
-import Obrolan from "../pages/Obrolan"; // ✅ Obrolan
-import MyPackagesBasic from "./SectionBasic/MyPackagesBasic"; // ✅ Paket Basic
-import BotSettingsBasic from "./SectionBasic/BotSettingsBasic"; // ✅ Pengaturan Bot Basic
+import MyPackagesBasic from "./SectionBasic/MyPackagesBasic";
+import BotSettingsBasic from "./SectionBasic/BotSettingsBasic";
+import ObrolanBasic from "./SectionBasic/ObrolanBasic";
+import ReportBasic from "./SectionBasic/ReportBasic";
 
-// ===== Menu keys (stabil, tidak tergantung terjemahan)
+// ✅ NEW: Referral Basic page
+import ReferralBasic from "./SectionBasic/ReferralBasic";
+
+// ===== Menu keys
 const MENU = {
   HOME: "home",
   CHAT: "chat",
@@ -37,45 +40,6 @@ const MENU = {
   REFERRAL: "referral",
   SETTINGS: "settings",
 };
-
-// ===== Placeholder sederhana untuk "Referral"
-function ReferralPlaceholder({ profile }) {
-  const code =
-    profile?.referralCode ||
-    profile?.refCode ||
-    profile?.referral?.code ||
-    "";
-
-  return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-2">Referral</h1>
-      <p className="text-gray-600 mb-4">Halaman referral akan hadir di sini.</p>
-
-      <div className="bg-white/80 backdrop-blur border border-emerald-100 rounded-2xl p-4 max-w-xl shadow-sm">
-        <p className="text-sm font-semibold text-gray-900 mb-1">
-          Kode Referral Kamu
-        </p>
-        <div className="flex items-center gap-2">
-          <div className="px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-100 font-semibold text-emerald-700 text-sm">
-            {code || "-"}
-          </div>
-          {!!code && (
-            <button
-              onClick={() => navigator.clipboard?.writeText(code)}
-              className="px-3 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition"
-            >
-              Copy
-            </button>
-          )}
-        </div>
-        <p className="text-xs text-gray-600 mt-3">
-          Pengguna yang memasukkan kode saat registrasi akan mendapat diskon
-          (sesuai aturan kamu).
-        </p>
-      </div>
-    </div>
-  );
-}
 
 // ===== Util kecil
 const getInitials = (name = "") =>
@@ -168,7 +132,7 @@ export default function Dashboard() {
         activeMenu={activeMenu}
         setActiveMenu={setActiveMenu}
         t={t}
-        onGoLanding={() => navigate("/")}
+        onGoLanding={() => navigate("/")} // ✅ FIX
       />
 
       {/* Main Content */}
@@ -177,7 +141,10 @@ export default function Dashboard() {
         style={{ background: "linear-gradient(to right, #5CC9AF, #D7E96F)" }}
       >
         {/* Profile Top Right */}
-        <div className="fixed top-2.5 right-6 md:right-8 z-50" ref={dropdownRef}>
+        <div
+          className="fixed top-2.5 right-6 md:right-8 z-50"
+          ref={dropdownRef}
+        >
           <TopRightProfile
             profile={profile}
             firstName={firstName}
@@ -207,16 +174,14 @@ export default function Dashboard() {
 
         {/* Render Page */}
         {activeMenu === MENU.HOME && <Home profile={profile} />}
-        {activeMenu === MENU.CHAT && <Obrolan profile={profile} />}
-
-        {/* ✅ Pengaturan Bot sekarang membuka BotSettingsBasic */}
-        {activeMenu === MENU.BOT_SETTINGS && <BotSettingsBasic profile={profile} />}
-
-        {activeMenu === MENU.REPORTS && <Reports />}
-        {activeMenu === MENU.PACKAGES && <MyPackagesBasic />}
-        {activeMenu === MENU.REFERRAL && (
-          <ReferralPlaceholder profile={profile} />
+        {activeMenu === MENU.CHAT && <ObrolanBasic profile={profile} />}
+        {activeMenu === MENU.BOT_SETTINGS && (
+          <BotSettingsBasic profile={profile} />
         )}
+        {activeMenu === MENU.REPORTS && <ReportBasic profile={profile} />}
+        {activeMenu === MENU.PACKAGES && <MyPackagesBasic />}
+        {/* ✅ Referral sekarang mengarah ke: src/PaketDashboard/SectionBasic/ReferralBasic.jsx */}
+        {activeMenu === MENU.REFERRAL && <ReferralBasic profile={profile} />}
         {activeMenu === MENU.SETTINGS && (
           <Setting onBack={() => setActiveMenu(MENU.HOME)} />
         )}
@@ -273,6 +238,7 @@ function Sidebar({ activeMenu, setActiveMenu, t, onGoLanding }) {
         onClick={() => setActiveMenu(MENU.PACKAGES)}
       />
 
+      {/* ✅ Ini tombol Referral (mengarah ke ReferralBasic via activeMenu) */}
       <SidebarButton
         icon={HiOutlineShare}
         text={t("dashboard.sidebar.referral", { defaultValue: "Referral" })}
@@ -323,11 +289,7 @@ function SidebarButton({ icon: Icon, text, active, onClick, landing }) {
         <Icon
           size={18}
           className={
-            active
-              ? "text-white"
-              : landing
-              ? "text-emerald-700"
-              : "text-gray-600"
+            active ? "text-white" : landing ? "text-emerald-700" : "text-gray-600"
           }
         />
       </span>

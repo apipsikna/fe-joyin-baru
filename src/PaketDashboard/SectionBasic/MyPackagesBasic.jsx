@@ -20,7 +20,36 @@ const PAGE_CFG = {
   pxMobile: 20,
   pxDesktop: 32,
   pt: 48,
-  pb: 100, // padding bawah halaman
+  pb: 100,
+};
+
+/* =======================
+   ✅ SETTING CARD STAT (Durasi / Masa Aktif / Jatuh Tempo)
+   - dibuat SERAGAM: lebar & tinggi 3 card sama persis
+   ======================= */
+const STAT_CARD_CFG = {
+  maxW: 380, // lebar maksimum tiap card (semua sama)
+  radius: 22,
+
+  // tinggi card dibuat sama persis
+  minHMobile: 132,
+  minHDesktop: 140,
+
+  // padding card
+  padXMobile: 28,
+  padYMobile: 22,
+  padXDesktop: 30,
+  padYDesktop: 26,
+
+  // ukuran font
+  titleMobilePx: 16,
+  titleDesktopPx: 18,
+  valueMobilePx: 28,
+  valueDesktopPx: 30,
+
+  // ruang (slot) untuk progress / area bawah (biar card lain tetap sama tinggi)
+  childrenSlotMobile: 16,
+  childrenSlotDesktop: 18,
 };
 
 /* =======================
@@ -29,7 +58,6 @@ const PAGE_CFG = {
 const SECTION_PUTIH_CFG = {
   maxW: 2000,
 
-  // padding konten di atas gambar (biar pas di area putih)
   padMobileX: 18,
   padMobileTop: 40,
   padMobileBottom: 28,
@@ -43,12 +71,10 @@ const SECTION_PUTIH_CFG = {
    ✅ SETTING POSISI & BESAR GAMBAR SectionPutih
    ======================= */
 const SECTION_PUTIH_IMG_CTRL = {
-  // Mobile
   translateXMobile: 0,
   translateYMobile: 0,
   scaleMobile: 1,
 
-  // Desktop
   translateXDesktop: 0,
   translateYDesktop: 72,
   scaleDesktop: 1.09,
@@ -74,9 +100,9 @@ const ACTIONS_CTRL = {
    ✅ SAMAKAN UKURAN 6 KOTAK FITUR
    ======================= */
 const FEATURE_CARD_CTRL = {
-  hMobile: 132, // tinggi card mobile (px)
-  hDesktop: 142, // tinggi card desktop (px)
-  descLines: 2, // clamp deskripsi
+  hMobile: 132,
+  hDesktop: 142,
+  descLines: 2,
 };
 
 /* =======================
@@ -93,26 +119,30 @@ const FEATURE_TEXT_CTRL = {
 
 function StatCard({ title, value, children }) {
   return (
-    <div className="w-full max-w-[320px] rounded-2xl bg-white/25 backdrop-blur-md border border-white/25 px-7 py-6 shadow-[0_10px_30px_rgba(0,0,0,0.08)]">
-      <div className="text-white/90 text-[15px] font-semibold">{title}</div>
-      <div className="mt-1 text-white text-[26px] font-extrabold tracking-tight">
-        {value}
+    <div className="_statCard w-full bg-white/25 backdrop-blur-md border border-white/25 shadow-[0_10px_30px_rgba(0,0,0,0.08)] flex flex-col">
+      {/* bagian atas (judul + value) */}
+      <div>
+        <div className="_statTitle text-white/90 font-semibold">{title}</div>
+        <div className="_statValue mt-1 text-white font-extrabold tracking-tight">
+          {value}
+        </div>
       </div>
-      {children ? <div className="mt-4">{children}</div> : null}
+
+      {/* slot bawah (biar 3 card tinggi sama persis) */}
+      <div className="_statSlot mt-4">{children ? children : null}</div>
     </div>
   );
 }
 
 function ActionButton({ children, onClick, variant = "primary" }) {
   const base =
-    "joyin-btn joyin-btn--glow " + // ✅ class glow
+    "joyin-btn joyin-btn--glow " +
     "relative inline-flex items-center justify-center " +
     "h-[42px] px-7 rounded-xl font-semibold border border-white/60 " +
     "bg-white text-[#5FCAAC] " +
     "shadow-[0_8px_18px_rgba(0,0,0,0.10)] " +
     "transition-all duration-200 ease-out transform " +
     "hover:-translate-y-1 active:translate-y-0 active:scale-[0.98] " +
-    // matikan outline/focus-ring browser
     "outline-none hover:outline-none focus:outline-none focus-visible:outline-none " +
     "focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 ";
 
@@ -138,10 +168,8 @@ function FeatureCard({ icon: Icon, title, desc }) {
         "hover:-translate-y-1.5 hover:shadow-[0_22px_60px_rgba(0,0,0,0.18)]",
       ].join(" ")}
     >
-      {/* Inner card putih */}
       <div className="h-full w-full rounded-[1rem] bg-white px-6 py-5">
         <div className="h-full flex items-start gap-3">
-          {/* ✅ Icon hitam untuk semua fitur */}
           <div className="mt-[2px] shrink-0 text-black">
             <Icon className="_featureIcon" />
           </div>
@@ -182,35 +210,61 @@ export default function MyPackagesBasic() {
       >
         <style>{`
           /* ✅ Sembunyikan scrollbar di seluruh halaman (tetap bisa scroll) */
-          body {
-            -ms-overflow-style: none;   /* IE & Edge */
-            scrollbar-width: none;      /* Firefox */
-          }
-          body::-webkit-scrollbar {
-            display: none;              /* Chrome, Safari, Opera */
-          }
+          body { -ms-overflow-style: none; scrollbar-width: none; }
+          body::-webkit-scrollbar { display: none; }
 
           /* ✅ Matikan outline bawaan Chrome/Browser untuk tombol joyin */
           .joyin-btn { outline: none; }
-          .joyin-btn:focus,
-          .joyin-btn:focus-visible,
-          .joyin-btn:active { outline: none; }
+          .joyin-btn:focus, .joyin-btn:focus-visible, .joyin-btn:active { outline: none; }
           .joyin-btn::-moz-focus-inner { border: 0; }
 
-          /* ✅ Glow effect putih untuk tombol paket saat hover (dibuat sedikit lebih tebal) */
+          /* ✅ Glow effect putih untuk tombol paket saat hover */
           .joyin-btn--glow:hover {
             box-shadow:
-              0 0 28px rgba(255, 255, 255, 0.98), /* glow putih lebih tebal */
-              0 20px 55px rgba(0, 0, 0, 0.30);   /* shadow jatuh sedikit lebih dalam */
+              0 0 28px rgba(255, 255, 255, 0.98),
+              0 20px 55px rgba(0, 0, 0, 0.30);
+          }
+
+          /* =======================
+             ✅ STAT CARD: 3 card SAMA PERSIS (lebar + tinggi)
+             ======================= */
+          ._statCard{
+            max-width: ${STAT_CARD_CFG.maxW}px;
+            border-radius: ${STAT_CARD_CFG.radius}px;
+            min-height: ${STAT_CARD_CFG.minHMobile}px;
+            padding: ${STAT_CARD_CFG.padYMobile}px ${STAT_CARD_CFG.padXMobile}px;
+          }
+          ._statTitle{
+            font-size: ${STAT_CARD_CFG.titleMobilePx}px;
+          }
+          ._statValue{
+            font-size: ${STAT_CARD_CFG.valueMobilePx}px;
+            line-height: 1.1;
+          }
+          /* slot bawah disamakan walau tidak ada children */
+          ._statSlot{
+            min-height: ${STAT_CARD_CFG.childrenSlotMobile}px;
+          }
+
+          @media (min-width: 768px){
+            ._pagePad{
+              padding-left: ${PAGE_CFG.pxDesktop}px;
+              padding-right: ${PAGE_CFG.pxDesktop}px;
+            }
+            ._statCard{
+              min-height: ${STAT_CARD_CFG.minHDesktop}px;
+              padding: ${STAT_CARD_CFG.padYDesktop}px ${STAT_CARD_CFG.padXDesktop}px;
+            }
+            ._statTitle{ font-size: ${STAT_CARD_CFG.titleDesktopPx}px; }
+            ._statValue{ font-size: ${STAT_CARD_CFG.valueDesktopPx}px; }
+            ._statSlot{ min-height: ${STAT_CARD_CFG.childrenSlotDesktop}px; }
           }
 
           /* ✅ Samakan tinggi 6 feature card */
           ._featureCard { height: ${FEATURE_CARD_CTRL.hMobile}px; }
-          @media (min-width: 768px) {
-            ._featureCard { height: ${FEATURE_CARD_CTRL.hDesktop}px; }
-          }
+          @media (min-width: 768px) { ._featureCard { height: ${FEATURE_CARD_CTRL.hDesktop}px; } }
 
-          /* ✅ NEW: Ukuran teks feature (biar proporsional dengan kotaknya) */
+          /* ✅ Ukuran teks feature */
           ._featureTitle{
             font-size: ${FEATURE_TEXT_CTRL.titleMobilePx}px;
             line-height: ${FEATURE_TEXT_CTRL.titleLineHeight};
@@ -227,10 +281,7 @@ export default function MyPackagesBasic() {
             -webkit-box-orient: vertical;
             overflow: hidden;
           }
-          ._featureIcon{
-            font-size: 22px;
-          }
-
+          ._featureIcon{ font-size: 22px; }
           @media (min-width: 768px) {
             ._featureTitle{ font-size: ${FEATURE_TEXT_CTRL.titleDesktopPx}px; }
             ._featureDesc{ font-size: ${FEATURE_TEXT_CTRL.descDesktopPx}px; }
@@ -246,21 +297,13 @@ export default function MyPackagesBasic() {
             transform-origin: center center;
           }
 
-          /* ✅ Turunkan konten (judul + 6 kartu) di dalam SectionPutih (mobile) */
-          ._spContent {
-            transform: translateY(${SECTION_PUTIH_CONTENT_CTRL.yMobile}px);
-          }
+          /* ✅ Turunkan konten di dalam SectionPutih (mobile) */
+          ._spContent { transform: translateY(${SECTION_PUTIH_CONTENT_CTRL.yMobile}px); }
 
           /* ✅ Turunkan 3 tombol action (mobile) */
-          ._actionsShift {
-            transform: translateY(${ACTIONS_CTRL.yMobile}px);
-          }
+          ._actionsShift { transform: translateY(${ACTIONS_CTRL.yMobile}px); }
 
           @media (min-width: 768px) {
-            ._pagePad {
-              padding-left: ${PAGE_CFG.pxDesktop}px;
-              padding-right: ${PAGE_CFG.pxDesktop}px;
-            }
             ._spPad {
               padding-left: ${SECTION_PUTIH_CFG.padDesktopX}px;
               padding-right: ${SECTION_PUTIH_CFG.padDesktopX}px;
@@ -276,15 +319,8 @@ export default function MyPackagesBasic() {
                 scale(${SECTION_PUTIH_IMG_CTRL.scaleDesktop});
             }
 
-            /* ✅ Turunkan konten (judul + 6 kartu) di desktop */
-            ._spContent {
-              transform: translateY(${SECTION_PUTIH_CONTENT_CTRL.yDesktop}px);
-            }
-
-            /* ✅ Turunkan 3 tombol action (desktop) */
-            ._actionsShift {
-              transform: translateY(${ACTIONS_CTRL.yDesktop}px);
-            }
+            ._spContent { transform: translateY(${SECTION_PUTIH_CONTENT_CTRL.yDesktop}px); }
+            ._actionsShift { transform: translateY(${ACTIONS_CTRL.yDesktop}px); }
           }
         `}</style>
 
@@ -299,8 +335,8 @@ export default function MyPackagesBasic() {
             </p>
           </div>
 
-          {/* Stat cards */}
-          <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 place-items-center">
+          {/* Stat cards (✅ dibuat seragam + sejajar seperti foto) */}
+          <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10 justify-items-center items-stretch">
             <StatCard title="Durasi Langganan" value="3 Bulan" />
             <StatCard
               title="Masa Aktif"
@@ -330,10 +366,7 @@ export default function MyPackagesBasic() {
 
           {/* ✅ MANFAAT DI DALAM GAMBAR SectionPutih */}
           <div className="mt-10 flex justify-center">
-            <div
-              className="relative w-full"
-              style={{ maxWidth: SECTION_PUTIH_CFG.maxW }}
-            >
+            <div className="relative w-full" style={{ maxWidth: SECTION_PUTIH_CFG.maxW }}>
               <img
                 src={SectionPutih}
                 alt="SectionPutih"
