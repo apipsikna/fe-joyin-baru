@@ -1,3 +1,4 @@
+// src/PaketDashboard/Enterprise.jsx
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -18,13 +19,16 @@ import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { resolveAvatarUrl } from "../utils/avatar";
 
-// Pages
-import Home from "../pages/Home";
-import Reports from "../pages/Report";
-import MyPackages from "../pages/MyPackages";
-import BotSettings from "../pages/BotSettings";
+// ✅ ENTERPRISE PAGES
+import HomeEnterprise from "./SectionEnterprise/HomeEnterprise";
+import ReportEnterprise from "./SectionEnterprise/ReportEnterprise";
+import MyPackagesEnterprise from "./SectionEnterprise/MyPackagesEnterprise";
+import BotSettingsEnterprise from "./SectionEnterprise/BotSettingsEnterprise";
+import ObrolanEnterprise from "./SectionEnterprise/ObrolanEnterprise";
+import ReferralEnterprise from "./SectionEnterprise/ReferralEnterprise";
+
+// (tetap)
 import Setting from "../pages/Setting";
-import Obrolan from "../pages/Obrolan"; // ✅ Tambah ini
 
 // ===== Menu keys (stabil, tidak tergantung terjemahan)
 const MENU = {
@@ -37,45 +41,6 @@ const MENU = {
   SETTINGS: "settings",
 };
 
-// ===== Placeholder sederhana untuk "Referral"
-function ReferralPlaceholder({ profile }) {
-  const code =
-    profile?.referralCode ||
-    profile?.refCode ||
-    profile?.referral?.code ||
-    "";
-
-  return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-2">Referral</h1>
-      <p className="text-gray-600 mb-4">Halaman referral akan hadir di sini.</p>
-
-      <div className="bg-white/80 backdrop-blur border border-emerald-100 rounded-2xl p-4 max-w-xl shadow-sm">
-        <p className="text-sm font-semibold text-gray-900 mb-1">
-          Kode Referral Kamu
-        </p>
-        <div className="flex items-center gap-2">
-          <div className="px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-100 font-semibold text-emerald-700 text-sm">
-            {code || "-"}
-          </div>
-          {!!code && (
-            <button
-              onClick={() => navigator.clipboard?.writeText(code)}
-              className="px-3 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition"
-            >
-              Copy
-            </button>
-          )}
-        </div>
-        <p className="text-xs text-gray-600 mt-3">
-          Pengguna yang memasukkan kode saat registrasi akan mendapat diskon
-          (sesuai aturan kamu).
-        </p>
-      </div>
-    </div>
-  );
-}
-
 // ===== Util kecil
 const getInitials = (name = "") =>
   name
@@ -85,7 +50,7 @@ const getInitials = (name = "") =>
     .map((s) => s[0]?.toUpperCase())
     .join("") || "U";
 
-export default function Dashboard() {
+export default function Enterprise() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const { fetchMe, ready, isAuthenticated, logout } = useAuth();
@@ -204,13 +169,13 @@ export default function Dashboard() {
           />
         </div>
 
-        {/* Render Page */}
-        {activeMenu === MENU.HOME && <Home profile={profile} />}
-        {activeMenu === MENU.CHAT && <Obrolan profile={profile} />} {/* ✅ CHANGE */}
-        {activeMenu === MENU.BOT_SETTINGS && <BotSettings />}
-        {activeMenu === MENU.REPORTS && <Reports />}
-        {activeMenu === MENU.PACKAGES && <MyPackages />}
-        {activeMenu === MENU.REFERRAL && <ReferralPlaceholder profile={profile} />}
+        {/* ✅ Render Enterprise Pages */}
+        {activeMenu === MENU.HOME && <HomeEnterprise profile={profile} />}
+        {activeMenu === MENU.CHAT && <ObrolanEnterprise profile={profile} />}
+        {activeMenu === MENU.BOT_SETTINGS && <BotSettingsEnterprise />}
+        {activeMenu === MENU.REPORTS && <ReportEnterprise />}
+        {activeMenu === MENU.PACKAGES && <MyPackagesEnterprise />}
+        {activeMenu === MENU.REFERRAL && <ReferralEnterprise profile={profile} />}
         {activeMenu === MENU.SETTINGS && (
           <Setting onBack={() => setActiveMenu(MENU.HOME)} />
         )}
@@ -244,7 +209,7 @@ function Sidebar({ activeMenu, setActiveMenu, t, onGoLanding }) {
         icon={HiOutlineChatBubbleLeftRight}
         text={t("dashboard.sidebar.chat", { defaultValue: "Obrolan" })}
         active={activeMenu === MENU.CHAT}
-        onClick={() => setActiveMenu(MENU.CHAT)} // ✅ tetap ini
+        onClick={() => setActiveMenu(MENU.CHAT)}
       />
       <SidebarButton
         icon={HiOutlineCog6Tooth}
@@ -266,7 +231,6 @@ function Sidebar({ activeMenu, setActiveMenu, t, onGoLanding }) {
         active={activeMenu === MENU.PACKAGES}
         onClick={() => setActiveMenu(MENU.PACKAGES)}
       />
-
       <SidebarButton
         icon={HiOutlineShare}
         text={t("dashboard.sidebar.referral", { defaultValue: "Referral" })}
@@ -317,11 +281,7 @@ function SidebarButton({ icon: Icon, text, active, onClick, landing }) {
         <Icon
           size={18}
           className={
-            active
-              ? "text-white"
-              : landing
-              ? "text-emerald-700"
-              : "text-gray-600"
+            active ? "text-white" : landing ? "text-emerald-700" : "text-gray-600"
           }
         />
       </span>
@@ -354,7 +314,6 @@ function TopRightProfile({
     null;
 
   const avatarUrl = rawAvatar ? resolveAvatarUrl(rawAvatar) : null;
-
   const dropdownId = "profile-dropdown";
 
   return (
@@ -398,7 +357,7 @@ function TopRightProfile({
           <p className="text-[12px] font-semibold text-gray-900">{firstName}</p>
           <span
             className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-[2px] rounded-full
-                           bg-emerald-50 text-emerald-700 border border-emerald-100"
+                       bg-emerald-50 text-emerald-700 border border-emerald-100"
           >
             {plan}
           </span>

@@ -1,4 +1,3 @@
-// src/PaketDashboard/SectionBasic/ReferralBasic.jsx
 import React, { useMemo, useState } from "react";
 import { HiOutlineDocumentDuplicate } from "react-icons/hi2";
 import { motion, useReducedMotion } from "framer-motion";
@@ -14,9 +13,7 @@ const REF_LAYOUT = {
   topPad: 26,
   gapTitleToCard: 22,
 
-  // ✅ BIKIN LEBIH SEMPIT BAGIAN "Kode Referral Anda :"
-  // turunin ini biar card-nya makin sempit
-  codeCardMaxW: 820, // sebelumnya 1040
+  codeCardMaxW: 820,
 
   whiteTopRadius: 46,
   whiteCardMaxW: 9999,
@@ -29,11 +26,6 @@ const REF_LAYOUT = {
   heroMinH: 345,
 };
 
-/**
- * ✅ SETTING GAMBAR 8 BINTANG (geser + zoom)
- * Override via query param:
- *  ?starx=40&stary=-10&stars=1.15
- */
 const STAR8_CTRL = {
   x: 0,
   y: 6,
@@ -41,55 +33,13 @@ const STAR8_CTRL = {
 };
 
 const SAMPLE_ROWS = [
-  {
-    no: 1,
-    nama: "Andin Nugraha",
-    email: "andin.ngrh@gmail.com",
-    waktu: "2025-11-25 09:12",
-    status: "Aktif",
-  },
-  {
-    no: 2,
-    nama: "Bella Nadhira",
-    email: "bella.ndhr@gmail.com",
-    waktu: "2025-11-25 10:45",
-    status: "Pending",
-  },
-  {
-    no: 3,
-    nama: "Candra Wijaya",
-    email: "candra.wjy@gmail.com",
-    waktu: "2025-11-25 08:30",
-    status: "Aktif",
-  },
-  {
-    no: 4,
-    nama: "Dwi Lestari",
-    email: "dwi.lestari@gmail.com",
-    waktu: "2025-11-25 11:05",
-    status: "Aktif",
-  },
-  {
-    no: 5,
-    nama: "Fajar Nugraha",
-    email: "fajar.ngrh@gmail.com",
-    waktu: "2025-11-25 12:58",
-    status: "Pending",
-  },
-  {
-    no: 6,
-    nama: "Gita Ramadhani",
-    email: "gita.rmdh@gmail.com",
-    waktu: "2025-11-25 07:50",
-    status: "Aktif",
-  },
-  {
-    no: 7,
-    nama: "Hendra Saputra",
-    email: "hendra.sptr@gmail.com",
-    waktu: "2025-11-25 13:27",
-    status: "Aktif",
-  },
+  { no: 1, nama: "Andin Nugraha", email: "andin.ngrh@gmail.com", waktu: "2025-11-25 09:12", status: "Aktif" },
+  { no: 2, nama: "Bella Nadhira", email: "bella.ndhr@gmail.com", waktu: "2025-11-25 10:45", status: "Pending" },
+  { no: 3, nama: "Candra Wijaya", email: "candra.wjy@gmail.com", waktu: "2025-11-25 08:30", status: "Aktif" },
+  { no: 4, nama: "Dwi Lestari", email: "dwi.lestari@gmail.com", waktu: "2025-11-25 11:05", status: "Aktif" },
+  { no: 5, nama: "Fajar Nugraha", email: "fajar.ngrh@gmail.com", waktu: "2025-11-25 12:58", status: "Pending" },
+  { no: 6, nama: "Gita Ramadhani", email: "gita.rmdh@gmail.com", waktu: "2025-11-25 07:50", status: "Aktif" },
+  { no: 7, nama: "Hendra Saputra", email: "hendra.sptr@gmail.com", waktu: "2025-11-25 13:27", status: "Aktif" },
 ];
 
 const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
@@ -100,11 +50,10 @@ const readNum = (qp, key, fallback) => {
   return Number.isFinite(v) ? v : fallback;
 };
 
-export default function ReferralBasic({ profile }) {
+export default function ReferralEnterprise({ profile }) {
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 
-  // ✅ Animasi masuk (aman: tidak mengubah layout / setting)
   const page = {
     hidden: { opacity: 0 },
     show: {
@@ -128,7 +77,6 @@ export default function ReferralBasic({ profile }) {
     },
   };
 
-  // ✅ Untuk layer yang sudah punya transform sendiri (bintang), animasikan opacity/blur saja
   const fadeOnly = {
     hidden: { opacity: 0, filter: "blur(10px)" },
     show: {
@@ -164,8 +112,7 @@ export default function ReferralBasic({ profile }) {
   };
 
   const referralCode = useMemo(() => {
-    const code =
-      profile?.referralCode || profile?.refCode || profile?.referral?.code || "";
+    const code = profile?.referralCode || profile?.refCode || profile?.referral?.code || "";
     return String(code || "").trim();
   }, [profile]);
 
@@ -179,11 +126,7 @@ export default function ReferralBasic({ profile }) {
     const y = readNum(qp, "stary", STAR8_CTRL.y);
     const s = readNum(qp, "stars", STAR8_CTRL.scale);
 
-    return {
-      x: clamp(x, -600, 600),
-      y: clamp(y, -600, 600),
-      scale: clamp(s, 0.4, 3),
-    };
+    return { x: clamp(x, -600, 600), y: clamp(y, -600, 600), scale: clamp(s, 0.4, 3) };
   }, []);
 
   const handleCopy = async () => {
@@ -237,16 +180,8 @@ export default function ReferralBasic({ profile }) {
         .rf-whiteMax{ max-width: var(--whiteMaxW); margin-left: auto; margin-right: auto; width: 100%; }
       `}</style>
 
-      {/* ===== HERO ===== */}
-      <div
-        className="rf-pad relative shrink-0"
-        style={{ paddingTop: "var(--topPad)", minHeight: "var(--heroMinH)" }}
-      >
-        {/* ✅ Layer bintang (animasi aman: opacity/blur, tidak mengganggu transform 8bintang) */}
-        <motion.div
-          variants={fadeOnly}
-          className="pointer-events-none select-none absolute inset-0 overflow-hidden"
-        >
+      <div className="rf-pad relative shrink-0" style={{ paddingTop: "var(--topPad)", minHeight: "var(--heroMinH)" }}>
+        <motion.div variants={fadeOnly} className="pointer-events-none select-none absolute inset-0 overflow-hidden">
           <img
             src={EightBintang}
             alt="bintang dekorasi"
@@ -270,7 +205,6 @@ export default function ReferralBasic({ profile }) {
             banyak yang gabung, makin besar keuntungan yang kamu dapat.
           </p>
 
-          {/* ✅ Card kode dibuat lebih sempit (max-width dari config) */}
           <motion.div
             variants={cardIn}
             className="rf-codeMax mt-7 md:mt-8 rounded-[18px] md:rounded-[22px] border border-white/30 bg-white/20 backdrop-blur-md shadow-[0_18px_40px_rgba(0,0,0,0.10)]"
@@ -302,11 +236,7 @@ export default function ReferralBasic({ profile }) {
         </motion.div>
       </div>
 
-      {/* ===== WHITE CONTAINER (bawah siku) ===== */}
-      <div
-        className="rf-pad flex-1 min-h-0 flex flex-col"
-        style={{ paddingTop: "18px" }}
-      >
+      <div className="rf-pad flex-1 min-h-0 flex flex-col" style={{ paddingTop: "18px" }}>
         <motion.div
           variants={cardIn}
           className="rf-whiteMax flex-1 min-h-0 bg-white shadow-[0_26px_80px_rgba(0,0,0,0.18)] overflow-hidden"
@@ -328,10 +258,7 @@ export default function ReferralBasic({ profile }) {
             }}
           >
             <div className="mx-auto w-full max-w-6xl">
-              <motion.h2
-                variants={fadeUp}
-                className="text-[26px] md:text-[32px] font-extrabold text-gray-900"
-              >
+              <motion.h2 variants={fadeUp} className="text-[26px] md:text-[32px] font-extrabold text-gray-900">
                 Daftar Referral
               </motion.h2>
 
@@ -339,15 +266,11 @@ export default function ReferralBasic({ profile }) {
                 <table className="w-full text-[13px] md:text-[14px]">
                   <thead className="bg-[#5FCAAC] text-white">
                     <tr>
-                      <th className="py-4 px-4 text-left font-bold w-[64px]">
-                        No
-                      </th>
+                      <th className="py-4 px-4 text-left font-bold w-[64px]">No</th>
                       <th className="py-4 px-4 text-center font-bold">Nama</th>
                       <th className="py-4 px-4 text-center font-bold">Email</th>
                       <th className="py-4 px-4 text-center font-bold">Waktu</th>
-                      <th className="py-4 px-4 text-center font-bold w-[120px]">
-                        Status
-                      </th>
+                      <th className="py-4 px-4 text-center font-bold w-[120px]">Status</th>
                     </tr>
                   </thead>
 
@@ -361,21 +284,11 @@ export default function ReferralBasic({ profile }) {
                         initial="hidden"
                         animate="show"
                       >
-                        <td className="py-4 px-4 text-left text-gray-900">
-                          {r.no}
-                        </td>
-                        <td className="py-4 px-4 text-center text-gray-900">
-                          {r.nama}
-                        </td>
-                        <td className="py-4 px-4 text-center text-gray-900">
-                          {r.email}
-                        </td>
-                        <td className="py-4 px-4 text-center text-gray-900">
-                          {r.waktu}
-                        </td>
-                        <td className="py-4 px-4 text-center text-gray-900">
-                          {r.status}
-                        </td>
+                        <td className="py-4 px-4 text-left text-gray-900">{r.no}</td>
+                        <td className="py-4 px-4 text-center text-gray-900">{r.nama}</td>
+                        <td className="py-4 px-4 text-center text-gray-900">{r.email}</td>
+                        <td className="py-4 px-4 text-center text-gray-900">{r.waktu}</td>
+                        <td className="py-4 px-4 text-center text-gray-900">{r.status}</td>
                       </motion.tr>
                     ))}
                   </tbody>

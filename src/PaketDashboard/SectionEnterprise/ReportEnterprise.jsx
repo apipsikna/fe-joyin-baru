@@ -1,4 +1,3 @@
-// src/PaketDashboard/SectionBasic/ReportBasic.jsx
 import React from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
@@ -7,11 +6,6 @@ const GRADIENT_TO = "#DAEC75";
 
 /**
  * ✅ SETTING LAYOUT LAPORAN (biar gampang atur lebar kiri/kanan)
- * - sidePadMobile/Desktop : jarak kiri/kanan halaman (semakin kecil = semakin lebar)
- * - topPad               : jarak atas judul
- * - gapTitleToCard       : jarak judul ke container putih
- * - cardRadiusTop        : radius atas container putih
- * - cardMaxW             : batas max width card (9999 biar hampir full)
  */
 const REPORT_LAYOUT = {
   sidePadMobile: 11,
@@ -22,7 +16,7 @@ const REPORT_LAYOUT = {
   cardMaxW: 9999,
 };
 
-export default function ReportBasic() {
+export default function ReportEnterprise() {
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 
@@ -77,7 +71,6 @@ export default function ReportBasic() {
       animate="show"
     >
       <style>{`
-        /* Hide scrollbar di body (opsional) */
         body { -ms-overflow-style: none; scrollbar-width: none; }
         body::-webkit-scrollbar { display: none; }
 
@@ -99,22 +92,13 @@ export default function ReportBasic() {
         }
       `}</style>
 
-      {/* HEADER */}
-      <motion.div
-        variants={headerIn}
-        className="rp-pad shrink-0"
-        style={{ paddingTop: "var(--topPad)" }}
-      >
+      <motion.div variants={headerIn} className="rp-pad shrink-0" style={{ paddingTop: "var(--topPad)" }}>
         <h1 className="text-center text-white font-extrabold tracking-wide text-[36px] md:text-[44px] leading-none">
           Laporan
         </h1>
       </motion.div>
 
-      {/* WHITE CONTAINER BESAR (✅ bawah siku) */}
-      <div
-        className="rp-pad flex-1 min-h-0 flex flex-col"
-        style={{ paddingTop: "var(--gap)", paddingBottom: 0 }}
-      >
+      <div className="rp-pad flex-1 min-h-0 flex flex-col" style={{ paddingTop: "var(--gap)", paddingBottom: 0 }}>
         <motion.div
           variants={cardIn}
           className="rp-cardMax flex-1 min-h-0 bg-white shadow-[0_26px_80px_rgba(0,0,0,0.18)] overflow-hidden"
@@ -125,7 +109,6 @@ export default function ReportBasic() {
             borderBottomRightRadius: 0,
           }}
         >
-          {/* isi laporan nanti taruh di sini */}
           <div className="w-full h-full" />
         </motion.div>
       </div>

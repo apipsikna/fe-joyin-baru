@@ -1,4 +1,3 @@
-// src/PaketDashboard/SectionBasic/ObrolanBasic.jsx
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
@@ -13,9 +12,9 @@ const GRADIENT_TO = "#DAEC75";
  * - radiusTop: lengkungan bagian atas
  */
 const WHITE_CONTAINER_CFG = {
-  sidePad: 10, // px (ubah: 0, 8, 16, 24, 32, dst)
-  topPad: 24, // px
-  radiusTop: 44, // px (atas tetap rounded seperti contoh)
+  sidePad: 10,
+  topPad: 24,
+  radiusTop: 44,
 };
 
 function Avatar({ src, alt = "avatar", size = 46 }) {
@@ -62,11 +61,10 @@ function getNowTime() {
   return `${hh}.${mm}`;
 }
 
-export default function ObrolanBasic() {
+export default function ObrolanEnterprise() {
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 
-  // ====== ANIMATION ==========================================================
   const page = {
     hidden: { opacity: 0 },
     show: {
@@ -147,7 +145,6 @@ export default function ObrolanBasic() {
     },
   };
 
-  // ====== STATE ==============================================================
   const [search, setSearch] = useState("");
   const [activeId, setActiveId] = useState("c1");
   const [draft, setDraft] = useState("");
@@ -172,11 +169,6 @@ export default function ObrolanBasic() {
     []
   );
 
-  /**
-   * role:
-   * - "customer"  => kiri (putih)
-   * - "agent"     => kanan (hijau)  ✅ pesan dari input
-   */
   const [threads, setThreads] = useState(() => ({
     c1: [
       {
@@ -262,15 +254,12 @@ export default function ObrolanBasic() {
       initial="hidden"
       animate="show"
     >
-      {/* TOP BAR */}
       <motion.div variants={fadeUp} className="relative w-full px-6 pt-6 shrink-0">
         <h1 className="text-center text-white font-semibold text-[44px] leading-none tracking-wide">
           Obrolan
         </h1>
-        {/* ✅ Profil pojok kanan atas dihapus */}
       </motion.div>
 
-      {/* MAIN WHITE CONTAINER */}
       <div
         className="w-full flex-1 min-h-0 pb-0"
         style={{
@@ -290,9 +279,7 @@ export default function ObrolanBasic() {
           }}
         >
           <div className="w-full h-full flex">
-            {/* LEFT SIDEBAR */}
             <aside className="w-[360px] shrink-0 border-r border-gray-200">
-              {/* Search */}
               <div className="p-6">
                 <div className="relative">
                   <input
@@ -305,7 +292,6 @@ export default function ObrolanBasic() {
                 </div>
               </div>
 
-              {/* Conversation list */}
               <div className="px-4 pb-6 space-y-3">
                 {filteredConversations.map((c, idx) => {
                   const active = c.id === activeId;
@@ -341,15 +327,12 @@ export default function ObrolanBasic() {
               </div>
             </aside>
 
-            {/* RIGHT CHAT AREA */}
             <section className="flex-1 min-w-0 flex flex-col">
-              {/* Header chat */}
               <div className="h-[82px] px-8 flex items-center gap-4 border-b border-gray-200">
                 <div className="relative">
                   <Avatar src={activeConv.avatar} alt={activeConv.name} size={50} />
                 </div>
 
-                {/* anim halus saat ganti conversation */}
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={activeId}
@@ -369,11 +352,9 @@ export default function ObrolanBasic() {
                 </AnimatePresence>
               </div>
 
-              {/* Messages */}
               <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto px-10 py-8">
                 <div className="h-6" />
 
-                {/* inner wrapper anim saat switch conversation */}
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={`thread_${activeId}`}
@@ -396,13 +377,8 @@ export default function ObrolanBasic() {
                             className="mb-10"
                           >
                             {isCustomer ? (
-                              // kiri putih
                               <div className="flex items-end gap-4">
-                                <Avatar
-                                  src={activeConv.avatar}
-                                  alt={activeConv.name}
-                                  size={44}
-                                />
+                                <Avatar src={activeConv.avatar} alt={activeConv.name} size={44} />
                                 <div>
                                   <div className="bg-white rounded-xl px-8 py-6 shadow-[0_6px_14px_rgba(0,0,0,0.12)] border border-gray-100 max-w-[540px]">
                                     <p className="text-[22px] leading-snug text-gray-900 whitespace-pre-line">
@@ -415,7 +391,6 @@ export default function ObrolanBasic() {
                                 </div>
                               </div>
                             ) : (
-                              // kanan hijau
                               <div className="ml-auto max-w-[650px]">
                                 <div className="bg-[#CFFBE9] rounded-xl px-10 py-8 shadow-[0_6px_14px_rgba(0,0,0,0.12)] border border-[#BFF2DE]">
                                   <p className="text-[20px] leading-relaxed text-gray-900 whitespace-pre-line">
@@ -437,7 +412,6 @@ export default function ObrolanBasic() {
                 <div className="h-8" />
               </div>
 
-              {/* Composer */}
               <div className="px-10 pb-10">
                 <div className="flex items-center">
                   <input

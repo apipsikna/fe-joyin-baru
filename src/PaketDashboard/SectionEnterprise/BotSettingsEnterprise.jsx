@@ -1,4 +1,3 @@
-// src/PaketDashboard/SectionBasic/BotSettingsBasic.jsx
 import React, { useMemo, useState } from "react";
 import {
   HiOutlineArrowPath,
@@ -40,7 +39,7 @@ const LAYOUT_CFG = {
   whiteTopGap: 50, // px
 };
 
-export default function BotSettingsBasic() {
+export default function BotSettingsEnterprise() {
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 
@@ -135,7 +134,7 @@ export default function BotSettingsBasic() {
   );
 
   const handleSave = () => {
-    console.log("Save pengaturan bot:", {
+    console.log("Save pengaturan bot (Enterprise):", {
       tab,
       basic: { botName, desc, botLang, speed, useEmoji },
       reply: { welcomeMessage, welcomeTiming, defaultReply, closingMessage },
@@ -277,7 +276,6 @@ export default function BotSettingsBasic() {
 
         /* Desktop override vars */
         @media (min-width: 768px) {
-          :root {}
           .joyin-pagePad { padding-left: ${LAYOUT_CFG.pageSidePadDesktop}px; padding-right: ${LAYOUT_CFG.pageSidePadDesktop}px; }
           .joyin-whiteBleed {
             width: min(${LAYOUT_CFG.whiteMaxW}px, calc(100vw - ${LAYOUT_CFG.whitePadLDesktop}px - ${LAYOUT_CFG.whitePadRDesktop}px));
