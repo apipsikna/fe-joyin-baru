@@ -1,5 +1,6 @@
 // src/PaketDashboard/SectionBasic/ReportBasic.jsx
 import React from "react";
+import { motion, useReducedMotion } from "framer-motion";
 
 const GRADIENT_FROM = "#5FCAAC";
 const GRADIENT_TO = "#DAEC75";
@@ -22,8 +23,45 @@ const REPORT_LAYOUT = {
 };
 
 export default function ReportBasic() {
+  const reduceMotion = useReducedMotion();
+  const EASE = [0.22, 1, 0.36, 1];
+
+  const page = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        duration: reduceMotion ? 0 : 0.2,
+        ease: "easeOut",
+        when: "beforeChildren",
+        staggerChildren: reduceMotion ? 0 : 0.08,
+      },
+    },
+  };
+
+  const headerIn = {
+    hidden: { opacity: 0, y: 12, filter: "blur(7px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: { duration: reduceMotion ? 0 : 0.55, ease: EASE },
+    },
+  };
+
+  const cardIn = {
+    hidden: { opacity: 0, y: 18, scale: 0.995, filter: "blur(10px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+      transition: { duration: reduceMotion ? 0 : 0.65, ease: EASE },
+    },
+  };
+
   return (
-    <div
+    <motion.div
       className="w-full min-h-screen font-poppins overflow-hidden flex flex-col"
       style={{
         background: `linear-gradient(90deg, ${GRADIENT_FROM} 0%, ${GRADIENT_TO} 100%)`,
@@ -34,6 +72,9 @@ export default function ReportBasic() {
         "--radTop": `${REPORT_LAYOUT.cardRadiusTop}px`,
         "--cardMaxW": `${REPORT_LAYOUT.cardMaxW}px`,
       }}
+      variants={page}
+      initial="hidden"
+      animate="show"
     >
       <style>{`
         /* Hide scrollbar di body (opsional) */
@@ -59,18 +100,23 @@ export default function ReportBasic() {
       `}</style>
 
       {/* HEADER */}
-      <div className="rp-pad shrink-0" style={{ paddingTop: "var(--topPad)" }}>
+      <motion.div
+        variants={headerIn}
+        className="rp-pad shrink-0"
+        style={{ paddingTop: "var(--topPad)" }}
+      >
         <h1 className="text-center text-white font-extrabold tracking-wide text-[36px] md:text-[44px] leading-none">
           Laporan
         </h1>
-      </div>
+      </motion.div>
 
       {/* WHITE CONTAINER BESAR (✅ bawah siku) */}
       <div
         className="rp-pad flex-1 min-h-0 flex flex-col"
         style={{ paddingTop: "var(--gap)", paddingBottom: 0 }}
       >
-        <div
+        <motion.div
+          variants={cardIn}
           className="rp-cardMax flex-1 min-h-0 bg-white shadow-[0_26px_80px_rgba(0,0,0,0.18)] overflow-hidden"
           style={{
             borderTopLeftRadius: "var(--radTop)",
@@ -81,8 +127,8 @@ export default function ReportBasic() {
         >
           {/* isi laporan nanti taruh di sini */}
           <div className="w-full h-full" />
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

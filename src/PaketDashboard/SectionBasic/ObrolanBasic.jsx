@@ -1,6 +1,7 @@
 // src/PaketDashboard/SectionBasic/ObrolanBasic.jsx
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
 const GRADIENT_FROM = "#5FCAAC";
 const GRADIENT_TO = "#DAEC75";
@@ -62,6 +63,91 @@ function getNowTime() {
 }
 
 export default function ObrolanBasic() {
+  const reduceMotion = useReducedMotion();
+  const EASE = [0.22, 1, 0.36, 1];
+
+  // ====== ANIMATION ==========================================================
+  const page = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        duration: reduceMotion ? 0 : 0.22,
+        ease: "easeOut",
+        when: "beforeChildren",
+        staggerChildren: reduceMotion ? 0 : 0.06,
+      },
+    },
+  };
+
+  const fadeUp = {
+    hidden: { opacity: 0, y: 14, filter: "blur(6px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: { duration: reduceMotion ? 0 : 0.55, ease: EASE },
+    },
+  };
+
+  const panelIn = {
+    hidden: { opacity: 0, y: 20, scale: 0.995, filter: "blur(8px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+      transition: { duration: reduceMotion ? 0 : 0.65, ease: EASE },
+    },
+  };
+
+  const convItem = {
+    hidden: { opacity: 0, y: 10, filter: "blur(5px)" },
+    show: (i = 0) => ({
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: {
+        duration: reduceMotion ? 0 : 0.35,
+        ease: "easeOut",
+        delay: reduceMotion ? 0 : 0.06 + i * 0.04,
+      },
+    }),
+  };
+
+  const switchConv = {
+    hidden: { opacity: 0, y: 10, filter: "blur(6px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: { duration: reduceMotion ? 0 : 0.26, ease: "easeOut" },
+    },
+    exit: {
+      opacity: 0,
+      y: -8,
+      filter: "blur(6px)",
+      transition: { duration: reduceMotion ? 0 : 0.16, ease: "easeIn" },
+    },
+  };
+
+  const msg = {
+    hidden: { opacity: 0, y: 10, filter: "blur(6px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: { duration: reduceMotion ? 0 : 0.22, ease: "easeOut" },
+    },
+    exit: {
+      opacity: 0,
+      y: -6,
+      filter: "blur(6px)",
+      transition: { duration: reduceMotion ? 0 : 0.14, ease: "easeIn" },
+    },
+  };
+
+  // ====== STATE ==============================================================
   const [search, setSearch] = useState("");
   const [activeId, setActiveId] = useState("c1");
   const [draft, setDraft] = useState("");
@@ -167,19 +253,22 @@ export default function ObrolanBasic() {
   const radiusTop = WHITE_CONTAINER_CFG.radiusTop;
 
   return (
-    <div
+    <motion.div
       className="w-full min-h-screen h-full overflow-hidden font-poppins flex flex-col"
       style={{
         background: `linear-gradient(90deg, ${GRADIENT_FROM} 0%, ${GRADIENT_TO} 100%)`,
       }}
+      variants={page}
+      initial="hidden"
+      animate="show"
     >
       {/* TOP BAR */}
-      <div className="relative w-full px-6 pt-6 shrink-0">
+      <motion.div variants={fadeUp} className="relative w-full px-6 pt-6 shrink-0">
         <h1 className="text-center text-white font-semibold text-[44px] leading-none tracking-wide">
           Obrolan
         </h1>
         {/* ✅ Profil pojok kanan atas dihapus */}
-      </div>
+      </motion.div>
 
       {/* MAIN WHITE CONTAINER */}
       <div
@@ -190,7 +279,8 @@ export default function ObrolanBasic() {
           paddingTop: topPad,
         }}
       >
-        <div
+        <motion.div
+          variants={panelIn}
           className="w-full h-full bg-white overflow-hidden shadow-[0_24px_80px_rgba(0,0,0,0.12)]"
           style={{
             borderTopLeftRadius: radiusTop,
@@ -217,10 +307,10 @@ export default function ObrolanBasic() {
 
               {/* Conversation list */}
               <div className="px-4 pb-6 space-y-3">
-                {filteredConversations.map((c) => {
+                {filteredConversations.map((c, idx) => {
                   const active = c.id === activeId;
                   return (
-                    <button
+                    <motion.button
                       key={c.id}
                       type="button"
                       onClick={() => setActiveId(c.id)}
@@ -231,6 +321,10 @@ export default function ObrolanBasic() {
                         active ? "" : "hover:bg-gray-50",
                         "transition-colors",
                       ].join(" ")}
+                      variants={convItem}
+                      custom={idx}
+                      initial="hidden"
+                      animate="show"
                     >
                       <Avatar src={c.avatar} alt={c.name} size={46} />
                       <div className="min-w-0">
@@ -241,7 +335,7 @@ export default function ObrolanBasic() {
                           {c.preview}
                         </p>
                       </div>
-                    </button>
+                    </motion.button>
                   );
                 })}
               </div>
@@ -252,68 +346,93 @@ export default function ObrolanBasic() {
               {/* Header chat */}
               <div className="h-[82px] px-8 flex items-center gap-4 border-b border-gray-200">
                 <div className="relative">
-                  <Avatar
-                    src={activeConv.avatar}
-                    alt={activeConv.name}
-                    size={50}
-                  />
+                  <Avatar src={activeConv.avatar} alt={activeConv.name} size={50} />
                 </div>
-                <div className="leading-tight">
-                  <p className="text-[20px] font-semibold text-gray-900">
-                    {activeConv.name}
-                  </p>
-                  <p className="text-[12px] text-gray-400">
-                    {activeConv.online ? "Online" : "Offline"}
-                  </p>
-                </div>
+
+                {/* anim halus saat ganti conversation */}
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={activeId}
+                    variants={switchConv}
+                    initial="hidden"
+                    animate="show"
+                    exit="exit"
+                    className="leading-tight"
+                  >
+                    <p className="text-[20px] font-semibold text-gray-900">
+                      {activeConv.name}
+                    </p>
+                    <p className="text-[12px] text-gray-400">
+                      {activeConv.online ? "Online" : "Offline"}
+                    </p>
+                  </motion.div>
+                </AnimatePresence>
               </div>
 
               {/* Messages */}
-              <div
-                ref={listRef}
-                className="flex-1 min-h-0 overflow-y-auto px-10 py-8"
-              >
+              <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto px-10 py-8">
                 <div className="h-6" />
 
-                {messages.map((m) => {
-                  const isCustomer = m.role === "customer";
-                  return (
-                    <div key={m.id} className="mb-10">
-                      {isCustomer ? (
-                        // kiri putih
-                        <div className="flex items-end gap-4">
-                          <Avatar
-                            src={activeConv.avatar}
-                            alt={activeConv.name}
-                            size={44}
-                          />
-                          <div>
-                            <div className="bg-white rounded-xl px-8 py-6 shadow-[0_6px_14px_rgba(0,0,0,0.12)] border border-gray-100 max-w-[540px]">
-                              <p className="text-[22px] leading-snug text-gray-900 whitespace-pre-line">
-                                {m.text}
-                              </p>
-                            </div>
-                            <p className="mt-1 ml-2 text-[12px] text-gray-400">
-                              {formatTime(m.time)}
-                            </p>
-                          </div>
-                        </div>
-                      ) : (
-                        // kanan hijau
-                        <div className="ml-auto max-w-[650px]">
-                          <div className="bg-[#CFFBE9] rounded-xl px-10 py-8 shadow-[0_6px_14px_rgba(0,0,0,0.12)] border border-[#BFF2DE]">
-                            <p className="text-[20px] leading-relaxed text-gray-900 whitespace-pre-line">
-                              {m.text}
-                            </p>
-                          </div>
-                          <p className="mt-2 text-right text-[12px] text-gray-400">
-                            {formatTime(m.time)}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                {/* inner wrapper anim saat switch conversation */}
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={`thread_${activeId}`}
+                    variants={switchConv}
+                    initial="hidden"
+                    animate="show"
+                    exit="exit"
+                  >
+                    <AnimatePresence initial={false}>
+                      {messages.map((m) => {
+                        const isCustomer = m.role === "customer";
+                        return (
+                          <motion.div
+                            key={m.id}
+                            variants={msg}
+                            initial="hidden"
+                            animate="show"
+                            exit="exit"
+                            layout
+                            className="mb-10"
+                          >
+                            {isCustomer ? (
+                              // kiri putih
+                              <div className="flex items-end gap-4">
+                                <Avatar
+                                  src={activeConv.avatar}
+                                  alt={activeConv.name}
+                                  size={44}
+                                />
+                                <div>
+                                  <div className="bg-white rounded-xl px-8 py-6 shadow-[0_6px_14px_rgba(0,0,0,0.12)] border border-gray-100 max-w-[540px]">
+                                    <p className="text-[22px] leading-snug text-gray-900 whitespace-pre-line">
+                                      {m.text}
+                                    </p>
+                                  </div>
+                                  <p className="mt-1 ml-2 text-[12px] text-gray-400">
+                                    {formatTime(m.time)}
+                                  </p>
+                                </div>
+                              </div>
+                            ) : (
+                              // kanan hijau
+                              <div className="ml-auto max-w-[650px]">
+                                <div className="bg-[#CFFBE9] rounded-xl px-10 py-8 shadow-[0_6px_14px_rgba(0,0,0,0.12)] border border-[#BFF2DE]">
+                                  <p className="text-[20px] leading-relaxed text-gray-900 whitespace-pre-line">
+                                    {m.text}
+                                  </p>
+                                </div>
+                                <p className="mt-2 text-right text-[12px] text-gray-400">
+                                  {formatTime(m.time)}
+                                </p>
+                              </div>
+                            )}
+                          </motion.div>
+                        );
+                      })}
+                    </AnimatePresence>
+                  </motion.div>
+                </AnimatePresence>
 
                 <div className="h-8" />
               </div>
@@ -334,8 +453,8 @@ export default function ObrolanBasic() {
               </div>
             </section>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

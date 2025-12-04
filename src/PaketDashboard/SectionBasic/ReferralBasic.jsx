@@ -1,6 +1,7 @@
 // src/PaketDashboard/SectionBasic/ReferralBasic.jsx
 import React, { useMemo, useState } from "react";
 import { HiOutlineDocumentDuplicate } from "react-icons/hi2";
+import { motion, useReducedMotion } from "framer-motion";
 import EightBintang from "../../assets/8bintang.png";
 
 const GRADIENT_FROM = "#5FCAAC";
@@ -40,13 +41,55 @@ const STAR8_CTRL = {
 };
 
 const SAMPLE_ROWS = [
-  { no: 1, nama: "Andin Nugraha", email: "andin.ngrh@gmail.com", waktu: "2025-11-25 09:12", status: "Aktif" },
-  { no: 2, nama: "Bella Nadhira", email: "bella.ndhr@gmail.com", waktu: "2025-11-25 10:45", status: "Pending" },
-  { no: 3, nama: "Candra Wijaya", email: "candra.wjy@gmail.com", waktu: "2025-11-25 08:30", status: "Aktif" },
-  { no: 4, nama: "Dwi Lestari", email: "dwi.lestari@gmail.com", waktu: "2025-11-25 11:05", status: "Aktif" },
-  { no: 5, nama: "Fajar Nugraha", email: "fajar.ngrh@gmail.com", waktu: "2025-11-25 12:58", status: "Pending" },
-  { no: 6, nama: "Gita Ramadhani", email: "gita.rmdh@gmail.com", waktu: "2025-11-25 07:50", status: "Aktif" },
-  { no: 7, nama: "Hendra Saputra", email: "hendra.sptr@gmail.com", waktu: "2025-11-25 13:27", status: "Aktif" },
+  {
+    no: 1,
+    nama: "Andin Nugraha",
+    email: "andin.ngrh@gmail.com",
+    waktu: "2025-11-25 09:12",
+    status: "Aktif",
+  },
+  {
+    no: 2,
+    nama: "Bella Nadhira",
+    email: "bella.ndhr@gmail.com",
+    waktu: "2025-11-25 10:45",
+    status: "Pending",
+  },
+  {
+    no: 3,
+    nama: "Candra Wijaya",
+    email: "candra.wjy@gmail.com",
+    waktu: "2025-11-25 08:30",
+    status: "Aktif",
+  },
+  {
+    no: 4,
+    nama: "Dwi Lestari",
+    email: "dwi.lestari@gmail.com",
+    waktu: "2025-11-25 11:05",
+    status: "Aktif",
+  },
+  {
+    no: 5,
+    nama: "Fajar Nugraha",
+    email: "fajar.ngrh@gmail.com",
+    waktu: "2025-11-25 12:58",
+    status: "Pending",
+  },
+  {
+    no: 6,
+    nama: "Gita Ramadhani",
+    email: "gita.rmdh@gmail.com",
+    waktu: "2025-11-25 07:50",
+    status: "Aktif",
+  },
+  {
+    no: 7,
+    nama: "Hendra Saputra",
+    email: "hendra.sptr@gmail.com",
+    waktu: "2025-11-25 13:27",
+    status: "Aktif",
+  },
 ];
 
 const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
@@ -58,12 +101,71 @@ const readNum = (qp, key, fallback) => {
 };
 
 export default function ReferralBasic({ profile }) {
+  const reduceMotion = useReducedMotion();
+  const EASE = [0.22, 1, 0.36, 1];
+
+  // ✅ Animasi masuk (aman: tidak mengubah layout / setting)
+  const page = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        duration: reduceMotion ? 0 : 0.18,
+        ease: "easeOut",
+        when: "beforeChildren",
+        staggerChildren: reduceMotion ? 0 : 0.08,
+      },
+    },
+  };
+
+  const fadeUp = {
+    hidden: { opacity: 0, y: 12, filter: "blur(7px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: { duration: reduceMotion ? 0 : 0.55, ease: EASE },
+    },
+  };
+
+  // ✅ Untuk layer yang sudah punya transform sendiri (bintang), animasikan opacity/blur saja
+  const fadeOnly = {
+    hidden: { opacity: 0, filter: "blur(10px)" },
+    show: {
+      opacity: 1,
+      filter: "blur(0px)",
+      transition: { duration: reduceMotion ? 0 : 0.75, ease: EASE },
+    },
+  };
+
+  const cardIn = {
+    hidden: { opacity: 0, y: 16, scale: 0.995, filter: "blur(10px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+      transition: { duration: reduceMotion ? 0 : 0.6, ease: EASE },
+    },
+  };
+
+  const rowIn = {
+    hidden: { opacity: 0, y: 10, filter: "blur(7px)" },
+    show: (i = 0) => ({
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: {
+        duration: reduceMotion ? 0 : 0.35,
+        ease: "easeOut",
+        delay: reduceMotion ? 0 : 0.08 + i * 0.05,
+      },
+    }),
+  };
+
   const referralCode = useMemo(() => {
     const code =
-      profile?.referralCode ||
-      profile?.refCode ||
-      profile?.referral?.code ||
-      "";
+      profile?.referralCode || profile?.refCode || profile?.referral?.code || "";
     return String(code || "").trim();
   }, [profile]);
 
@@ -105,7 +207,7 @@ export default function ReferralBasic({ profile }) {
   };
 
   return (
-    <div
+    <motion.div
       className="w-full min-h-screen font-poppins overflow-x-hidden flex flex-col"
       style={{
         background: `linear-gradient(90deg, ${GRADIENT_FROM} 0%, ${GRADIENT_TO} 100%)`,
@@ -120,6 +222,9 @@ export default function ReferralBasic({ profile }) {
         "--starY": `${starCtrl.y}px`,
         "--starS": `${starCtrl.scale}`,
       }}
+      variants={page}
+      initial="hidden"
+      animate="show"
     >
       <style>{`
         body { -ms-overflow-style: none; scrollbar-width: none; }
@@ -137,8 +242,11 @@ export default function ReferralBasic({ profile }) {
         className="rf-pad relative shrink-0"
         style={{ paddingTop: "var(--topPad)", minHeight: "var(--heroMinH)" }}
       >
-        {/* ✅ Layer bintang */}
-        <div className="pointer-events-none select-none absolute inset-0 overflow-hidden">
+        {/* ✅ Layer bintang (animasi aman: opacity/blur, tidak mengganggu transform 8bintang) */}
+        <motion.div
+          variants={fadeOnly}
+          className="pointer-events-none select-none absolute inset-0 overflow-hidden"
+        >
           <img
             src={EightBintang}
             alt="bintang dekorasi"
@@ -150,9 +258,9 @@ export default function ReferralBasic({ profile }) {
               transformOrigin: "center",
             }}
           />
-        </div>
+        </motion.div>
 
-        <div className="relative z-10">
+        <motion.div variants={fadeUp} className="relative z-10">
           <h1 className="text-center text-white font-extrabold tracking-wide text-[32px] md:text-[44px] leading-tight">
             Ajak Teman, Dapatkan Komisi
           </h1>
@@ -163,7 +271,8 @@ export default function ReferralBasic({ profile }) {
           </p>
 
           {/* ✅ Card kode dibuat lebih sempit (max-width dari config) */}
-          <div
+          <motion.div
+            variants={cardIn}
             className="rf-codeMax mt-7 md:mt-8 rounded-[18px] md:rounded-[22px] border border-white/30 bg-white/20 backdrop-blur-md shadow-[0_18px_40px_rgba(0,0,0,0.10)]"
             style={{ padding: "18px" }}
           >
@@ -189,13 +298,17 @@ export default function ReferralBasic({ profile }) {
                 {copied ? "Tersalin" : "Salin"}
               </button>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
 
       {/* ===== WHITE CONTAINER (bawah siku) ===== */}
-      <div className="rf-pad flex-1 min-h-0 flex flex-col" style={{ paddingTop: "18px" }}>
-        <div
+      <div
+        className="rf-pad flex-1 min-h-0 flex flex-col"
+        style={{ paddingTop: "18px" }}
+      >
+        <motion.div
+          variants={cardIn}
           className="rf-whiteMax flex-1 min-h-0 bg-white shadow-[0_26px_80px_rgba(0,0,0,0.18)] overflow-hidden"
           style={{
             borderTopLeftRadius: "var(--radTop)",
@@ -215,42 +328,66 @@ export default function ReferralBasic({ profile }) {
             }}
           >
             <div className="mx-auto w-full max-w-6xl">
-              <h2 className="text-[26px] md:text-[32px] font-extrabold text-gray-900">
+              <motion.h2
+                variants={fadeUp}
+                className="text-[26px] md:text-[32px] font-extrabold text-gray-900"
+              >
                 Daftar Referral
-              </h2>
+              </motion.h2>
 
-              <div className="mt-6 overflow-hidden rounded-2xl border border-gray-200">
+              <motion.div variants={fadeUp} className="mt-6 overflow-hidden rounded-2xl border border-gray-200">
                 <table className="w-full text-[13px] md:text-[14px]">
                   <thead className="bg-[#5FCAAC] text-white">
                     <tr>
-                      <th className="py-4 px-4 text-left font-bold w-[64px]">No</th>
+                      <th className="py-4 px-4 text-left font-bold w-[64px]">
+                        No
+                      </th>
                       <th className="py-4 px-4 text-center font-bold">Nama</th>
                       <th className="py-4 px-4 text-center font-bold">Email</th>
                       <th className="py-4 px-4 text-center font-bold">Waktu</th>
-                      <th className="py-4 px-4 text-center font-bold w-[120px]">Status</th>
+                      <th className="py-4 px-4 text-center font-bold w-[120px]">
+                        Status
+                      </th>
                     </tr>
                   </thead>
 
                   <tbody className="bg-white">
-                    {SAMPLE_ROWS.map((r) => (
-                      <tr key={r.no} className="border-t border-gray-100">
-                        <td className="py-4 px-4 text-left text-gray-900">{r.no}</td>
-                        <td className="py-4 px-4 text-center text-gray-900">{r.nama}</td>
-                        <td className="py-4 px-4 text-center text-gray-900">{r.email}</td>
-                        <td className="py-4 px-4 text-center text-gray-900">{r.waktu}</td>
-                        <td className="py-4 px-4 text-center text-gray-900">{r.status}</td>
-                      </tr>
+                    {SAMPLE_ROWS.map((r, i) => (
+                      <motion.tr
+                        key={r.no}
+                        className="border-t border-gray-100"
+                        variants={rowIn}
+                        custom={i}
+                        initial="hidden"
+                        animate="show"
+                      >
+                        <td className="py-4 px-4 text-left text-gray-900">
+                          {r.no}
+                        </td>
+                        <td className="py-4 px-4 text-center text-gray-900">
+                          {r.nama}
+                        </td>
+                        <td className="py-4 px-4 text-center text-gray-900">
+                          {r.email}
+                        </td>
+                        <td className="py-4 px-4 text-center text-gray-900">
+                          {r.waktu}
+                        </td>
+                        <td className="py-4 px-4 text-center text-gray-900">
+                          {r.status}
+                        </td>
+                      </motion.tr>
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </motion.div>
 
               <div className="h-8" />
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

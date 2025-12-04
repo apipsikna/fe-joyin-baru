@@ -8,6 +8,7 @@ import {
   HiOutlineDevicePhoneMobile,
   HiOutlineQuestionMarkCircle,
 } from "react-icons/hi2";
+import { motion, useReducedMotion } from "framer-motion";
 
 import SectionPutih from "../../assets/SectionPutih.png";
 
@@ -191,12 +192,81 @@ const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 export default function MyPackagesBasic() {
   const [progressPct] = useState(78);
 
+  // ===== Animasi (aman: tidak mengganggu transform CSS yang sudah ada) =====
+  const reduceMotion = useReducedMotion();
+  const EASE = [0.22, 1, 0.36, 1];
+
+  const page = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        duration: reduceMotion ? 0 : 0.2,
+        ease: "easeOut",
+        when: "beforeChildren",
+        staggerChildren: reduceMotion ? 0 : 0.07,
+      },
+    },
+  };
+
+  // fade+up (pakai transform) -> aman diaplikasikan ke wrapper yang tidak punya transform CSS
+  const fadeUp = {
+    hidden: { opacity: 0, y: 14, filter: "blur(7px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: { duration: reduceMotion ? 0 : 0.6, ease: EASE },
+    },
+  };
+
+  // fade-only -> aman untuk elemen yang sudah punya transform CSS (_spImg/_spContent/_actionsShift)
+  const fadeOnly = {
+    hidden: { opacity: 0, filter: "blur(10px)" },
+    show: {
+      opacity: 1,
+      filter: "blur(0px)",
+      transition: { duration: reduceMotion ? 0 : 0.7, ease: EASE },
+    },
+  };
+
+  const statCardIn = {
+    hidden: { opacity: 0, y: 16, filter: "blur(8px)" },
+    show: (i = 0) => ({
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: {
+        duration: reduceMotion ? 0 : 0.55,
+        ease: EASE,
+        delay: reduceMotion ? 0 : 0.04 + i * 0.08,
+      },
+    }),
+  };
+
+  const featureIn = {
+    hidden: { opacity: 0, y: 14, filter: "blur(8px)" },
+    show: (i = 0) => ({
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: {
+        duration: reduceMotion ? 0 : 0.45,
+        ease: "easeOut",
+        delay: reduceMotion ? 0 : 0.08 + i * 0.05,
+      },
+    }),
+  };
+
   return (
-    <div
+    <motion.div
       className="w-full overflow-x-hidden font-poppins"
       style={{
         background: `linear-gradient(90deg, ${GRADIENT_FROM} 0%, ${GRADIENT_TO} 100%)`,
       }}
+      variants={page}
+      initial="hidden"
+      animate="show"
     >
       <div
         className="mx-auto w-full"
@@ -326,107 +396,160 @@ export default function MyPackagesBasic() {
 
         <div className="_pagePad">
           {/* Title */}
-          <div className="text-center">
+          <motion.div variants={fadeUp} className="text-center">
             <h1 className="text-white font-extrabold text-[34px] md:text-[44px] leading-tight">
               Paket Basic
             </h1>
             <p className="mt-2 text-white/85 text-[14px] md:text-[15px]">
               Atur dan cek status paket langganan Anda
             </p>
-          </div>
+          </motion.div>
 
-          {/* Stat cards (✅ dibuat seragam + sejajar seperti foto) */}
+          {/* Stat cards */}
           <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10 justify-items-center items-stretch">
-            <StatCard title="Durasi Langganan" value="3 Bulan" />
-            <StatCard
-              title="Masa Aktif"
-              value="15 Hari Lagi"
-              children={
-                <div className="w-full">
-                  <div className="h-[6px] w-full rounded-full bg-white/35 overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-white/85"
-                      style={{ width: `${clamp(progressPct, 0, 100)}%` }}
-                    />
+            <motion.div
+              variants={statCardIn}
+              custom={0}
+              initial="hidden"
+              animate="show"
+              className="w-full flex justify-center"
+            >
+              <StatCard title="Durasi Langganan" value="3 Bulan" />
+            </motion.div>
+
+            <motion.div
+              variants={statCardIn}
+              custom={1}
+              initial="hidden"
+              animate="show"
+              className="w-full flex justify-center"
+            >
+              <StatCard
+                title="Masa Aktif"
+                value="15 Hari Lagi"
+                children={
+                  <div className="w-full">
+                    <div className="h-[6px] w-full rounded-full bg-white/35 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-white/85"
+                        style={{ width: `${clamp(progressPct, 0, 100)}%` }}
+                      />
+                    </div>
                   </div>
-                </div>
-              }
-            />
-            <StatCard title="Jatuh Tempo" value="1 Januari 2026" />
+                }
+              />
+            </motion.div>
+
+            <motion.div
+              variants={statCardIn}
+              custom={2}
+              initial="hidden"
+              animate="show"
+              className="w-full flex justify-center"
+            >
+              <StatCard title="Jatuh Tempo" value="1 Januari 2026" />
+            </motion.div>
           </div>
 
-          {/* Actions */}
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-4 _actionsShift">
+          {/* Actions (⚠️ _actionsShift pakai transform, jadi animasinya fade-only) */}
+          <motion.div
+            variants={fadeOnly}
+            initial="hidden"
+            animate="show"
+            className="mt-9 flex flex-wrap items-center justify-center gap-4 _actionsShift"
+          >
             <ActionButton onClick={() => {}}>Perpanjang Paket</ActionButton>
             <ActionButton onClick={() => {}}>Upgrade Paket</ActionButton>
             <ActionButton variant="danger" onClick={() => {}}>
               Batalkan Paket
             </ActionButton>
-          </div>
+          </motion.div>
 
           {/* ✅ MANFAAT DI DALAM GAMBAR SectionPutih */}
           <div className="mt-10 flex justify-center">
             <div className="relative w-full" style={{ maxWidth: SECTION_PUTIH_CFG.maxW }}>
-              <img
+              {/* ⚠️ _spImg pakai transform, jadi animasinya opacity/blur saja */}
+              <motion.img
+                variants={fadeOnly}
+                initial="hidden"
+                animate="show"
                 src={SectionPutih}
                 alt="SectionPutih"
                 className="w-full h-auto select-none _spImg"
                 draggable="false"
               />
 
-              <div
-                className="absolute inset-0 z-10 _spPad _spContent"
-                style={{
-                  paddingLeft: SECTION_PUTIH_CFG.padMobileX,
-                  paddingRight: SECTION_PUTIH_CFG.padMobileX,
-                  paddingTop: SECTION_PUTIH_CFG.padMobileTop,
-                  paddingBottom: SECTION_PUTIH_CFG.padMobileBottom,
-                }}
+              {/* Overlay konten: wrapper animasi fade-only (biar _spContent tetap jalan) */}
+              <motion.div
+                variants={fadeOnly}
+                initial="hidden"
+                animate="show"
+                className="absolute inset-0 z-10"
               >
-                <h2 className="text-[22px] md:text-[26px] font-extrabold text-gray-900">
-                  Fitur yang Didapatkan
-                </h2>
+                <div
+                  className="_spPad _spContent"
+                  style={{
+                    paddingLeft: SECTION_PUTIH_CFG.padMobileX,
+                    paddingRight: SECTION_PUTIH_CFG.padMobileX,
+                    paddingTop: SECTION_PUTIH_CFG.padMobileTop,
+                    paddingBottom: SECTION_PUTIH_CFG.padMobileBottom,
+                  }}
+                >
+                  <h2 className="text-[22px] md:text-[26px] font-extrabold text-gray-900">
+                    Fitur yang Didapatkan
+                  </h2>
 
-                <div className="mt-7 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                  <FeatureCard
-                    icon={HiOutlineChatBubbleLeftRight}
-                    title="300 percakapan/bulan"
-                    desc="Bisa melayani hingga 300 interaksi pelanggan setiap bulannya."
-                  />
-                  <FeatureCard
-                    icon={HiOutlineSquares2X2}
-                    title="Template balasan standar"
-                    desc="Tersedia kumpulan template siap pakai untuk mempercepat balasan."
-                  />
-
-                  <FeatureCard
-                    icon={HiOutlineClock}
-                    title="Balasan otomatis 24/7"
-                    desc="Chatbot aktif sepanjang hari untuk menjawab pesan kapan saja."
-                  />
-                  <FeatureCard
-                    icon={HiOutlineChartBar}
-                    title="Statistik bulanan sederhana"
-                    desc="Lihat ringkasan performa chatbot secara jelas setiap bulan."
-                  />
-
-                  <FeatureCard
-                    icon={HiOutlineDevicePhoneMobile}
-                    title="Integrasi WhatsApp mudah"
-                    desc="Cukup beberapa langkah untuk langsung terhubung ke WhatsApp Anda."
-                  />
-                  <FeatureCard
-                    icon={HiOutlineQuestionMarkCircle}
-                    title="FAQ dasar bawaan"
-                    desc="Sudah dilengkapi jawaban FAQ umum agar chatbot bisa langsung bekerja."
-                  />
+                  <div className="mt-7 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                    {[
+                      {
+                        icon: HiOutlineChatBubbleLeftRight,
+                        title: "300 percakapan/bulan",
+                        desc: "Bisa melayani hingga 300 interaksi pelanggan setiap bulannya.",
+                      },
+                      {
+                        icon: HiOutlineSquares2X2,
+                        title: "Template balasan standar",
+                        desc: "Tersedia kumpulan template siap pakai untuk mempercepat balasan.",
+                      },
+                      {
+                        icon: HiOutlineClock,
+                        title: "Balasan otomatis 24/7",
+                        desc: "Chatbot aktif sepanjang hari untuk menjawab pesan kapan saja.",
+                      },
+                      {
+                        icon: HiOutlineChartBar,
+                        title: "Statistik bulanan sederhana",
+                        desc: "Lihat ringkasan performa chatbot secara jelas setiap bulan.",
+                      },
+                      {
+                        icon: HiOutlineDevicePhoneMobile,
+                        title: "Integrasi WhatsApp mudah",
+                        desc: "Cukup beberapa langkah untuk langsung terhubung ke WhatsApp Anda.",
+                      },
+                      {
+                        icon: HiOutlineQuestionMarkCircle,
+                        title: "FAQ dasar bawaan",
+                        desc: "Sudah dilengkapi jawaban FAQ umum agar chatbot bisa langsung bekerja.",
+                      },
+                    ].map((it, i) => (
+                      <motion.div
+                        key={it.title}
+                        variants={featureIn}
+                        custom={i}
+                        initial="hidden"
+                        animate="show"
+                      >
+                        <FeatureCard icon={it.icon} title={it.title} desc={it.desc} />
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
           {/* /manfaat */}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

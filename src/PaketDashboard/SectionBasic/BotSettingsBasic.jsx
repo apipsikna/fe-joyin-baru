@@ -5,6 +5,7 @@ import {
   HiOutlinePencilSquare,
   HiOutlineTrash,
 } from "react-icons/hi2";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
 const GRADIENT_FROM = "#5FCAAC";
 const GRADIENT_TO = "#DAEC75";
@@ -40,6 +41,63 @@ const LAYOUT_CFG = {
 };
 
 export default function BotSettingsBasic() {
+  const reduceMotion = useReducedMotion();
+  const EASE = [0.22, 1, 0.36, 1];
+
+  // ====== ANIMATION (masuk halaman) ==========================================
+  const pageVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        duration: reduceMotion ? 0 : 0.22,
+        ease: "easeOut",
+        when: "beforeChildren",
+        staggerChildren: reduceMotion ? 0 : 0.06,
+      },
+    },
+  };
+
+  const riseSoft = {
+    hidden: { opacity: 0, y: 14, filter: "blur(6px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: { duration: reduceMotion ? 0 : 0.55, ease: EASE },
+    },
+  };
+
+  // ✅ IMPORTANT: animasi dipasang ke panel putih (bukan .joyin-whiteBleed)
+  // agar transform translateX milik .joyin-whiteBleed tidak ketimpa.
+  const whitePanel = {
+    hidden: { opacity: 0, y: 22, scale: 0.992, filter: "blur(7px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+      transition: { duration: reduceMotion ? 0 : 0.65, ease: EASE },
+    },
+  };
+
+  const tabContent = {
+    hidden: { opacity: 0, y: 10, filter: "blur(5px)" },
+    show: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: { duration: reduceMotion ? 0 : 0.28, ease: "easeOut" },
+    },
+    exit: {
+      opacity: 0,
+      y: -8,
+      filter: "blur(6px)",
+      transition: { duration: reduceMotion ? 0 : 0.18, ease: "easeIn" },
+    },
+  };
+
+  // ====== STATE ===============================================================
   const [tab, setTab] = useState("basic");
   const [useEmoji, setUseEmoji] = useState(false);
 
@@ -208,7 +266,7 @@ export default function BotSettingsBasic() {
           padding-right: var(--pagePad);
         }
 
-        /* ✅ Bleed container putih ke viewport (ini yang bikin setting "ngaruh") */
+        /* ✅ Bleed container putih ke viewport */
         .joyin-whiteBleed {
           position: relative;
           left: 50%;
@@ -221,7 +279,6 @@ export default function BotSettingsBasic() {
         @media (min-width: 768px) {
           :root {}
           .joyin-pagePad { padding-left: ${LAYOUT_CFG.pageSidePadDesktop}px; padding-right: ${LAYOUT_CFG.pageSidePadDesktop}px; }
-          /* override via CSS vars for white container */
           .joyin-whiteBleed {
             width: min(${LAYOUT_CFG.whiteMaxW}px, calc(100vw - ${LAYOUT_CFG.whitePadLDesktop}px - ${LAYOUT_CFG.whitePadRDesktop}px));
             transform: translateX(calc(-50% + ((${LAYOUT_CFG.whitePadLDesktop}px - ${LAYOUT_CFG.whitePadRDesktop}px) / 2)));
@@ -230,9 +287,15 @@ export default function BotSettingsBasic() {
         }
       `}</style>
 
-      <div className="w-full min-h-screen flex flex-col pt-6 md:pt-8">
+      {/* ✅ Animasi masuk halaman */}
+      <motion.div
+        variants={pageVariants}
+        initial="hidden"
+        animate="show"
+        className="w-full min-h-screen flex flex-col pt-6 md:pt-8"
+      >
         {/* Header */}
-        <div className="joyin-pagePad">
+        <motion.div variants={riseSoft} className="joyin-pagePad">
           <div className="mb-6 text-center">
             <h1 className="text-[24px] md:text-[32px] font-semibold text-white tracking-wide">
               Pengaturan Bot
@@ -259,371 +322,387 @@ export default function BotSettingsBasic() {
               );
             })}
           </div>
-        </div>
+        </motion.div>
 
         {/* Body */}
         <div className="relative flex-1 flex flex-col">
-          {/* ✅ Container putih yang bisa melebar kiri/kanan */}
+          {/* ✅ Jangan motion di .joyin-whiteBleed (karena dia butuh transform translateX) */}
           <div className="joyin-whiteBleed flex-1 flex flex-col">
-            <div className="-mt-4 bg-white rounded-t-[36px] md:rounded-t-[44px] rounded-b-none shadow-[0_24px_60px_rgba(0,0,0,0.10)] flex-1 flex flex-col">
+            {/* ✅ Animasi dipindah ke panel putihnya */}
+            <motion.div
+              variants={whitePanel}
+              className="-mt-4 bg-white rounded-t-[36px] md:rounded-t-[44px] rounded-b-none shadow-[0_24px_60px_rgba(0,0,0,0.10)] flex-1 flex flex-col"
+            >
               <div className="px-5 py-8 md:px-10 md:py-10 flex-1 flex flex-col">
-                {/* ====================== BASIC TAB ====================== */}
-                {tab === "basic" && (
-                  <>
-                    <div className="mb-8">
-                      <label className="block text-[18px] font-semibold text-gray-900">
-                        Nama Bot
-                      </label>
-                      <input
-                        value={botName}
-                        onChange={(e) => setBotName(e.target.value)}
-                        type="text"
-                        className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900"
-                      />
-                      <p className="mt-2 text-[13px] text-gray-500">
-                        Nama panggilan yang muncul ketika bot membalas
-                      </p>
-                    </div>
-
-                    <div className="mb-8">
-                      <label className="block text-[18px] font-semibold text-gray-900">
-                        Deskripsi Singkat
-                      </label>
-                      <textarea
-                        value={desc}
-                        onChange={(e) => setDesc(e.target.value)}
-                        rows={4}
-                        className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
-                      />
-                      <p className="mt-2 text-[13px] text-gray-500">
-                        Ditampilkan di halaman informasi bot
-                      </p>
-                    </div>
-
-                    <div className="mb-8">
-                      <label className="block text-[18px] font-semibold text-gray-900">
-                        Bahasa Bot
-                      </label>
-                      <input
-                        value={botLang}
-                        onChange={(e) => setBotLang(e.target.value)}
-                        type="text"
-                        className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900"
-                      />
-                    </div>
-
-                    <div className="mb-10">
-                      <label className="block text-[18px] font-semibold text-gray-900">
-                        Kecepatan Respon
-                      </label>
-                      <input
-                        value={speed}
-                        onChange={(e) => setSpeed(e.target.value)}
-                        type="text"
-                        className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900"
-                      />
-                      <p className="mt-2 text-[13px] text-gray-500">
-                        Membuat jeda pengetikan agar respon terasa lebih natural.
-                      </p>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-6">
-                      <div className="min-w-0">
-                        <h3 className="text-[18px] font-semibold text-gray-900">
-                          Gunakan Emoji
-                        </h3>
-                        <p className="mt-1 text-[13px] text-gray-500">
-                          Buat pesan terasa lebih ekspresif dengan tambahan emoji.
-                        </p>
-                      </div>
-
-                      <EmojiToggle checked={useEmoji} onChange={setUseEmoji} />
-                    </div>
-                  </>
-                )}
-
-                {/* ================= PESAN & BALASAN TAB ================== */}
-                {tab === "reply" && (
-                  <>
-                    <div className="mb-10">
-                      <label className="block text-[18px] font-semibold text-gray-900">
-                        Pesan Sambutan
-                      </label>
-                      <textarea
-                        value={welcomeMessage}
-                        onChange={(e) => setWelcomeMessage(e.target.value)}
-                        rows={3}
-                        className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
-                      />
-                    </div>
-
-                    <div className="mb-10">
-                      <p className="text-[18px] font-semibold text-gray-900">
-                        Waktu Kirim Pesan Sambutan
-                      </p>
-
-                      <div className="mt-4 space-y-4">
-                        <RadioOption
-                          checked={welcomeTiming === "first"}
-                          title="Hanya pada chat pertama"
-                          description="Pesan sambutan dikirim sekali saat customer pertama kali chat"
-                          onClick={() => setWelcomeTiming("first")}
-                        />
-                        <RadioOption
-                          checked={welcomeTiming === "every"}
-                          title="Setiap chat baru"
-                          description="Pesan sambutan dikirim setiap kali memulai percakapan baru"
-                          onClick={() => setWelcomeTiming("every")}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="mb-10">
-                      <label className="block text-[18px] font-semibold text-gray-900">
-                        Balasan Default (Ketika Bot Tidak Paham)
-                      </label>
-                      <textarea
-                        value={defaultReply}
-                        onChange={(e) => setDefaultReply(e.target.value)}
-                        rows={3}
-                        className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
-                      />
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-[18px] font-semibold text-gray-900">
-                        Pesan Penutup Chat
-                      </label>
-                      <textarea
-                        value={closingMessage}
-                        onChange={(e) => setClosingMessage(e.target.value)}
-                        rows={3}
-                        className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
-                      />
-                    </div>
-                  </>
-                )}
-
-                {/* ============ PERSONALITY & TRAINING TAB ================= */}
-                {tab === "persona" && (
-                  <>
-                    <div className="mb-10">
-                      <label className="block text-[18px] font-semibold text-gray-900">
-                        Personality Bot
-                      </label>
-                      <textarea
-                        value={personaDescription}
-                        onChange={(e) => setPersonaDescription(e.target.value)}
-                        rows={3}
-                        className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
-                      />
-                      <p className="mt-2 text-[13px] text-gray-500">
-                        Jelaskan karakter, gaya bicara, cara menyapa, dan peran utama bot.
-                      </p>
-                    </div>
-
-                    <div className="mb-10">
-                      <p className="text-[18px] font-semibold text-gray-900">
-                        Gaya Komunikasi
-                      </p>
-
-                      <div className="mt-4 space-y-4">
-                        <RadioOption
-                          checked={personaTone === "friendly"}
-                          title="Ramah & Santai"
-                          description="Gunakan bahasa sehari-hari, nada hangat, dan boleh memakai emoji seperlunya."
-                          onClick={() => setPersonaTone("friendly")}
-                        />
-                        <RadioOption
-                          checked={personaTone === "formal"}
-                          title="Formal & Profesional"
-                          description="Gunakan bahasa baku & profesional, cocok untuk konteks bisnis dan perusahaan."
-                          onClick={() => setPersonaTone("formal")}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="mb-10">
-                      <label className="block text-[18px] font-semibold text-gray-900">
-                        Contoh Balasan Ideal
-                      </label>
-                      <textarea
-                        value={personaExampleReply}
-                        onChange={(e) => setPersonaExampleReply(e.target.value)}
-                        rows={3}
-                        className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
-                      />
-                      <p className="mt-2 text-[13px] text-gray-500">
-                        Berikan 1–2 contoh balasan yang mewakili gaya bahasa bot.
-                      </p>
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-[18px] font-semibold text-gray-900">
-                        Hal yang Tidak Boleh Dijawab / Disampaikan
-                      </label>
-                      <textarea
-                        value={personaRestrictions}
-                        onChange={(e) => setPersonaRestrictions(e.target.value)}
-                        rows={3}
-                        className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
-                      />
-                      <p className="mt-2 text-[13px] text-gray-500">
-                        Tuliskan topik yang harus dihindari bot (misalnya: politik, SARA, dsb).
-                      </p>
-                    </div>
-                  </>
-                )}
-
-                {/* =================== FAQ MANAGEMENT TAB ================== */}
-                {tab === "faq" && (
-                  <>
-                    <div className="mb-10">
-                      <div className="w-full rounded-[32px] md:rounded-[36px] bg-white shadow-[0_26px_60px_rgba(0,0,0,0.12)] border border-[#F3F3F3] px-6 md:px-10 py-7 md:py-9">
-                        <h2 className="text-[18px] md:text-[20px] font-semibold text-gray-900">
-                          {editingFaqId ? "Edit FAQ" : "Tambah FAQ Baru"}
-                        </h2>
-
-                        <div className="mt-6">
-                          <label className="block text-[14px] md:text-[15px] font-semibold text-gray-900">
-                            Pertanyaan
+                {/* ✅ Tab content anim */}
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={tab}
+                    variants={tabContent}
+                    initial="hidden"
+                    animate="show"
+                    exit="exit"
+                    className="flex flex-col"
+                  >
+                    {/* ====================== BASIC TAB ====================== */}
+                    {tab === "basic" && (
+                      <>
+                        <div className="mb-8">
+                          <label className="block text-[18px] font-semibold text-gray-900">
+                            Nama Bot
                           </label>
                           <input
+                            value={botName}
+                            onChange={(e) => setBotName(e.target.value)}
                             type="text"
-                            value={faqQuestion}
-                            onChange={(e) => setFaqQuestion(e.target.value)}
-                            className="joyin-field mt-3 w-full rounded-[12px] border border-[#E1E1E1] bg-white px-4 py-3.5 text-[14px] text-gray-900"
+                            className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900"
                           />
+                          <p className="mt-2 text-[13px] text-gray-500">
+                            Nama panggilan yang muncul ketika bot membalas
+                          </p>
                         </div>
 
-                        <div className="mt-6">
-                          <label className="block text-[14px] md:text-[15px] font-semibold text-gray-900">
-                            Jawaban
+                        <div className="mb-8">
+                          <label className="block text-[18px] font-semibold text-gray-900">
+                            Deskripsi Singkat
                           </label>
                           <textarea
-                            rows={3}
-                            value={faqAnswer}
-                            onChange={(e) => setFaqAnswer(e.target.value)}
-                            className="joyin-field mt-3 w-full rounded-[12px] border border-[#E1E1E1] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
+                            value={desc}
+                            onChange={(e) => setDesc(e.target.value)}
+                            rows={4}
+                            className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
+                          />
+                          <p className="mt-2 text-[13px] text-gray-500">
+                            Ditampilkan di halaman informasi bot
+                          </p>
+                        </div>
+
+                        <div className="mb-8">
+                          <label className="block text-[18px] font-semibold text-gray-900">
+                            Bahasa Bot
+                          </label>
+                          <input
+                            value={botLang}
+                            onChange={(e) => setBotLang(e.target.value)}
+                            type="text"
+                            className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900"
                           />
                         </div>
 
-                        <div className="mt-8">
-                          <button
-                            type="button"
-                            onClick={handleAddOrUpdateFaq}
-                            className="w-full h-[50px] md:h-[54px] rounded-[12px] bg-[#5FCAAC] text-white text-[14px] md:text-[15px] font-semibold shadow-[0_16px_40px_rgba(0,0,0,0.18)] transition-all duration-150 ease-out transform hover:-translate-y-0.5 hover:shadow-[0_20px_46px_rgba(0,0,0,0.22)] active:translate-y-0"
-                          >
-                            {editingFaqId ? "Simpan Perubahan" : "Tambah FAQ"}
-                          </button>
-
-                          {editingFaqId && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setEditingFaqId(null);
-                                setFaqQuestion("");
-                                setFaqAnswer("");
-                              }}
-                              className="mt-3 w-full h-[46px] rounded-[12px] border border-[#E5E7EB] bg-white text-gray-700 text-[14px] font-semibold hover:bg-gray-50"
-                            >
-                              Batal
-                            </button>
-                          )}
+                        <div className="mb-10">
+                          <label className="block text-[18px] font-semibold text-gray-900">
+                            Kecepatan Respon
+                          </label>
+                          <input
+                            value={speed}
+                            onChange={(e) => setSpeed(e.target.value)}
+                            type="text"
+                            className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900"
+                          />
+                          <p className="mt-2 text-[13px] text-gray-500">
+                            Membuat jeda pengetikan agar respon terasa lebih natural.
+                          </p>
                         </div>
-                      </div>
-                    </div>
 
-                    <div className="mt-2">
-                      <div className="flex items-center justify-between gap-4 mb-5">
-                        <h3 className="text-[20px] md:text-[22px] font-semibold text-gray-900">
-                          Daftar FAQ
-                        </h3>
-
-                        <div className="flex items-center gap-3">
-                          <span className="inline-flex items-center justify-center px-5 h-9 rounded-full bg-green-100 text-green-700 text-[13px] font-semibold">
-                            Aktif : {activeCount}
-                          </span>
-                          <span className="inline-flex items-center justify-center px-5 h-9 rounded-full bg-gray-100 text-gray-700 text-[13px] font-semibold">
-                            Nonaktif : {inactiveCount}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="space-y-7 md:space-y-8">
-                        {faqs.length === 0 ? (
-                          <div className="w-full rounded-[24px] border border-[#E5E7EB] bg-white px-6 md:px-10 py-8">
-                            <p className="text-[14px] text-gray-400">
-                              Belum ada FAQ. Tambahkan pertanyaan baru di atas.
+                        <div className="flex items-center justify-between gap-6">
+                          <div className="min-w-0">
+                            <h3 className="text-[18px] font-semibold text-gray-900">
+                              Gunakan Emoji
+                            </h3>
+                            <p className="mt-1 text-[13px] text-gray-500">
+                              Buat pesan terasa lebih ekspresif dengan tambahan emoji.
                             </p>
                           </div>
-                        ) : (
-                          faqs.map((item) => (
-                            <div
-                              key={item.id}
-                              className="w-full rounded-[26px] md:rounded-[30px] border border-[#E5E7EB] bg-white px-6 md:px-10 py-6 md:py-7 shadow-[0_18px_40px_rgba(0,0,0,0.06)]"
-                            >
-                              <div className="flex items-start justify-between gap-4">
+
+                          <EmojiToggle checked={useEmoji} onChange={setUseEmoji} />
+                        </div>
+                      </>
+                    )}
+
+                    {/* ================= PESAN & BALASAN TAB ================== */}
+                    {tab === "reply" && (
+                      <>
+                        <div className="mb-10">
+                          <label className="block text-[18px] font-semibold text-gray-900">
+                            Pesan Sambutan
+                          </label>
+                          <textarea
+                            value={welcomeMessage}
+                            onChange={(e) => setWelcomeMessage(e.target.value)}
+                            rows={3}
+                            className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
+                          />
+                        </div>
+
+                        <div className="mb-10">
+                          <p className="text-[18px] font-semibold text-gray-900">
+                            Waktu Kirim Pesan Sambutan
+                          </p>
+
+                          <div className="mt-4 space-y-4">
+                            <RadioOption
+                              checked={welcomeTiming === "first"}
+                              title="Hanya pada chat pertama"
+                              description="Pesan sambutan dikirim sekali saat customer pertama kali chat"
+                              onClick={() => setWelcomeTiming("first")}
+                            />
+                            <RadioOption
+                              checked={welcomeTiming === "every"}
+                              title="Setiap chat baru"
+                              description="Pesan sambutan dikirim setiap kali memulai percakapan baru"
+                              onClick={() => setWelcomeTiming("every")}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="mb-10">
+                          <label className="block text-[18px] font-semibold text-gray-900">
+                            Balasan Default (Ketika Bot Tidak Paham)
+                          </label>
+                          <textarea
+                            value={defaultReply}
+                            onChange={(e) => setDefaultReply(e.target.value)}
+                            rows={3}
+                            className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
+                          />
+                        </div>
+
+                        <div className="mb-4">
+                          <label className="block text-[18px] font-semibold text-gray-900">
+                            Pesan Penutup Chat
+                          </label>
+                          <textarea
+                            value={closingMessage}
+                            onChange={(e) => setClosingMessage(e.target.value)}
+                            rows={3}
+                            className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* ============ PERSONALITY & TRAINING TAB ================= */}
+                    {tab === "persona" && (
+                      <>
+                        <div className="mb-10">
+                          <label className="block text-[18px] font-semibold text-gray-900">
+                            Personality Bot
+                          </label>
+                          <textarea
+                            value={personaDescription}
+                            onChange={(e) => setPersonaDescription(e.target.value)}
+                            rows={3}
+                            className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
+                          />
+                          <p className="mt-2 text-[13px] text-gray-500">
+                            Jelaskan karakter, gaya bicara, cara menyapa, dan peran utama bot.
+                          </p>
+                        </div>
+
+                        <div className="mb-10">
+                          <p className="text-[18px] font-semibold text-gray-900">
+                            Gaya Komunikasi
+                          </p>
+
+                          <div className="mt-4 space-y-4">
+                            <RadioOption
+                              checked={personaTone === "friendly"}
+                              title="Ramah & Santai"
+                              description="Gunakan bahasa sehari-hari, nada hangat, dan boleh memakai emoji seperlunya."
+                              onClick={() => setPersonaTone("friendly")}
+                            />
+                            <RadioOption
+                              checked={personaTone === "formal"}
+                              title="Formal & Profesional"
+                              description="Gunakan bahasa baku & profesional, cocok untuk konteks bisnis dan perusahaan."
+                              onClick={() => setPersonaTone("formal")}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="mb-10">
+                          <label className="block text-[18px] font-semibold text-gray-900">
+                            Contoh Balasan Ideal
+                          </label>
+                          <textarea
+                            value={personaExampleReply}
+                            onChange={(e) => setPersonaExampleReply(e.target.value)}
+                            rows={3}
+                            className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
+                          />
+                          <p className="mt-2 text-[13px] text-gray-500">
+                            Berikan 1–2 contoh balasan yang mewakili gaya bahasa bot.
+                          </p>
+                        </div>
+
+                        <div className="mb-4">
+                          <label className="block text-[18px] font-semibold text-gray-900">
+                            Hal yang Tidak Boleh Dijawab / Disampaikan
+                          </label>
+                          <textarea
+                            value={personaRestrictions}
+                            onChange={(e) => setPersonaRestrictions(e.target.value)}
+                            rows={3}
+                            className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
+                          />
+                          <p className="mt-2 text-[13px] text-gray-500">
+                            Tuliskan topik yang harus dihindari bot (misalnya: politik, SARA, dsb).
+                          </p>
+                        </div>
+                      </>
+                    )}
+
+                    {/* =================== FAQ MANAGEMENT TAB ================== */}
+                    {tab === "faq" && (
+                      <>
+                        <div className="mb-10">
+                          <div className="w-full rounded-[32px] md:rounded-[36px] bg-white shadow-[0_26px_60px_rgba(0,0,0,0.12)] border border-[#F3F3F3] px-6 md:px-10 py-7 md:py-9">
+                            <h2 className="text-[18px] md:text-[20px] font-semibold text-gray-900">
+                              {editingFaqId ? "Edit FAQ" : "Tambah FAQ Baru"}
+                            </h2>
+
+                            <div className="mt-6">
+                              <label className="block text-[14px] md:text-[15px] font-semibold text-gray-900">
+                                Pertanyaan
+                              </label>
+                              <input
+                                type="text"
+                                value={faqQuestion}
+                                onChange={(e) => setFaqQuestion(e.target.value)}
+                                className="joyin-field mt-3 w-full rounded-[12px] border border-[#E1E1E1] bg-white px-4 py-3.5 text-[14px] text-gray-900"
+                              />
+                            </div>
+
+                            <div className="mt-6">
+                              <label className="block text-[14px] md:text-[15px] font-semibold text-gray-900">
+                                Jawaban
+                              </label>
+                              <textarea
+                                rows={3}
+                                value={faqAnswer}
+                                onChange={(e) => setFaqAnswer(e.target.value)}
+                                className="joyin-field mt-3 w-full rounded-[12px] border border-[#E1E1E1] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
+                              />
+                            </div>
+
+                            <div className="mt-8">
+                              <button
+                                type="button"
+                                onClick={handleAddOrUpdateFaq}
+                                className="w-full h-[50px] md:h-[54px] rounded-[12px] bg-[#5FCAAC] text-white text-[14px] md:text-[15px] font-semibold shadow-[0_16px_40px_rgba(0,0,0,0.18)] transition-all duration-150 ease-out transform hover:-translate-y-0.5 hover:shadow-[0_20px_46px_rgba(0,0,0,0.22)] active:translate-y-0"
+                              >
+                                {editingFaqId ? "Simpan Perubahan" : "Tambah FAQ"}
+                              </button>
+
+                              {editingFaqId && (
                                 <button
                                   type="button"
-                                  onClick={() => handleToggleFaqStatus(item.id)}
-                                  className={[
-                                    "inline-flex items-center justify-center px-6 h-9 rounded-full text-[13px] font-semibold",
-                                    item.active
-                                      ? "bg-green-100 text-green-700"
-                                      : "bg-gray-100 text-gray-700",
-                                  ].join(" ")}
-                                  title="Klik untuk ubah status"
+                                  onClick={() => {
+                                    setEditingFaqId(null);
+                                    setFaqQuestion("");
+                                    setFaqAnswer("");
+                                  }}
+                                  className="mt-3 w-full h-[46px] rounded-[12px] border border-[#E5E7EB] bg-white text-gray-700 text-[14px] font-semibold hover:bg-gray-50"
                                 >
-                                  {item.active ? "Aktif" : "Nonaktif"}
+                                  Batal
                                 </button>
-
-                                <div className="flex items-center gap-3">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleEditFaq(item)}
-                                    className="w-11 h-11 rounded-[10px] bg-indigo-100 text-indigo-600 inline-flex items-center justify-center shadow-[0_10px_22px_rgba(0,0,0,0.06)] hover:brightness-[0.98] active:brightness-95"
-                                    aria-label="Edit FAQ"
-                                  >
-                                    <HiOutlinePencilSquare className="w-5 h-5" />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleDeleteFaq(item.id)}
-                                    className="w-11 h-11 rounded-[10px] bg-red-100 text-red-500 inline-flex items-center justify-center shadow-[0_10px_22px_rgba(0,0,0,0.06)] hover:brightness-[0.98] active:brightness-95"
-                                    aria-label="Hapus FAQ"
-                                  >
-                                    <HiOutlineTrash className="w-5 h-5" />
-                                  </button>
-                                </div>
-                              </div>
-
-                              <div className="mt-5 space-y-4">
-                                <div className="flex gap-3">
-                                  <span className="w-8 shrink-0 text-[16px] md:text-[18px] font-bold text-gray-900">
-                                    Q :
-                                  </span>
-                                  <p className="text-[16px] md:text-[18px] font-semibold text-gray-900 leading-relaxed">
-                                    {item.question}
-                                  </p>
-                                </div>
-
-                                <div className="flex gap-3">
-                                  <span className="w-8 shrink-0 text-[15px] md:text-[16px] font-bold text-gray-900">
-                                    A :
-                                  </span>
-                                  <p className="text-[14px] md:text-[16px] text-gray-600 leading-relaxed">
-                                    {item.answer}
-                                  </p>
-                                </div>
-                              </div>
+                              )}
                             </div>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  </>
-                )}
+                          </div>
+                        </div>
+
+                        <div className="mt-2">
+                          <div className="flex items-center justify-between gap-4 mb-5">
+                            <h3 className="text-[20px] md:text-[22px] font-semibold text-gray-900">
+                              Daftar FAQ
+                            </h3>
+
+                            <div className="flex items-center gap-3">
+                              <span className="inline-flex items-center justify-center px-5 h-9 rounded-full bg-green-100 text-green-700 text-[13px] font-semibold">
+                                Aktif : {activeCount}
+                              </span>
+                              <span className="inline-flex items-center justify-center px-5 h-9 rounded-full bg-gray-100 text-gray-700 text-[13px] font-semibold">
+                                Nonaktif : {inactiveCount}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="space-y-7 md:space-y-8">
+                            {faqs.length === 0 ? (
+                              <div className="w-full rounded-[24px] border border-[#E5E7EB] bg-white px-6 md:px-10 py-8">
+                                <p className="text-[14px] text-gray-400">
+                                  Belum ada FAQ. Tambahkan pertanyaan baru di atas.
+                                </p>
+                              </div>
+                            ) : (
+                              faqs.map((item) => (
+                                <div
+                                  key={item.id}
+                                  className="w-full rounded-[26px] md:rounded-[30px] border border-[#E5E7EB] bg-white px-6 md:px-10 py-6 md:py-7 shadow-[0_18px_40px_rgba(0,0,0,0.06)]"
+                                >
+                                  <div className="flex items-start justify-between gap-4">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleToggleFaqStatus(item.id)}
+                                      className={[
+                                        "inline-flex items-center justify-center px-6 h-9 rounded-full text-[13px] font-semibold",
+                                        item.active
+                                          ? "bg-green-100 text-green-700"
+                                          : "bg-gray-100 text-gray-700",
+                                      ].join(" ")}
+                                      title="Klik untuk ubah status"
+                                    >
+                                      {item.active ? "Aktif" : "Nonaktif"}
+                                    </button>
+
+                                    <div className="flex items-center gap-3">
+                                      <button
+                                        type="button"
+                                        onClick={() => handleEditFaq(item)}
+                                        className="w-11 h-11 rounded-[10px] bg-indigo-100 text-indigo-600 inline-flex items-center justify-center shadow-[0_10px_22px_rgba(0,0,0,0.06)] hover:brightness-[0.98] active:brightness-95"
+                                        aria-label="Edit FAQ"
+                                      >
+                                        <HiOutlinePencilSquare className="w-5 h-5" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleDeleteFaq(item.id)}
+                                        className="w-11 h-11 rounded-[10px] bg-red-100 text-red-500 inline-flex items-center justify-center shadow-[0_10px_22px_rgba(0,0,0,0.06)] hover:brightness-[0.98] active:brightness-95"
+                                        aria-label="Hapus FAQ"
+                                      >
+                                        <HiOutlineTrash className="w-5 h-5" />
+                                      </button>
+                                    </div>
+                                  </div>
+
+                                  <div className="mt-5 space-y-4">
+                                    <div className="flex gap-3">
+                                      <span className="w-8 shrink-0 text-[16px] md:text-[18px] font-bold text-gray-900">
+                                        Q :
+                                      </span>
+                                      <p className="text-[16px] md:text-[18px] font-semibold text-gray-900 leading-relaxed">
+                                        {item.question}
+                                      </p>
+                                    </div>
+
+                                    <div className="flex gap-3">
+                                      <span className="w-8 shrink-0 text-[15px] md:text-[16px] font-bold text-gray-900">
+                                        A :
+                                      </span>
+                                      <p className="text-[14px] md:text-[16px] text-gray-600 leading-relaxed">
+                                        {item.answer}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
 
                 {/* Buttons */}
                 <div className="mt-auto pt-10 flex flex-col md:flex-row items-stretch md:items-center gap-4">
@@ -645,11 +724,11 @@ export default function BotSettingsBasic() {
                   </button>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
           {/* ✅ nempel bawah karena wrapper flex-1 */}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
