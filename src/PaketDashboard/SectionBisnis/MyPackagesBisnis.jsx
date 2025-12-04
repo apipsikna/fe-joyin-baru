@@ -1,4 +1,3 @@
-// src/PaketDashboard/SectionBasic/MyPackagesBasic.jsx
 import React, { useState } from "react";
 import {
   HiOutlineChatBubbleLeftRight,
@@ -12,7 +11,6 @@ import { motion, useReducedMotion } from "framer-motion";
 
 import SectionPutih from "../../assets/SectionPutih.png";
 
-// ✅ Gradasi background baru
 const GRADIENT_FROM = "#5FCAAC";
 const GRADIENT_TO = "#DAEC75";
 
@@ -24,38 +22,27 @@ const PAGE_CFG = {
   pb: 100,
 };
 
-/* =======================
-   ✅ SETTING CARD STAT (Durasi / Masa Aktif / Jatuh Tempo)
-   - dibuat SERAGAM: lebar & tinggi 3 card sama persis
-   ======================= */
 const STAT_CARD_CFG = {
-  maxW: 380, // lebar maksimum tiap card (semua sama)
+  maxW: 380,
   radius: 22,
 
-  // tinggi card dibuat sama persis
   minHMobile: 132,
   minHDesktop: 140,
 
-  // padding card
   padXMobile: 28,
   padYMobile: 22,
   padXDesktop: 30,
   padYDesktop: 26,
 
-  // ukuran font
   titleMobilePx: 16,
   titleDesktopPx: 18,
   valueMobilePx: 28,
   valueDesktopPx: 30,
 
-  // ruang (slot) untuk progress / area bawah (biar card lain tetap sama tinggi)
   childrenSlotMobile: 16,
   childrenSlotDesktop: 18,
 };
 
-/* =======================
-   ✅ SETTING WADAH MANFAAT (Section Putih)
-   ======================= */
 const SECTION_PUTIH_CFG = {
   maxW: 2000,
 
@@ -68,9 +55,6 @@ const SECTION_PUTIH_CFG = {
   padDesktopBottom: 60,
 };
 
-/* =======================
-   ✅ SETTING POSISI & BESAR GAMBAR SectionPutih
-   ======================= */
 const SECTION_PUTIH_IMG_CTRL = {
   translateXMobile: 0,
   translateYMobile: 0,
@@ -81,34 +65,22 @@ const SECTION_PUTIH_IMG_CTRL = {
   scaleDesktop: 1.09,
 };
 
-/* =======================
-   ✅ TURUNKAN KONTEN "Fitur yang Didapatkan" + 6 kartu
-   ======================= */
 const SECTION_PUTIH_CONTENT_CTRL = {
   yMobile: 45,
   yDesktop: 75,
 };
 
-/* =======================
-   ✅ TURUNKAN 3 TOMBOL ACTION
-   ======================= */
 const ACTIONS_CTRL = {
   yMobile: 18,
   yDesktop: 26,
 };
 
-/* =======================
-   ✅ SAMAKAN UKURAN 6 KOTAK FITUR
-   ======================= */
 const FEATURE_CARD_CTRL = {
   hMobile: 132,
   hDesktop: 142,
   descLines: 2,
 };
 
-/* =======================
-   ✅ NEW: SESUAIKAN UKURAN TEKS DI 6 FITUR
-   ======================= */
 const FEATURE_TEXT_CTRL = {
   titleMobilePx: 16,
   titleDesktopPx: 18,
@@ -121,7 +93,6 @@ const FEATURE_TEXT_CTRL = {
 function StatCard({ title, value, children }) {
   return (
     <div className="_statCard w-full bg-white/25 backdrop-blur-md border border-white/25 shadow-[0_10px_30px_rgba(0,0,0,0.08)] flex flex-col">
-      {/* bagian atas (judul + value) */}
       <div>
         <div className="_statTitle text-white/90 font-semibold">{title}</div>
         <div className="_statValue mt-1 text-white font-extrabold tracking-tight">
@@ -129,7 +100,6 @@ function StatCard({ title, value, children }) {
         </div>
       </div>
 
-      {/* slot bawah (biar 3 card tinggi sama persis) */}
       <div className="_statSlot mt-4">{children ? children : null}</div>
     </div>
   );
@@ -189,10 +159,9 @@ function FeatureCard({ icon: Icon, title, desc }) {
 
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
-export default function MyPackagesBasic() {
+export default function MyPackagesBisnis() {
   const [progressPct] = useState(78);
 
-  // ===== Animasi (aman: tidak mengganggu transform CSS yang sudah ada) =====
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 
@@ -209,7 +178,6 @@ export default function MyPackagesBasic() {
     },
   };
 
-  // fade+up (pakai transform) -> aman diaplikasikan ke wrapper yang tidak punya transform CSS
   const fadeUp = {
     hidden: { opacity: 0, y: 14, filter: "blur(7px)" },
     show: {
@@ -220,7 +188,6 @@ export default function MyPackagesBasic() {
     },
   };
 
-  // fade-only -> aman untuk elemen yang sudah punya transform CSS (_spImg/_spContent/_actionsShift)
   const fadeOnly = {
     hidden: { opacity: 0, filter: "blur(10px)" },
     show: {
@@ -279,42 +246,31 @@ export default function MyPackagesBasic() {
         }}
       >
         <style>{`
-          /* ✅ Sembunyikan scrollbar di seluruh halaman (tetap bisa scroll) */
           body { -ms-overflow-style: none; scrollbar-width: none; }
           body::-webkit-scrollbar { display: none; }
 
-          /* ✅ Matikan outline bawaan Chrome/Browser untuk tombol joyin */
           .joyin-btn { outline: none; }
           .joyin-btn:focus, .joyin-btn:focus-visible, .joyin-btn:active { outline: none; }
           .joyin-btn::-moz-focus-inner { border: 0; }
 
-          /* ✅ Glow effect putih untuk tombol paket saat hover */
           .joyin-btn--glow:hover {
             box-shadow:
               0 0 28px rgba(255, 255, 255, 0.98),
               0 20px 55px rgba(0, 0, 0, 0.30);
           }
 
-          /* =======================
-             ✅ STAT CARD: 3 card SAMA PERSIS (lebar + tinggi)
-             ======================= */
           ._statCard{
             max-width: ${STAT_CARD_CFG.maxW}px;
             border-radius: ${STAT_CARD_CFG.radius}px;
             min-height: ${STAT_CARD_CFG.minHMobile}px;
             padding: ${STAT_CARD_CFG.padYMobile}px ${STAT_CARD_CFG.padXMobile}px;
           }
-          ._statTitle{
-            font-size: ${STAT_CARD_CFG.titleMobilePx}px;
-          }
+          ._statTitle{ font-size: ${STAT_CARD_CFG.titleMobilePx}px; }
           ._statValue{
             font-size: ${STAT_CARD_CFG.valueMobilePx}px;
             line-height: 1.1;
           }
-          /* slot bawah disamakan walau tidak ada children */
-          ._statSlot{
-            min-height: ${STAT_CARD_CFG.childrenSlotMobile}px;
-          }
+          ._statSlot{ min-height: ${STAT_CARD_CFG.childrenSlotMobile}px; }
 
           @media (min-width: 768px){
             ._pagePad{
@@ -330,11 +286,9 @@ export default function MyPackagesBasic() {
             ._statSlot{ min-height: ${STAT_CARD_CFG.childrenSlotDesktop}px; }
           }
 
-          /* ✅ Samakan tinggi 6 feature card */
           ._featureCard { height: ${FEATURE_CARD_CTRL.hMobile}px; }
           @media (min-width: 768px) { ._featureCard { height: ${FEATURE_CARD_CTRL.hDesktop}px; } }
 
-          /* ✅ Ukuran teks feature */
           ._featureTitle{
             font-size: ${FEATURE_TEXT_CTRL.titleMobilePx}px;
             line-height: ${FEATURE_TEXT_CTRL.titleLineHeight};
@@ -358,7 +312,6 @@ export default function MyPackagesBasic() {
             ._featureIcon{ font-size: 26px; }
           }
 
-          /* ✅ Transform gambar SectionPutih (mobile) */
           ._spImg {
             transform:
               translate(${SECTION_PUTIH_IMG_CTRL.translateXMobile}px,
@@ -367,10 +320,7 @@ export default function MyPackagesBasic() {
             transform-origin: center center;
           }
 
-          /* ✅ Turunkan konten di dalam SectionPutih (mobile) */
           ._spContent { transform: translateY(${SECTION_PUTIH_CONTENT_CTRL.yMobile}px); }
-
-          /* ✅ Turunkan 3 tombol action (mobile) */
           ._actionsShift { transform: translateY(${ACTIONS_CTRL.yMobile}px); }
 
           @media (min-width: 768px) {
@@ -381,7 +331,6 @@ export default function MyPackagesBasic() {
               padding-bottom: ${SECTION_PUTIH_CFG.padDesktopBottom}px;
             }
 
-            /* ✅ Transform gambar SectionPutih (desktop) */
             ._spImg {
               transform:
                 translate(${SECTION_PUTIH_IMG_CTRL.translateXDesktop}px,
@@ -398,7 +347,7 @@ export default function MyPackagesBasic() {
           {/* Title */}
           <motion.div variants={fadeUp} className="text-center">
             <h1 className="text-white font-extrabold text-[34px] md:text-[44px] leading-tight">
-              Paket Basic
+              Paket Bisnis
             </h1>
             <p className="mt-2 text-white/85 text-[14px] md:text-[15px]">
               Atur dan cek status paket langganan Anda
@@ -451,7 +400,7 @@ export default function MyPackagesBasic() {
             </motion.div>
           </div>
 
-          {/* Actions (⚠️ _actionsShift pakai transform, jadi animasinya fade-only) */}
+          {/* Actions */}
           <motion.div
             variants={fadeOnly}
             initial="hidden"
@@ -465,10 +414,9 @@ export default function MyPackagesBasic() {
             </ActionButton>
           </motion.div>
 
-          {/* ✅ MANFAAT DI DALAM GAMBAR SectionPutih */}
+          {/* MANFAAT */}
           <div className="mt-10 flex justify-center">
             <div className="relative w-full" style={{ maxWidth: SECTION_PUTIH_CFG.maxW }}>
-              {/* ⚠️ _spImg pakai transform, jadi animasinya opacity/blur saja */}
               <motion.img
                 variants={fadeOnly}
                 initial="hidden"
@@ -479,7 +427,6 @@ export default function MyPackagesBasic() {
                 draggable="false"
               />
 
-              {/* Overlay konten: wrapper animasi fade-only (biar _spContent tetap jalan) */}
               <motion.div
                 variants={fadeOnly}
                 initial="hidden"
@@ -503,13 +450,13 @@ export default function MyPackagesBasic() {
                     {[
                       {
                         icon: HiOutlineChatBubbleLeftRight,
-                        title: "300 percakapan/bulan",
-                        desc: "Bisa melayani hingga 300 interaksi pelanggan setiap bulannya.",
+                        title: "3.000 percakapan/bulan",
+                        desc: "Melayani interaksi pelanggan lebih banyak untuk operasional bisnis.",
                       },
                       {
                         icon: HiOutlineSquares2X2,
-                        title: "Template balasan standar",
-                        desc: "Tersedia kumpulan template siap pakai untuk mempercepat balasan.",
+                        title: "Template balasan premium",
+                        desc: "Template lebih lengkap untuk berbagai skenario customer service.",
                       },
                       {
                         icon: HiOutlineClock,
@@ -518,8 +465,8 @@ export default function MyPackagesBasic() {
                       },
                       {
                         icon: HiOutlineChartBar,
-                        title: "Statistik bulanan sederhana",
-                        desc: "Lihat ringkasan performa chatbot secara jelas setiap bulan.",
+                        title: "Statistik lebih detail",
+                        desc: "Pantau performa bot dengan laporan yang lebih lengkap.",
                       },
                       {
                         icon: HiOutlineDevicePhoneMobile,
@@ -528,8 +475,8 @@ export default function MyPackagesBasic() {
                       },
                       {
                         icon: HiOutlineQuestionMarkCircle,
-                        title: "FAQ dasar bawaan",
-                        desc: "Sudah dilengkapi jawaban FAQ umum agar chatbot bisa langsung bekerja.",
+                        title: "FAQ & manajemen pengetahuan",
+                        desc: "Kelola FAQ + pengetahuan agar bot makin akurat menjawab.",
                       },
                     ].map((it, i) => (
                       <motion.div

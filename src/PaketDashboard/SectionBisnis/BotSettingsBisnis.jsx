@@ -1,4 +1,4 @@
-// src/PaketDashboard/SectionBasic/BotSettingsBasic.jsx
+// src/PaketDashboard/SectionBisnis/BotSettingsBisnis.jsx
 import React, { useMemo, useState } from "react";
 import {
   HiOutlineArrowPath,
@@ -19,9 +19,6 @@ const TABS = [
 
 /**
  * ✅ SETTING LEBAR CONTAINER PUTIH (BENAR-BENAR NGARUH)
- * Ini pakai "bleed ke viewport" (100vw), jadi walaupun komponen ini
- * dibungkus parent yang max-width, container putih tetap bisa melebar.
- *
  * - whitePadL/R: jarak sisi kiri/kanan terhadap viewport (semakin kecil => makin lebar)
  * - whiteMaxW: batas max width (99999 biar hampir full)
  * - whiteTopGap: jarak dari tabs ke container putih
@@ -40,7 +37,7 @@ const LAYOUT_CFG = {
   whiteTopGap: 50, // px
 };
 
-export default function BotSettingsBasic() {
+export default function BotSettingsBisnis() {
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 
@@ -68,8 +65,7 @@ export default function BotSettingsBasic() {
     },
   };
 
-  // ✅ IMPORTANT: animasi dipasang ke panel putih (bukan .joyin-whiteBleed)
-  // agar transform translateX milik .joyin-whiteBleed tidak ketimpa.
+  // ✅ animasi dipasang ke panel putih (bukan .joyin-whiteBleed)
   const whitePanel = {
     hidden: { opacity: 0, y: 22, scale: 0.992, filter: "blur(7px)" },
     show: {
@@ -135,7 +131,7 @@ export default function BotSettingsBasic() {
   );
 
   const handleSave = () => {
-    console.log("Save pengaturan bot:", {
+    console.log("Save pengaturan bot (Bisnis):", {
       tab,
       basic: { botName, desc, botLang, speed, useEmoji },
       reply: { welcomeMessage, welcomeTiming, defaultReply, closingMessage },
@@ -275,9 +271,8 @@ export default function BotSettingsBasic() {
           margin-top: var(--whiteTopGap);
         }
 
-        /* Desktop override vars */
+        /* Desktop override */
         @media (min-width: 768px) {
-          :root {}
           .joyin-pagePad { padding-left: ${LAYOUT_CFG.pageSidePadDesktop}px; padding-right: ${LAYOUT_CFG.pageSidePadDesktop}px; }
           .joyin-whiteBleed {
             width: min(${LAYOUT_CFG.whiteMaxW}px, calc(100vw - ${LAYOUT_CFG.whitePadLDesktop}px - ${LAYOUT_CFG.whitePadRDesktop}px));
@@ -726,7 +721,6 @@ export default function BotSettingsBasic() {
               </div>
             </motion.div>
           </div>
-          {/* ✅ nempel bawah karena wrapper flex-1 */}
         </div>
       </motion.div>
     </div>

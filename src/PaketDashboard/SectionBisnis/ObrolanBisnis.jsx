@@ -1,4 +1,3 @@
-// src/PaketDashboard/SectionBasic/ObrolanBasic.jsx
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
@@ -13,9 +12,9 @@ const GRADIENT_TO = "#DAEC75";
  * - radiusTop: lengkungan bagian atas
  */
 const WHITE_CONTAINER_CFG = {
-  sidePad: 10, // px (ubah: 0, 8, 16, 24, 32, dst)
-  topPad: 24, // px
-  radiusTop: 44, // px (atas tetap rounded seperti contoh)
+  sidePad: 10,
+  topPad: 24,
+  radiusTop: 44,
 };
 
 function Avatar({ src, alt = "avatar", size = 46 }) {
@@ -62,7 +61,7 @@ function getNowTime() {
   return `${hh}.${mm}`;
 }
 
-export default function ObrolanBasic() {
+export default function ObrolanBisnis() {
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 
@@ -175,7 +174,7 @@ export default function ObrolanBasic() {
   /**
    * role:
    * - "customer"  => kiri (putih)
-   * - "agent"     => kanan (hijau)  ✅ pesan dari input
+   * - "agent"     => kanan (hijau)
    */
   const [threads, setThreads] = useState(() => ({
     c1: [
@@ -267,7 +266,6 @@ export default function ObrolanBasic() {
         <h1 className="text-center text-white font-semibold text-[44px] leading-none tracking-wide">
           Obrolan
         </h1>
-        {/* ✅ Profil pojok kanan atas dihapus */}
       </motion.div>
 
       {/* MAIN WHITE CONTAINER */}
@@ -349,7 +347,6 @@ export default function ObrolanBasic() {
                   <Avatar src={activeConv.avatar} alt={activeConv.name} size={50} />
                 </div>
 
-                {/* anim halus saat ganti conversation */}
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={activeId}
@@ -373,7 +370,6 @@ export default function ObrolanBasic() {
               <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto px-10 py-8">
                 <div className="h-6" />
 
-                {/* inner wrapper anim saat switch conversation */}
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={`thread_${activeId}`}
@@ -396,7 +392,6 @@ export default function ObrolanBasic() {
                             className="mb-10"
                           >
                             {isCustomer ? (
-                              // kiri putih
                               <div className="flex items-end gap-4">
                                 <Avatar
                                   src={activeConv.avatar}
@@ -415,7 +410,6 @@ export default function ObrolanBasic() {
                                 </div>
                               </div>
                             ) : (
-                              // kanan hijau
                               <div className="ml-auto max-w-[650px]">
                                 <div className="bg-[#CFFBE9] rounded-xl px-10 py-8 shadow-[0_6px_14px_rgba(0,0,0,0.12)] border border-[#BFF2DE]">
                                   <p className="text-[20px] leading-relaxed text-gray-900 whitespace-pre-line">

@@ -1,4 +1,3 @@
-// src/PaketDashboard/SectionBasic/ReportBasic.jsx
 import React from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
@@ -22,7 +21,7 @@ const REPORT_LAYOUT = {
   cardMaxW: 9999,
 };
 
-export default function ReportBasic() {
+export default function ReportBisnis() {
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 
@@ -77,7 +76,6 @@ export default function ReportBasic() {
       animate="show"
     >
       <style>{`
-        /* Hide scrollbar di body (opsional) */
         body { -ms-overflow-style: none; scrollbar-width: none; }
         body::-webkit-scrollbar { display: none; }
 
