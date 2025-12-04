@@ -2,17 +2,18 @@
 import React, { useState } from "react";
 import {
   HiOutlineChatBubbleLeftRight,
-  HiOutlineSquares2X2,
   HiOutlineClock,
-  HiOutlineChartBar,
-  HiOutlineDevicePhoneMobile,
-  HiOutlineQuestionMarkCircle,
+  HiOutlineBell,
+  HiOutlineChatBubbleBottomCenterText,
+  HiOutlineSquares2X2,
+  HiOutlinePresentationChartLine,
+  HiOutlineArrowPath,
 } from "react-icons/hi2";
 import { motion, useReducedMotion } from "framer-motion";
 
 import SectionPutih from "../../assets/SectionPutih.png";
 
-// ✅ Gradasi background baru
+// ✅ Gradasi background
 const GRADIENT_FROM = "#5FCAAC";
 const GRADIENT_TO = "#DAEC75";
 
@@ -21,55 +22,58 @@ const PAGE_CFG = {
   pxMobile: 20,
   pxDesktop: 32,
   pt: 48,
-  pb: 100,
+  pb: 0,
 };
 
 /* =======================
-   ✅ SETTING CARD STAT (Durasi / Masa Aktif / Jatuh Tempo)
-   - dibuat SERAGAM: lebar & tinggi 3 card sama persis
+   ✅ STAT CARD
    ======================= */
 const STAT_CARD_CFG = {
-  maxW: 380, // lebar maksimum tiap card (semua sama)
+  maxW: 380,
   radius: 22,
 
-  // tinggi card dibuat sama persis
   minHMobile: 132,
   minHDesktop: 140,
 
-  // padding card
   padXMobile: 28,
   padYMobile: 22,
   padXDesktop: 30,
   padYDesktop: 26,
 
-  // ukuran font
   titleMobilePx: 16,
   titleDesktopPx: 18,
   valueMobilePx: 28,
   valueDesktopPx: 30,
 
-  // ruang (slot) untuk progress / area bawah (biar card lain tetap sama tinggi)
   childrenSlotMobile: 16,
   childrenSlotDesktop: 18,
 };
 
 /* =======================
-   ✅ SETTING WADAH MANFAAT (Section Putih)
+   ✅ WADAH PUTIH (padding konten)
    ======================= */
 const SECTION_PUTIH_CFG = {
   maxW: 2000,
 
   padMobileX: 18,
   padMobileTop: 40,
-  padMobileBottom: 28,
+  padMobileBottom: 90,
 
   padDesktopX: 110,
   padDesktopTop: 300,
-  padDesktopBottom: 60,
+  padDesktopBottom: 180,
 };
 
 /* =======================
-   ✅ SETTING POSISI & BESAR GAMBAR SectionPutih
+   ✅ PANJANGKAN CONTAINER PUTIH (min-height)
+   ======================= */
+const SECTION_PUTIH_WRAP_CTRL = {
+  minHMobile: 760,
+  minHDesktop: 980,
+};
+
+/* =======================
+   ✅ POSISI & BESAR “background” SectionPutih
    ======================= */
 const SECTION_PUTIH_IMG_CTRL = {
   translateXMobile: 0,
@@ -82,7 +86,7 @@ const SECTION_PUTIH_IMG_CTRL = {
 };
 
 /* =======================
-   ✅ TURUNKAN KONTEN "Fitur yang Didapatkan" + 6 kartu
+   ✅ TURUNKAN KONTEN “Fitur yang Didapatkan”
    ======================= */
 const SECTION_PUTIH_CONTENT_CTRL = {
   yMobile: 45,
@@ -98,22 +102,41 @@ const ACTIONS_CTRL = {
 };
 
 /* =======================
-   ✅ SAMAKAN UKURAN 6 KOTAK FITUR
+   ✅ FEATURE CARD (hover naik + shadow)
    ======================= */
 const FEATURE_CARD_CTRL = {
-  hMobile: 132,
-  hDesktop: 142,
+  radius: 18,
+  borderPx: 1.5,
+
+  hMobile: 112,
+  hDesktop: 120,
+
+  padXMobile: 22,
+  padYMobile: 18,
+
+  padXDesktop: 26,
+  padYDesktop: 20,
+
+  gapMobile: 14,
+  gapDesktop: 16,
+
+  iconMobile: 22,
+  iconDesktop: 24,
+
   descLines: 2,
+
+  hoverLiftPx: 6,
+  shadowBase: "0 10px 24px rgba(0,0,0,0.08)",
+  shadowHover: "0 20px 48px rgba(0,0,0,0.16)",
 };
 
-/* =======================
-   ✅ NEW: SESUAIKAN UKURAN TEKS DI 6 FITUR
-   ======================= */
 const FEATURE_TEXT_CTRL = {
   titleMobilePx: 16,
   titleDesktopPx: 18,
+
   descMobilePx: 13,
   descDesktopPx: 14,
+
   titleLineHeight: 1.25,
   descLineHeight: 1.4,
 };
@@ -121,7 +144,6 @@ const FEATURE_TEXT_CTRL = {
 function StatCard({ title, value, children }) {
   return (
     <div className="_statCard w-full bg-white/25 backdrop-blur-md border border-white/25 shadow-[0_10px_30px_rgba(0,0,0,0.08)] flex flex-col">
-      {/* bagian atas (judul + value) */}
       <div>
         <div className="_statTitle text-white/90 font-semibold">{title}</div>
         <div className="_statValue mt-1 text-white font-extrabold tracking-tight">
@@ -129,7 +151,6 @@ function StatCard({ title, value, children }) {
         </div>
       </div>
 
-      {/* slot bawah (biar 3 card tinggi sama persis) */}
       <div className="_statSlot mt-4">{children ? children : null}</div>
     </div>
   );
@@ -158,28 +179,16 @@ function ActionButton({ children, onClick, variant = "primary" }) {
 
 function FeatureCard({ icon: Icon, title, desc }) {
   return (
-    <div
-      className={[
-        "_featureCard",
-        "w-full",
-        "rounded-2xl p-[1px]",
-        "bg-gradient-to-r from-[#5FCAAC] to-[#DAEC75]",
-        "shadow-[0_14px_32px_rgba(0,0,0,0.10)]",
-        "transition-all duration-200 ease-out transform",
-        "hover:-translate-y-1.5 hover:shadow-[0_22px_60px_rgba(0,0,0,0.18)]",
-      ].join(" ")}
-    >
-      <div className="h-full w-full rounded-[1rem] bg-white px-6 py-5">
-        <div className="h-full flex items-start gap-3">
-          <div className="mt-[2px] shrink-0 text-black">
+    <div className="_featureOuter w-full">
+      <div className="_featureInner">
+        <div className="_featureRow">
+          <div className="_featureIconWrap">
             <Icon className="_featureIcon" />
           </div>
 
           <div className="min-w-0 flex-1">
-            <div className="_featureTitle font-extrabold text-gray-900">
-              {title}
-            </div>
-            <div className="_featureDesc mt-1 text-gray-500">{desc}</div>
+            <div className="_featureTitle">{title}</div>
+            <div className="_featureDesc">{desc}</div>
           </div>
         </div>
       </div>
@@ -192,7 +201,6 @@ const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 export default function MyPackagesPro() {
   const [progressPct] = useState(78);
 
-  // ===== Animasi (aman: tidak mengganggu transform CSS yang sudah ada) =====
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 
@@ -209,7 +217,6 @@ export default function MyPackagesPro() {
     },
   };
 
-  // fade+up (pakai transform) -> aman diaplikasikan ke wrapper yang tidak punya transform CSS
   const fadeUp = {
     hidden: { opacity: 0, y: 14, filter: "blur(7px)" },
     show: {
@@ -220,7 +227,6 @@ export default function MyPackagesPro() {
     },
   };
 
-  // fade-only -> aman untuk elemen yang sudah punya transform CSS (_spImg/_spContent/_actionsShift)
   const fadeOnly = {
     hidden: { opacity: 0, filter: "blur(10px)" },
     show: {
@@ -260,9 +266,11 @@ export default function MyPackagesPro() {
 
   return (
     <motion.div
-      className="w-full overflow-x-hidden font-poppins"
+      // ✅ scroll tetap bisa, tapi scrollbar DISAMARKAN (yang kanan itu)
+      className="w-full overflow-x-hidden font-poppins _vh _noScrollbar"
       style={{
         background: `linear-gradient(90deg, ${GRADIENT_FROM} 0%, ${GRADIENT_TO} 100%)`,
+        overflowY: "auto",
       }}
       variants={page}
       initial="hidden"
@@ -279,16 +287,36 @@ export default function MyPackagesPro() {
         }}
       >
         <style>{`
-          /* ✅ Sembunyikan scrollbar di seluruh halaman (tetap bisa scroll) */
-          body { -ms-overflow-style: none; scrollbar-width: none; }
-          body::-webkit-scrollbar { display: none; }
+          /* ✅ Viewport height stabil + scroll container */
+          ._vh{ height: 100vh; height: 100dvh; }
 
-          /* ✅ Matikan outline bawaan Chrome/Browser untuk tombol joyin */
+          /* ✅ Hilangkan scrollbar (WAJIB: di container scroll + juga html/body) */
+          html, body{
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+          }
+          html::-webkit-scrollbar,
+          body::-webkit-scrollbar{
+            width: 0 !important;
+            height: 0 !important;
+            display: none !important;
+          }
+
+          ._noScrollbar{
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+          }
+          ._noScrollbar::-webkit-scrollbar{
+            width: 0 !important;
+            height: 0 !important;
+            display: none !important;
+          }
+
+          /* ✅ Matikan outline bawaan tombol */
           .joyin-btn { outline: none; }
           .joyin-btn:focus, .joyin-btn:focus-visible, .joyin-btn:active { outline: none; }
           .joyin-btn::-moz-focus-inner { border: 0; }
 
-          /* ✅ Glow effect putih untuk tombol paket saat hover */
           .joyin-btn--glow:hover {
             box-shadow:
               0 0 28px rgba(255, 255, 255, 0.98),
@@ -296,7 +324,7 @@ export default function MyPackagesPro() {
           }
 
           /* =======================
-             ✅ STAT CARD: 3 card SAMA PERSIS (lebar + tinggi)
+             ✅ STAT CARD
              ======================= */
           ._statCard{
             max-width: ${STAT_CARD_CFG.maxW}px;
@@ -304,17 +332,12 @@ export default function MyPackagesPro() {
             min-height: ${STAT_CARD_CFG.minHMobile}px;
             padding: ${STAT_CARD_CFG.padYMobile}px ${STAT_CARD_CFG.padXMobile}px;
           }
-          ._statTitle{
-            font-size: ${STAT_CARD_CFG.titleMobilePx}px;
-          }
+          ._statTitle{ font-size: ${STAT_CARD_CFG.titleMobilePx}px; }
           ._statValue{
             font-size: ${STAT_CARD_CFG.valueMobilePx}px;
             line-height: 1.1;
           }
-          /* slot bawah disamakan walau tidak ada children */
-          ._statSlot{
-            min-height: ${STAT_CARD_CFG.childrenSlotMobile}px;
-          }
+          ._statSlot{ min-height: ${STAT_CARD_CFG.childrenSlotMobile}px; }
 
           @media (min-width: 768px){
             ._pagePad{
@@ -330,35 +353,101 @@ export default function MyPackagesPro() {
             ._statSlot{ min-height: ${STAT_CARD_CFG.childrenSlotDesktop}px; }
           }
 
-          /* ✅ Samakan tinggi 6 feature card */
-          ._featureCard { height: ${FEATURE_CARD_CTRL.hMobile}px; }
-          @media (min-width: 768px) { ._featureCard { height: ${FEATURE_CARD_CTRL.hDesktop}px; } }
+          /* =======================
+             ✅ PANJANGKAN SECTION PUTIH (min-height)
+             ======================= */
+          ._spWrap{
+            min-height: ${SECTION_PUTIH_WRAP_CTRL.minHMobile}px;
+          }
+          @media (min-width: 768px){
+            ._spWrap{
+              min-height: ${SECTION_PUTIH_WRAP_CTRL.minHDesktop}px;
+            }
+          }
 
-          /* ✅ Ukuran teks feature */
+          /* =======================
+             ✅ BACKGROUND SectionPutih (stretch)
+             ======================= */
+          ._spBg{
+            background-image: url("${SectionPutih}");
+            background-repeat: no-repeat;
+            background-position: center top;
+            background-size: 100% 100%;
+          }
+
+          /* =======================
+             ✅ FEATURE CARD + HOVER (naik + shadow)
+             ======================= */
+          ._featureOuter{
+            height: ${FEATURE_CARD_CTRL.hMobile}px;
+            border-radius: ${FEATURE_CARD_CTRL.radius}px;
+            padding: ${FEATURE_CARD_CTRL.borderPx}px;
+            background: linear-gradient(90deg, ${GRADIENT_FROM} 0%, ${GRADIENT_TO} 100%);
+            box-shadow: ${FEATURE_CARD_CTRL.shadowBase};
+            transform: translateY(0);
+            transition: transform 180ms ease-out, box-shadow 200ms ease-out;
+            will-change: transform, box-shadow;
+          }
+          ._featureOuter:hover{
+            transform: translateY(-${FEATURE_CARD_CTRL.hoverLiftPx}px);
+            box-shadow: ${FEATURE_CARD_CTRL.shadowHover};
+          }
+          ._featureOuter:active{
+            transform: translateY(-2px);
+          }
+          @media (prefers-reduced-motion: reduce){
+            ._featureOuter{ transition: none !important; }
+          }
+
+          ._featureInner{
+            height: 100%;
+            width: 100%;
+            background: #fff;
+            border-radius: ${FEATURE_CARD_CTRL.radius - 3}px;
+            padding: ${FEATURE_CARD_CTRL.padYMobile}px ${FEATURE_CARD_CTRL.padXMobile}px;
+          }
+          ._featureRow{
+            height: 100%;
+            display: flex;
+            gap: ${FEATURE_CARD_CTRL.gapMobile}px;
+            align-items: flex-start;
+          }
+          ._featureIconWrap{ margin-top: 2px; flex: 0 0 auto; color: #111827; }
+          ._featureIcon{ font-size: ${FEATURE_CARD_CTRL.iconMobile}px; }
+
           ._featureTitle{
             font-size: ${FEATURE_TEXT_CTRL.titleMobilePx}px;
             line-height: ${FEATURE_TEXT_CTRL.titleLineHeight};
+            font-weight: 700;
+            color: #111827;
             display: -webkit-box;
             -webkit-line-clamp: 1;
             -webkit-box-orient: vertical;
             overflow: hidden;
           }
           ._featureDesc{
+            margin-top: 6px;
             font-size: ${FEATURE_TEXT_CTRL.descMobilePx}px;
             line-height: ${FEATURE_TEXT_CTRL.descLineHeight};
+            color: rgba(107,114,128,1);
             display: -webkit-box;
             -webkit-line-clamp: ${FEATURE_CARD_CTRL.descLines};
             -webkit-box-orient: vertical;
             overflow: hidden;
           }
-          ._featureIcon{ font-size: 22px; }
-          @media (min-width: 768px) {
+
+          @media (min-width: 768px){
+            ._featureOuter{ height: ${FEATURE_CARD_CTRL.hDesktop}px; }
+            ._featureInner{
+              padding: ${FEATURE_CARD_CTRL.padYDesktop}px ${FEATURE_CARD_CTRL.padXDesktop}px;
+            }
+            ._featureRow{ gap: ${FEATURE_CARD_CTRL.gapDesktop}px; }
+            ._featureIcon{ font-size: ${FEATURE_CARD_CTRL.iconDesktop}px; }
             ._featureTitle{ font-size: ${FEATURE_TEXT_CTRL.titleDesktopPx}px; }
             ._featureDesc{ font-size: ${FEATURE_TEXT_CTRL.descDesktopPx}px; }
-            ._featureIcon{ font-size: 26px; }
           }
 
-          /* ✅ Transform gambar SectionPutih (mobile) */
+          /* ✅ Transform background SectionPutih */
           ._spImg {
             transform:
               translate(${SECTION_PUTIH_IMG_CTRL.translateXMobile}px,
@@ -367,10 +456,7 @@ export default function MyPackagesPro() {
             transform-origin: center center;
           }
 
-          /* ✅ Turunkan konten di dalam SectionPutih (mobile) */
           ._spContent { transform: translateY(${SECTION_PUTIH_CONTENT_CTRL.yMobile}px); }
-
-          /* ✅ Turunkan 3 tombol action (mobile) */
           ._actionsShift { transform: translateY(${ACTIONS_CTRL.yMobile}px); }
 
           @media (min-width: 768px) {
@@ -381,7 +467,6 @@ export default function MyPackagesPro() {
               padding-bottom: ${SECTION_PUTIH_CFG.padDesktopBottom}px;
             }
 
-            /* ✅ Transform gambar SectionPutih (desktop) */
             ._spImg {
               transform:
                 translate(${SECTION_PUTIH_IMG_CTRL.translateXDesktop}px,
@@ -451,7 +536,7 @@ export default function MyPackagesPro() {
             </motion.div>
           </div>
 
-          {/* Actions (⚠️ _actionsShift pakai transform, jadi animasinya fade-only) */}
+          {/* Actions */}
           <motion.div
             variants={fadeOnly}
             initial="hidden"
@@ -465,24 +550,22 @@ export default function MyPackagesPro() {
             </ActionButton>
           </motion.div>
 
-          {/* ✅ MANFAAT DI DALAM GAMBAR SectionPutih */}
+          {/* ✅ MANFAAT (dipanjangin sampai bawah) */}
           <div className="mt-10 flex justify-center">
             <div
-              className="relative w-full"
+              className="relative w-full _spWrap"
               style={{ maxWidth: SECTION_PUTIH_CFG.maxW }}
             >
-              {/* ⚠️ _spImg pakai transform, jadi animasinya opacity/blur saja */}
-              <motion.img
+              {/* Background image stretch */}
+              <motion.div
                 variants={fadeOnly}
                 initial="hidden"
                 animate="show"
-                src={SectionPutih}
-                alt="SectionPutih"
-                className="w-full h-auto select-none _spImg"
-                draggable="false"
+                className="absolute inset-0 _spBg _spImg"
+                aria-hidden="true"
               />
 
-              {/* Overlay konten: wrapper animasi fade-only (biar _spContent tetap jalan) */}
+              {/* Konten */}
               <motion.div
                 variants={fadeOnly}
                 initial="hidden"
@@ -490,7 +573,7 @@ export default function MyPackagesPro() {
                 className="absolute inset-0 z-10"
               >
                 <div
-                  className="_spPad _spContent"
+                  className="_spPad _spContent h-full"
                   style={{
                     paddingLeft: SECTION_PUTIH_CFG.padMobileX,
                     paddingRight: SECTION_PUTIH_CFG.padMobileX,
@@ -498,7 +581,7 @@ export default function MyPackagesPro() {
                     paddingBottom: SECTION_PUTIH_CFG.padMobileBottom,
                   }}
                 >
-                  <h2 className="text-[22px] md:text-[26px] font-extrabold text-gray-900">
+                  <h2 className="text-[24px] md:text-[28px] font-extrabold text-gray-900">
                     Fitur yang Didapatkan
                   </h2>
 
@@ -506,13 +589,13 @@ export default function MyPackagesPro() {
                     {[
                       {
                         icon: HiOutlineChatBubbleLeftRight,
-                        title: "300 percakapan/bulan",
-                        desc: "Bisa melayani hingga 300 interaksi pelanggan setiap bulannya.",
+                        title: "1000 percakapan/bulan",
+                        desc: "Bisa melayani hingga 1000 interaksi pelanggan setiap bulannya.",
                       },
                       {
-                        icon: HiOutlineSquares2X2,
-                        title: "Template balasan standar",
-                        desc: "Tersedia kumpulan template siap pakai untuk mempercepat balasan.",
+                        icon: HiOutlinePresentationChartLine,
+                        title: "Statistik & insight pelanggan",
+                        desc: "Lihat performa chat dan perilaku pelanggan untuk memahami kebutuhan mereka.",
                       },
                       {
                         icon: HiOutlineClock,
@@ -520,19 +603,24 @@ export default function MyPackagesPro() {
                         desc: "Chatbot aktif sepanjang hari untuk menjawab pesan kapan saja.",
                       },
                       {
-                        icon: HiOutlineChartBar,
-                        title: "Statistik bulanan sederhana",
-                        desc: "Lihat ringkasan performa chatbot secara jelas setiap bulan.",
+                        icon: HiOutlineSquares2X2,
+                        title: "Template balasan Custom",
+                        desc: "Buat dan atur template balasan sesuai gaya bisnis kamu.",
                       },
                       {
-                        icon: HiOutlineDevicePhoneMobile,
-                        title: "Integrasi WhatsApp mudah",
-                        desc: "Cukup beberapa langkah untuk langsung terhubung ke WhatsApp Anda.",
+                        icon: HiOutlineBell,
+                        title: "Notifikasi chat masuk",
+                        desc: "Dapatkan pemberitahuan instan tiap ada pelanggan yang mengirim pesan.",
                       },
                       {
-                        icon: HiOutlineQuestionMarkCircle,
-                        title: "FAQ dasar bawaan",
-                        desc: "Sudah dilengkapi jawaban FAQ umum agar chatbot bisa langsung bekerja.",
+                        icon: HiOutlineArrowPath,
+                        title: "Auto-update FAQ produk",
+                        desc: "FAQ langsung diperbarui otomatis setiap kali kamu ubah data produk.",
+                      },
+                      {
+                        icon: HiOutlineChatBubbleBottomCenterText,
+                        title: "Pesan sambutan personal",
+                        desc: "Chatbot menyapa pelanggan dengan salam pembuka yang kamu tentukan sendiri.",
                       },
                     ].map((it, i) => (
                       <motion.div
@@ -542,11 +630,7 @@ export default function MyPackagesPro() {
                         initial="hidden"
                         animate="show"
                       >
-                        <FeatureCard
-                          icon={it.icon}
-                          title={it.title}
-                          desc={it.desc}
-                        />
+                        <FeatureCard icon={it.icon} title={it.title} desc={it.desc} />
                       </motion.div>
                     ))}
                   </div>
