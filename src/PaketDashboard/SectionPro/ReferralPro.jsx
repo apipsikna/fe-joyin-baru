@@ -1,4 +1,4 @@
-// src/PaketDashboard/SectionBasic/ReferralBasic.jsx
+// src/PaketDashboard/SectionPro/ReferralPro.jsx
 import React, { useMemo, useState } from "react";
 import { HiOutlineDocumentDuplicate } from "react-icons/hi2";
 import { motion, useReducedMotion } from "framer-motion";
@@ -100,7 +100,7 @@ const readNum = (qp, key, fallback) => {
   return Number.isFinite(v) ? v : fallback;
 };
 
-export default function ReferralBasic({ profile }) {
+export default function ReferralPro({ profile }) {
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 
@@ -335,7 +335,10 @@ export default function ReferralBasic({ profile }) {
                 Daftar Referral
               </motion.h2>
 
-              <motion.div variants={fadeUp} className="mt-6 overflow-hidden rounded-2xl border border-gray-200">
+              <motion.div
+                variants={fadeUp}
+                className="mt-6 overflow-hidden rounded-2xl border border-gray-200"
+              >
                 <table className="w-full text-[13px] md:text-[14px]">
                   <thead className="bg-[#5FCAAC] text-white">
                     <tr>

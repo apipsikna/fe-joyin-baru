@@ -1,4 +1,4 @@
-// src/PaketDashboard/SectionBasic/ReportBasic.jsx
+// src/PaketDashboard/SectionPro/ReportPro.jsx
 import React from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
@@ -22,7 +22,7 @@ const REPORT_LAYOUT = {
   cardMaxW: 9999,
 };
 
-export default function ReportBasic() {
+export default function ReportPro() {
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 

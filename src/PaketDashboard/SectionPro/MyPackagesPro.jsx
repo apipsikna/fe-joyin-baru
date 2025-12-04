@@ -1,4 +1,4 @@
-// src/PaketDashboard/SectionBasic/MyPackagesBasic.jsx
+// src/PaketDashboard/SectionPro/MyPackagesPro.jsx
 import React, { useState } from "react";
 import {
   HiOutlineChatBubbleLeftRight,
@@ -189,7 +189,7 @@ function FeatureCard({ icon: Icon, title, desc }) {
 
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
-export default function MyPackagesBasic() {
+export default function MyPackagesPro() {
   const [progressPct] = useState(78);
 
   // ===== Animasi (aman: tidak mengganggu transform CSS yang sudah ada) =====
@@ -398,7 +398,7 @@ export default function MyPackagesBasic() {
           {/* Title */}
           <motion.div variants={fadeUp} className="text-center">
             <h1 className="text-white font-extrabold text-[34px] md:text-[44px] leading-tight">
-              Paket Basic
+              Paket Pro
             </h1>
             <p className="mt-2 text-white/85 text-[14px] md:text-[15px]">
               Atur dan cek status paket langganan Anda
@@ -467,7 +467,10 @@ export default function MyPackagesBasic() {
 
           {/* ✅ MANFAAT DI DALAM GAMBAR SectionPutih */}
           <div className="mt-10 flex justify-center">
-            <div className="relative w-full" style={{ maxWidth: SECTION_PUTIH_CFG.maxW }}>
+            <div
+              className="relative w-full"
+              style={{ maxWidth: SECTION_PUTIH_CFG.maxW }}
+            >
               {/* ⚠️ _spImg pakai transform, jadi animasinya opacity/blur saja */}
               <motion.img
                 variants={fadeOnly}
@@ -539,7 +542,11 @@ export default function MyPackagesBasic() {
                         initial="hidden"
                         animate="show"
                       >
-                        <FeatureCard icon={it.icon} title={it.title} desc={it.desc} />
+                        <FeatureCard
+                          icon={it.icon}
+                          title={it.title}
+                          desc={it.desc}
+                        />
                       </motion.div>
                     ))}
                   </div>

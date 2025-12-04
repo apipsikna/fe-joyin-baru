@@ -1,3 +1,5 @@
+// (File Dashboard kamu yang tadi) — ganti HOME agar pakai:
+// src/PaketDashboard/SectionPro/HomePro.jsx
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -18,15 +20,18 @@ import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { resolveAvatarUrl } from "../utils/avatar";
 
-// Pages
-import Home from "../pages/Home";
-import Reports from "../pages/Report";
-import MyPackages from "../pages/MyPackages";
-import BotSettings from "../pages/BotSettings";
+// Pages (non-pro)
 import Setting from "../pages/Setting";
-import Obrolan from "../pages/Obrolan"; // ✅ Tambah ini
 
-// ===== Menu keys (stabil, tidak tergantung terjemahan)
+// ✅ PRO PAGES
+import HomePro from "./SectionPro/HomePro";
+import BotSettingsPro from "./SectionPro/BotSettingsPro";
+import MyPackagesPro from "./SectionPro/MyPackagesPro";
+import ObrolanPro from "./SectionPro/ObrolanPro";
+import ReferralPro from "./SectionPro/ReferralPro";
+import ReportPro from "./SectionPro/ReportPro";
+
+// ===== Menu keys
 const MENU = {
   HOME: "home",
   CHAT: "chat",
@@ -36,45 +41,6 @@ const MENU = {
   REFERRAL: "referral",
   SETTINGS: "settings",
 };
-
-// ===== Placeholder sederhana untuk "Referral"
-function ReferralPlaceholder({ profile }) {
-  const code =
-    profile?.referralCode ||
-    profile?.refCode ||
-    profile?.referral?.code ||
-    "";
-
-  return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-2">Referral</h1>
-      <p className="text-gray-600 mb-4">Halaman referral akan hadir di sini.</p>
-
-      <div className="bg-white/80 backdrop-blur border border-emerald-100 rounded-2xl p-4 max-w-xl shadow-sm">
-        <p className="text-sm font-semibold text-gray-900 mb-1">
-          Kode Referral Kamu
-        </p>
-        <div className="flex items-center gap-2">
-          <div className="px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-100 font-semibold text-emerald-700 text-sm">
-            {code || "-"}
-          </div>
-          {!!code && (
-            <button
-              onClick={() => navigator.clipboard?.writeText(code)}
-              className="px-3 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition"
-            >
-              Copy
-            </button>
-          )}
-        </div>
-        <p className="text-xs text-gray-600 mt-3">
-          Pengguna yang memasukkan kode saat registrasi akan mendapat diskon
-          (sesuai aturan kamu).
-        </p>
-      </div>
-    </div>
-  );
-}
 
 // ===== Util kecil
 const getInitials = (name = "") =>
@@ -204,13 +170,15 @@ export default function Dashboard() {
           />
         </div>
 
-        {/* Render Page */}
-        {activeMenu === MENU.HOME && <Home profile={profile} />}
-        {activeMenu === MENU.CHAT && <Obrolan profile={profile} />} {/* ✅ CHANGE */}
-        {activeMenu === MENU.BOT_SETTINGS && <BotSettings />}
-        {activeMenu === MENU.REPORTS && <Reports />}
-        {activeMenu === MENU.PACKAGES && <MyPackages />}
-        {activeMenu === MENU.REFERRAL && <ReferralPlaceholder profile={profile} />}
+        {/* ✅ Render Page */}
+        {activeMenu === MENU.HOME && <HomePro profile={profile} />}
+        {activeMenu === MENU.CHAT && <ObrolanPro profile={profile} />}
+        {activeMenu === MENU.BOT_SETTINGS && <BotSettingsPro profile={profile} />}
+        {activeMenu === MENU.REPORTS && <ReportPro profile={profile} />}
+        {activeMenu === MENU.PACKAGES && <MyPackagesPro profile={profile} />}
+        {activeMenu === MENU.REFERRAL && <ReferralPro profile={profile} />}
+
+        {/* settings tetap pakai Setting lama */}
         {activeMenu === MENU.SETTINGS && (
           <Setting onBack={() => setActiveMenu(MENU.HOME)} />
         )}
@@ -240,12 +208,14 @@ function Sidebar({ activeMenu, setActiveMenu, t, onGoLanding }) {
         active={activeMenu === MENU.HOME}
         onClick={() => setActiveMenu(MENU.HOME)}
       />
+
       <SidebarButton
         icon={HiOutlineChatBubbleLeftRight}
         text={t("dashboard.sidebar.chat", { defaultValue: "Obrolan" })}
         active={activeMenu === MENU.CHAT}
-        onClick={() => setActiveMenu(MENU.CHAT)} // ✅ tetap ini
+        onClick={() => setActiveMenu(MENU.CHAT)}
       />
+
       <SidebarButton
         icon={HiOutlineCog6Tooth}
         text={t("dashboard.sidebar.botSettings", {
@@ -254,12 +224,14 @@ function Sidebar({ activeMenu, setActiveMenu, t, onGoLanding }) {
         active={activeMenu === MENU.BOT_SETTINGS}
         onClick={() => setActiveMenu(MENU.BOT_SETTINGS)}
       />
+
       <SidebarButton
         icon={HiOutlineDocumentText}
         text={t("dashboard.sidebar.reports", { defaultValue: "Laporan" })}
         active={activeMenu === MENU.REPORTS}
         onClick={() => setActiveMenu(MENU.REPORTS)}
       />
+
       <SidebarButton
         icon={HiOutlineCube}
         text={t("dashboard.sidebar.packages", { defaultValue: "Paket Saya" })}
@@ -317,11 +289,7 @@ function SidebarButton({ icon: Icon, text, active, onClick, landing }) {
         <Icon
           size={18}
           className={
-            active
-              ? "text-white"
-              : landing
-              ? "text-emerald-700"
-              : "text-gray-600"
+            active ? "text-white" : landing ? "text-emerald-700" : "text-gray-600"
           }
         />
       </span>
@@ -347,11 +315,7 @@ function TopRightProfile({
     profile?.planName || profile?.package || profile?.subscription || "Gratis";
 
   const rawAvatar =
-    profile?.avatar ||
-    profile?.photo ||
-    profile?.avatarUrl ||
-    profile?.image ||
-    null;
+    profile?.avatar || profile?.photo || profile?.avatarUrl || profile?.image || null;
 
   const avatarUrl = rawAvatar ? resolveAvatarUrl(rawAvatar) : null;
 
@@ -499,11 +463,7 @@ function DropdownItem({ icon, label, sub, onClick, danger }) {
       onClick={onClick}
       role="menuitem"
       className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition
-      ${
-        danger
-          ? "text-red-600 hover:bg-red-50"
-          : "text-gray-800 hover:bg-emerald-50"
-      }`}
+      ${danger ? "text-red-600 hover:bg-red-50" : "text-gray-800 hover:bg-emerald-50"}`}
       whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 500, damping: 30 }}
     >
@@ -514,11 +474,7 @@ function DropdownItem({ icon, label, sub, onClick, danger }) {
         {icon}
       </div>
       <div className="text-left leading-tight">
-        <p
-          className={`text-[12px] font-semibold ${
-            danger ? "text-red-600" : "text-gray-900"
-          }`}
-        >
+        <p className={`text-[12px] font-semibold ${danger ? "text-red-600" : "text-gray-900"}`}>
           {label}
         </p>
         {sub && <p className="text-[11px] text-gray-500">{sub}</p>}

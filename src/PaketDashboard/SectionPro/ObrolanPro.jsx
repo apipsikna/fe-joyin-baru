@@ -1,4 +1,4 @@
-// src/PaketDashboard/SectionBasic/ObrolanBasic.jsx
+// src/PaketDashboard/SectionPro/ObrolanPro.jsx
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
@@ -62,7 +62,7 @@ function getNowTime() {
   return `${hh}.${mm}`;
 }
 
-export default function ObrolanBasic() {
+export default function ObrolanPro() {
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 

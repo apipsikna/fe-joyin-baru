@@ -1,4 +1,4 @@
-// src/PaketDashboard/SectionBasic/BotSettingsBasic.jsx
+// src/PaketDashboard/SectionPro/BotSettingsPro.jsx
 import React, { useMemo, useState } from "react";
 import {
   HiOutlineArrowPath,
@@ -40,7 +40,7 @@ const LAYOUT_CFG = {
   whiteTopGap: 50, // px
 };
 
-export default function BotSettingsBasic() {
+export default function BotSettingsPro() {
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 
@@ -277,7 +277,6 @@ export default function BotSettingsBasic() {
 
         /* Desktop override vars */
         @media (min-width: 768px) {
-          :root {}
           .joyin-pagePad { padding-left: ${LAYOUT_CFG.pageSidePadDesktop}px; padding-right: ${LAYOUT_CFG.pageSidePadDesktop}px; }
           .joyin-whiteBleed {
             width: min(${LAYOUT_CFG.whiteMaxW}px, calc(100vw - ${LAYOUT_CFG.whitePadLDesktop}px - ${LAYOUT_CFG.whitePadRDesktop}px));
@@ -287,7 +286,6 @@ export default function BotSettingsBasic() {
         }
       `}</style>
 
-      {/* ✅ Animasi masuk halaman */}
       <motion.div
         variants={pageVariants}
         initial="hidden"
@@ -303,13 +301,13 @@ export default function BotSettingsBasic() {
           </div>
 
           <div className="mt-1 flex flex-wrap justify-center gap-6 md:gap-10 relative z-20">
-            {TABS.map((t) => {
-              const active = t.key === tab;
+            {TABS.map((tItem) => {
+              const active = tItem.key === tab;
               return (
                 <button
-                  key={t.key}
+                  key={tItem.key}
                   type="button"
-                  onClick={() => setTab(t.key)}
+                  onClick={() => setTab(tItem.key)}
                   className={[
                     "joyin-tab inline-flex items-center justify-center",
                     "px-10 md:px-14 py-3.5 rounded-[18px] bg-white",
@@ -317,7 +315,7 @@ export default function BotSettingsBasic() {
                     active ? "joyin-tab--active" : "opacity-95",
                   ].join(" ")}
                 >
-                  {t.label}
+                  {tItem.label}
                 </button>
               );
             })}
@@ -326,15 +324,12 @@ export default function BotSettingsBasic() {
 
         {/* Body */}
         <div className="relative flex-1 flex flex-col">
-          {/* ✅ Jangan motion di .joyin-whiteBleed (karena dia butuh transform translateX) */}
           <div className="joyin-whiteBleed flex-1 flex flex-col">
-            {/* ✅ Animasi dipindah ke panel putihnya */}
             <motion.div
               variants={whitePanel}
               className="-mt-4 bg-white rounded-t-[36px] md:rounded-t-[44px] rounded-b-none shadow-[0_24px_60px_rgba(0,0,0,0.10)] flex-1 flex flex-col"
             >
               <div className="px-5 py-8 md:px-10 md:py-10 flex-1 flex flex-col">
-                {/* ✅ Tab content anim */}
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={tab}
@@ -400,7 +395,8 @@ export default function BotSettingsBasic() {
                             className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900"
                           />
                           <p className="mt-2 text-[13px] text-gray-500">
-                            Membuat jeda pengetikan agar respon terasa lebih natural.
+                            Membuat jeda pengetikan agar respon terasa lebih
+                            natural.
                           </p>
                         </div>
 
@@ -410,7 +406,8 @@ export default function BotSettingsBasic() {
                               Gunakan Emoji
                             </h3>
                             <p className="mt-1 text-[13px] text-gray-500">
-                              Buat pesan terasa lebih ekspresif dengan tambahan emoji.
+                              Buat pesan terasa lebih ekspresif dengan tambahan
+                              emoji.
                             </p>
                           </div>
 
@@ -495,7 +492,8 @@ export default function BotSettingsBasic() {
                             className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
                           />
                           <p className="mt-2 text-[13px] text-gray-500">
-                            Jelaskan karakter, gaya bicara, cara menyapa, dan peran utama bot.
+                            Jelaskan karakter, gaya bicara, cara menyapa, dan
+                            peran utama bot.
                           </p>
                         </div>
 
@@ -531,7 +529,8 @@ export default function BotSettingsBasic() {
                             className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
                           />
                           <p className="mt-2 text-[13px] text-gray-500">
-                            Berikan 1–2 contoh balasan yang mewakili gaya bahasa bot.
+                            Berikan 1–2 contoh balasan yang mewakili gaya bahasa
+                            bot.
                           </p>
                         </div>
 
@@ -546,7 +545,8 @@ export default function BotSettingsBasic() {
                             className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
                           />
                           <p className="mt-2 text-[13px] text-gray-500">
-                            Tuliskan topik yang harus dihindari bot (misalnya: politik, SARA, dsb).
+                            Tuliskan topik yang harus dihindari bot (misalnya:
+                            politik, SARA, dsb).
                           </p>
                         </div>
                       </>
@@ -631,7 +631,8 @@ export default function BotSettingsBasic() {
                             {faqs.length === 0 ? (
                               <div className="w-full rounded-[24px] border border-[#E5E7EB] bg-white px-6 md:px-10 py-8">
                                 <p className="text-[14px] text-gray-400">
-                                  Belum ada FAQ. Tambahkan pertanyaan baru di atas.
+                                  Belum ada FAQ. Tambahkan pertanyaan baru di
+                                  atas.
                                 </p>
                               </div>
                             ) : (
@@ -643,7 +644,9 @@ export default function BotSettingsBasic() {
                                   <div className="flex items-start justify-between gap-4">
                                     <button
                                       type="button"
-                                      onClick={() => handleToggleFaqStatus(item.id)}
+                                      onClick={() =>
+                                        handleToggleFaqStatus(item.id)
+                                      }
                                       className={[
                                         "inline-flex items-center justify-center px-6 h-9 rounded-full text-[13px] font-semibold",
                                         item.active
@@ -666,7 +669,9 @@ export default function BotSettingsBasic() {
                                       </button>
                                       <button
                                         type="button"
-                                        onClick={() => handleDeleteFaq(item.id)}
+                                        onClick={() =>
+                                          handleDeleteFaq(item.id)
+                                        }
                                         className="w-11 h-11 rounded-[10px] bg-red-100 text-red-500 inline-flex items-center justify-center shadow-[0_10px_22px_rgba(0,0,0,0.06)] hover:brightness-[0.98] active:brightness-95"
                                         aria-label="Hapus FAQ"
                                       >
@@ -726,7 +731,6 @@ export default function BotSettingsBasic() {
               </div>
             </motion.div>
           </div>
-          {/* ✅ nempel bawah karena wrapper flex-1 */}
         </div>
       </motion.div>
     </div>
