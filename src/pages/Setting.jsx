@@ -1,10 +1,16 @@
 // src/pages/Setting.jsx
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { IoChevronBack, IoClose } from "react-icons/io5";
 import { FiMonitor, FiSmartphone } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 
+import api from "../api/axios";
+import { useAuth } from "../contexts/AuthContext";
+import { setAppLanguage } from "../i18n"; // ✅ helper global
+
 const STORAGE_KEY = "joyin.settings.v1";
+const LANG_KEY = "app_lang";
 
 function safeLoad() {
   try {
@@ -15,8 +21,18 @@ function safeLoad() {
   }
 }
 
+function safeGetLang() {
+  try {
+    return localStorage.getItem(LANG_KEY);
+  } catch {
+    return null;
+  }
+}
+
 export default function Setting({ onBack }) {
+  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const { logout } = useAuth();
 
   const [activeTab, setActiveTab] = useState("privacy");
 
@@ -39,6 +55,9 @@ export default function Setting({ onBack }) {
   // MODALS
   const [showSessions, setShowSessions] = useState(false);
   const [showChangePass, setShowChangePass] = useState(false);
+
+  // UI feedback (simple)
+  const [toast, setToast] = useState({ show: false, type: "ok", text: "" });
 
   const [sessions] = useState([
     {
@@ -65,10 +84,10 @@ export default function Setting({ onBack }) {
   const [indicator, setIndicator] = useState({ left: 0, width: 0, ready: false });
 
   const tabs = [
-    { id: "privacy", label: t("settings.tabs.privacy") },
-    { id: "notif", label: t("settings.tabs.notif") },
-    { id: "language", label: t("settings.tabs.language") },
-    { id: "support", label: t("settings.tabs.support") },
+    { id: "privacy", label: t("settings.tabs.privacy", { defaultValue: "Privasi" }) },
+    { id: "notif", label: t("settings.tabs.notif", { defaultValue: "Notifikasi" }) },
+    { id: "language", label: t("settings.tabs.language", { defaultValue: "Bahasa & Regional" }) },
+    { id: "support", label: t("settings.tabs.support", { defaultValue: "Bantuan" }) },
   ];
 
   function measureIndicator(id = activeTab) {
@@ -84,7 +103,7 @@ export default function Setting({ onBack }) {
     });
   }
 
-  // ===== LOAD dari localStorage saat mount + sinkron bahasa awal =====
+  // ===== LOAD dari localStorage saat mount (tanpa paksa changeLanguage di sini) =====
   useEffect(() => {
     const saved = safeLoad();
 
@@ -95,23 +114,15 @@ export default function Setting({ onBack }) {
       if (typeof saved.smsNotif === "boolean") setSmsNotif(saved.smsNotif);
       if (typeof saved.freq === "string") setFreq(saved.freq);
 
-      if (typeof saved.displayLang === "string") setDisplayLang(saved.displayLang);
       if (typeof saved.timezone === "string") setTimezone(saved.timezone);
       if (typeof saved.timeFormat === "string") setTimeFormat(saved.timeFormat);
       if (typeof saved.dateFormat === "string") setDateFormat(saved.dateFormat);
-    } else {
-      const cur = i18n.language?.startsWith("en") ? "en" : "id";
-      setDisplayLang(cur);
     }
 
-    const langFromStorage =
-      saved?.displayLang || localStorage.getItem("app_lang") || i18n.language;
-    const normalized = langFromStorage?.startsWith("en") ? "en" : "id";
-    try {
-      i18n.changeLanguage(normalized);
-    } catch {}
-    document.documentElement.lang = normalized;
-    localStorage.setItem("app_lang", normalized);
+    // ✅ DisplayLang: ambil dari app_lang (sumber utama), fallback ke i18n.language
+    const lang = safeGetLang() || i18n.language;
+    const normalized = lang?.startsWith("en") ? "en" : "id";
+    setDisplayLang(normalized);
 
     const r = requestAnimationFrame(() => measureIndicator(activeTab));
     return () => cancelAnimationFrame(r);
@@ -130,7 +141,7 @@ export default function Setting({ onBack }) {
     return () => window.removeEventListener("resize", onResize);
   }, [activeTab]);
 
-  // ===== PERSIST =====
+  // ===== PERSIST SETTINGS (bukan bahasa) =====
   useEffect(() => {
     const payload = {
       allowData,
@@ -138,27 +149,64 @@ export default function Setting({ onBack }) {
       pushNotif,
       smsNotif,
       freq,
-      displayLang,
+      // displayLang tidak wajib disimpan ke settings, karena sudah disimpan di app_lang
       timezone,
       timeFormat,
       dateFormat,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-  }, [allowData, emailNotif, pushNotif, smsNotif, freq, displayLang, timezone, timeFormat, dateFormat]);
+  }, [allowData, emailNotif, pushNotif, smsNotif, freq, timezone, timeFormat, dateFormat]);
 
-  // ===== Ganti bahasa global =====
-  function handleLangChange(next) {
+  // ===== Ganti bahasa GLOBAL (mengubah semua halaman) =====
+  async function handleLangChange(next) {
     setDisplayLang(next);
-    const normalized = next?.startsWith("en") ? "en" : "id";
     try {
-      i18n.changeLanguage(normalized);
-    } catch {}
-    document.documentElement.lang = normalized;
-    localStorage.setItem("app_lang", normalized);
+      await setAppLanguage(next); // ✅ ini yang bikin seluruh app re-render
+      showToast("ok", next?.startsWith("en") ? "Language changed to English" : "Bahasa diubah ke Indonesia");
+    } catch {
+      // fallback (kalau helper tidak ada)
+      const normalized = next?.startsWith("en") ? "en" : "id";
+      try {
+        await i18n.changeLanguage(normalized);
+      } catch {}
+      document.documentElement.lang = normalized;
+      try { localStorage.setItem(LANG_KEY, normalized); } catch {}
+    }
+  }
+
+  function showToast(type, text) {
+    setToast({ show: true, type, text });
+    window.clearTimeout(showToast._t);
+    showToast._t = window.setTimeout(() => setToast((s) => ({ ...s, show: false })), 2600);
+  }
+
+  // ======= CONNECT: change password ke BE =======
+  async function submitChangePassword(oldPassword, newPassword, confirmPassword) {
+    const res = await api.put("/password/change", {
+      oldPassword,
+      newPassword,
+      confirmPassword,
+    });
+    return res?.data;
   }
 
   return (
-    <div className="h-full w-full bg-white flex flex-col">
+    <div className="h-full w-full bg-white flex flex-col relative">
+      {/* Toast */}
+      {toast.show && (
+        <div className="fixed top-4 right-4 z-[200]">
+          <div
+            className={`px-4 py-3 rounded-xl shadow-lg border text-sm font-semibold ${
+              toast.type === "err"
+                ? "bg-red-50 text-red-700 border-red-200"
+                : "bg-emerald-50 text-emerald-700 border-emerald-200"
+            }`}
+          >
+            {toast.text}
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="w-full px-6 md:px-10 pt-8">
         <div className="flex items-center gap-3 mb-6">
@@ -166,12 +214,12 @@ export default function Setting({ onBack }) {
             <button
               onClick={onBack}
               className="p-2 rounded-full hover:bg-gray-100 focus:outline-none"
-              aria-label={t("common.back")}
+              aria-label={t("common.back", { defaultValue: "Kembali" })}
             >
               <IoChevronBack size={20} />
             </button>
           )}
-          <h1 className="text-3xl font-bold">{t("settings.title")}</h1>
+          <h1 className="text-3xl font-bold">{t("settings.title", { defaultValue: "Pengaturan" })}</h1>
         </div>
 
         {/* Tabs */}
@@ -206,34 +254,39 @@ export default function Setting({ onBack }) {
         {activeTab === "privacy" && (
           <div className="w-full mt-6 flex flex-col gap-8">
             <Row
-              title={t("settings.privacy.blocked")}
-              desc={t("settings.privacy.blockedDesc")}
-              action={<LinkGhost text={t("settings.privacy.viewList")} onClick={() => {}} />}
+              title={t("settings.privacy.blocked", { defaultValue: "Akun yang diblokir" })}
+              desc={t("settings.privacy.blockedDesc", { defaultValue: "Kelola daftar akun yang diblokir." })}
+              action={
+                <LinkGhost
+                  text={t("settings.privacy.viewList", { defaultValue: "Lihat daftar" })}
+                  onClick={() => {}}
+                />
+              }
             />
             <Row
-              title={t("settings.privacy.data")}
-              desc={t("settings.privacy.dataDesc")}
+              title={t("settings.privacy.data", { defaultValue: "Izinkan penggunaan data" })}
+              desc={t("settings.privacy.dataDesc", { defaultValue: "Izinkan data digunakan untuk peningkatan layanan." })}
               action={<Toggle checked={allowData} onChange={setAllowData} />}
             />
             <Row
-              title={t("settings.privacy.sessions")}
-              desc={t("settings.privacy.sessionsDesc")}
+              title={t("settings.privacy.sessions", { defaultValue: "Sesi aktif" })}
+              desc={t("settings.privacy.sessionsDesc", { defaultValue: "Lihat perangkat yang sedang login." })}
               action={
                 <LinkGhost
-                  text={t("settings.privacy.viewList")}
+                  text={t("settings.privacy.viewList", { defaultValue: "Lihat daftar" })}
                   onClick={() => setShowSessions(true)}
                 />
               }
             />
             <Row
-              title={t("settings.privacy.password")}
-              desc={t("settings.privacy.passwordDesc")}
+              title={t("settings.privacy.password", { defaultValue: "Kata sandi" })}
+              desc={t("settings.privacy.passwordDesc", { defaultValue: "Ubah kata sandi untuk keamanan akun." })}
               action={
                 <button
                   className="px-5 py-2 rounded-xl bg-[#5CC9AF] text-white font-semibold hover:opacity-90"
                   onClick={() => setShowChangePass(true)}
                 >
-                  {t("settings.privacy.change")}
+                  {t("settings.privacy.change", { defaultValue: "Ubah" })}
                 </button>
               }
             />
@@ -258,7 +311,7 @@ export default function Setting({ onBack }) {
           <LanguageRegionalSection
             t={t}
             displayLang={displayLang}
-            setDisplayLang={handleLangChange}
+            setDisplayLang={handleLangChange} // ✅ global
             timezone={timezone}
             setTimezone={setTimezone}
             timeFormat={timeFormat}
@@ -277,24 +330,39 @@ export default function Setting({ onBack }) {
           t={t}
           sessions={sessions}
           onClose={() => setShowSessions(false)}
-          onLogout={(id) => {
-            console.log("Logout session", id);
+          onLogout={async (id) => {
+            if (id === "now") {
+              await logout();
+              navigate("/login", { replace: true });
+              return;
+            }
+            showToast("err", t("settings.sessions.notSupported", { defaultValue: "Logout perangkat lain belum tersedia di backend." }));
           }}
-          onLogoutAll={() => {
-            console.log("Logout all sessions");
+          onLogoutAll={async () => {
+            await logout();
+            navigate("/login", { replace: true });
           }}
         />
       )}
 
-      {/* ====== Modal Ubah Kata Sandi ====== */}
+      {/* ====== Modal Ubah Kata Sandi (connect ke BE) ====== */}
       {showChangePass && (
         <ChangePasswordModal
           t={t}
           onClose={() => setShowChangePass(false)}
-          onSubmit={(oldPass, newPass) => {
-            // TODO: sambungkan ke endpoint backend Anda di sini.
-            console.log("Change password:", { oldPass, newPass });
-            setShowChangePass(false);
+          onSubmit={async (oldPass, newPass, confirmPass) => {
+            try {
+              const data = await submitChangePassword(oldPass, newPass, confirmPass);
+              showToast("ok", data?.message || t("settings.password.success", { defaultValue: "Password berhasil diubah." }));
+              setShowChangePass(false);
+
+              // opsional: paksa login ulang setelah change password
+              await logout();
+              navigate("/login", { replace: true });
+            } catch (err) {
+              const msg = err?.response?.data?.message || err?.message || t("settings.password.failed", { defaultValue: "Gagal mengubah password." });
+              showToast("err", msg);
+            }
           }}
         />
       )}
@@ -336,7 +404,6 @@ function Toggle({ checked, onChange, ariaLabel }) {
         checked ? "bg-[#36A58C]" : "bg-gray-300"
       }`}
     >
-      {/* BULAT PUTIH */}
       <span
         className={`absolute left-1 h-5 w-5 rounded-full bg-white shadow-sm transform transition-transform duration-300 ${
           checked ? "translate-x-5" : "translate-x-0"
@@ -361,27 +428,27 @@ function NotificationSection({
   return (
     <div className="w-full mt-6 space-y-8">
       <NotifRow
-        title={t("settings.notif.email")}
-        desc={t("settings.notif.emailDesc")}
+        title={t("settings.notif.email", { defaultValue: "Email" })}
+        desc={t("settings.notif.emailDesc", { defaultValue: "Notifikasi melalui email." })}
         checked={emailNotif}
         onChange={setEmailNotif}
       />
       <NotifRow
-        title={t("settings.notif.push")}
-        desc={t("settings.notif.pushDesc")}
+        title={t("settings.notif.push", { defaultValue: "Push" })}
+        desc={t("settings.notif.pushDesc", { defaultValue: "Notifikasi push di perangkat." })}
         checked={pushNotif}
         onChange={setPushNotif}
       />
       <NotifRow
-        title={t("settings.notif.sms")}
-        desc={t("settings.notif.smsDesc")}
+        title={t("settings.notif.sms", { defaultValue: "SMS" })}
+        desc={t("settings.notif.smsDesc", { defaultValue: "Notifikasi melalui SMS." })}
         checked={smsNotif}
         onChange={setSmsNotif}
       />
 
       <div className="pt-2">
         <div className="text-lg md:text-xl font-extrabold mb-3">
-          {t("settings.notif.freq")}
+          {t("settings.notif.freq", { defaultValue: "Frekuensi" })}
         </div>
         <div className="max-w-md">
           <div className="relative">
@@ -390,10 +457,10 @@ function NotificationSection({
               value={freq}
               onChange={(e) => setFreq(e.target.value)}
             >
-              <option value="real-time">{t("settings.notif.rt")}</option>
-              <option value="15m">{t("settings.notif.m15")}</option>
-              <option value="hourly">{t("settings.notif.hourly")}</option>
-              <option value="daily">{t("settings.notif.daily")}</option>
+              <option value="real-time">{t("settings.notif.rt", { defaultValue: "Real-time" })}</option>
+              <option value="15m">{t("settings.notif.m15", { defaultValue: "Setiap 15 menit" })}</option>
+              <option value="hourly">{t("settings.notif.hourly", { defaultValue: "Per jam" })}</option>
+              <option value="daily">{t("settings.notif.daily", { defaultValue: "Harian" })}</option>
             </select>
             <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
               ▾
@@ -433,52 +500,61 @@ function LanguageRegionalSection({
 }) {
   return (
     <div className="w-full mt-6">
-      {/* grid 2 kolom */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        {/* KIRI: Bahasa & Zona Waktu */}
         <div className="space-y-10">
-          <FieldBlock title={t("settings.lang.display")} helper={t("settings.lang.displayHelp")}>
+          <FieldBlock
+            title={t("settings.lang.display", { defaultValue: "Bahasa" })}
+            helper={t("settings.lang.displayHelp", { defaultValue: "Pilih bahasa tampilan." })}
+          >
             <Select value={displayLang} onChange={setDisplayLang}>
-              <option value="id">{t("settings.lang.opt.id")}</option>
-              <option value="en">{t("settings.lang.opt.enUS")}</option>
-              <option value="en-GB">{t("settings.lang.opt.enGB")}</option>
+              <option value="id">{t("settings.lang.opt.id", { defaultValue: "Indonesia" })}</option>
+              <option value="en">{t("settings.lang.opt.enUS", { defaultValue: "English (US)" })}</option>
+              <option value="en-GB">{t("settings.lang.opt.enGB", { defaultValue: "English (UK)" })}</option>
             </Select>
           </FieldBlock>
 
-          <FieldBlock title={t("settings.lang.timezone")} helper={t("settings.lang.timezoneHelp")}>
+          <FieldBlock
+            title={t("settings.lang.timezone", { defaultValue: "Zona waktu" })}
+            helper={t("settings.lang.timezoneHelp", { defaultValue: "Pilih zona waktu." })}
+          >
             <Select value={timezone} onChange={setTimezone}>
-              <option value="tzJakarta">{t("settings.lang.opt.tzJakarta")}</option>
-              <option value="tzMakassar">{t("settings.lang.opt.tzMakassar")}</option>
-              <option value="tzTokyo">{t("settings.lang.opt.tzTokyo")}</option>
-              <option value="tzSydney">{t("settings.lang.opt.tzSydney")}</option>
-              <option value="tzLondon">{t("settings.lang.opt.tzLondon")}</option>
-              <option value="tzNY">{t("settings.lang.opt.tzNY")}</option>
+              <option value="tzJakarta">{t("settings.lang.opt.tzJakarta", { defaultValue: "Jakarta (WIB)" })}</option>
+              <option value="tzMakassar">{t("settings.lang.opt.tzMakassar", { defaultValue: "Makassar (WITA)" })}</option>
+              <option value="tzTokyo">{t("settings.lang.opt.tzTokyo", { defaultValue: "Tokyo (JST)" })}</option>
+              <option value="tzSydney">{t("settings.lang.opt.tzSydney", { defaultValue: "Sydney (AEST)" })}</option>
+              <option value="tzLondon">{t("settings.lang.opt.tzLondon", { defaultValue: "London (GMT)" })}</option>
+              <option value="tzNY">{t("settings.lang.opt.tzNY", { defaultValue: "New York (ET)" })}</option>
             </Select>
           </FieldBlock>
         </div>
 
-        {/* KANAN: Format Waktu & Format Tanggal */}
         <div className="space-y-10">
-          <FieldBlock title={t("settings.lang.timeFormat")} helper={t("settings.lang.timeFormatHelp")}>
+          <FieldBlock
+            title={t("settings.lang.timeFormat", { defaultValue: "Format waktu" })}
+            helper={t("settings.lang.timeFormatHelp", { defaultValue: "Pilih 12/24 jam." })}
+          >
             <div className="flex items-center gap-8 mt-1">
               <Radio
-                label={t("settings.lang.f12")}
+                label={t("settings.lang.f12", { defaultValue: "12 jam" })}
                 checked={timeFormat === "12h"}
                 onChange={() => setTimeFormat("12h")}
               />
               <Radio
-                label={t("settings.lang.f24")}
+                label={t("settings.lang.f24", { defaultValue: "24 jam" })}
                 checked={timeFormat === "24h"}
                 onChange={() => setTimeFormat("24h")}
               />
             </div>
           </FieldBlock>
 
-          <FieldBlock title={t("settings.lang.dateFormat")} helper={t("settings.lang.dateFormatHelp")}>
+          <FieldBlock
+            title={t("settings.lang.dateFormat", { defaultValue: "Format tanggal" })}
+            helper={t("settings.lang.dateFormatHelp", { defaultValue: "Pilih format tanggal." })}
+          >
             <Select value={dateFormat} onChange={setDateFormat}>
-              <option value="mmdd">{t("settings.lang.opt.dateMMDD")}</option>
-              <option value="ddmm">{t("settings.lang.opt.dateDDMM")}</option>
-              <option value="iso">{t("settings.lang.opt.dateISO")}</option>
+              <option value="mmdd">{t("settings.lang.opt.dateMMDD", { defaultValue: "MM/DD" })}</option>
+              <option value="ddmm">{t("settings.lang.opt.dateDDMM", { defaultValue: "DD/MM" })}</option>
+              <option value="iso">{t("settings.lang.opt.dateISO", { defaultValue: "YYYY-MM-DD" })}</option>
             </Select>
           </FieldBlock>
         </div>
@@ -487,7 +563,6 @@ function LanguageRegionalSection({
   );
 }
 
-/* ====== Reusable UI for Language & Regional ====== */
 function FieldBlock({ title, helper, children }) {
   return (
     <div>
@@ -531,9 +606,7 @@ function Radio({ label, checked, onChange }) {
           checked ? "border-[#36A58C]" : "border-gray-400"
         } items-center justify-center`}
       >
-        <span
-          className={`h-2.5 w-2.5 rounded-full ${checked ? "bg-[#36A58C]" : "bg-transparent"}`}
-        />
+        <span className={`h-2.5 w-2.5 rounded-full ${checked ? "bg-[#36A58C]" : "bg-transparent"}`} />
       </span>
       <span className="text-gray-800">{label}</span>
     </button>
@@ -543,14 +616,14 @@ function Radio({ label, checked, onChange }) {
 function PlaceholderBox({ t, activeTab }) {
   const label =
     activeTab === "notif"
-      ? t("settings.placeholder.notif")
+      ? t("settings.placeholder.notif", { defaultValue: "Notifikasi" })
       : activeTab === "language"
-      ? t("settings.placeholder.language")
-      : t("settings.placeholder.support");
+      ? t("settings.placeholder.language", { defaultValue: "Bahasa" })
+      : t("settings.placeholder.support", { defaultValue: "Bantuan" });
   return (
     <div className="w-full mt-6 text-gray-600">
       <div className="text-xl font-semibold mb-2">{label}</div>
-      <p>{t("settings.placeholder.missing")}</p>
+      <p>{t("settings.placeholder.missing", { defaultValue: "Konten akan ditambahkan." })}</p>
     </div>
   );
 }
@@ -559,16 +632,9 @@ function PlaceholderBox({ t, activeTab }) {
 function SessionModal({ t, sessions, onClose, onLogout, onLogoutAll }) {
   return (
     <div className="fixed inset-0 z-[100]">
-      {/* overlay */}
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"
-        onClick={onClose}
-        aria-hidden
-      />
-      {/* modal card */}
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" onClick={onClose} aria-hidden />
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-3xl">
         <div className="relative bg-white rounded-2xl shadow-2xl p-6 md:p-8 border border-black/10">
-          {/* close */}
           <button
             onClick={onClose}
             aria-label="Close"
@@ -587,7 +653,6 @@ function SessionModal({ t, sessions, onClose, onLogout, onLogoutAll }) {
             })}
           </p>
 
-          {/* list sessions */}
           <div className="space-y-6">
             {sessions.map((s) => (
               <div key={s.id} className="flex items-start justify-between gap-4">
@@ -612,22 +677,16 @@ function SessionModal({ t, sessions, onClose, onLogout, onLogoutAll }) {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => onLogout?.(s.id)}
-                  className="text-red-500 font-semibold hover:underline"
-                >
+                <button onClick={() => onLogout?.(s.id)} className="text-red-500 font-semibold hover:underline">
                   {t("settings.sessions.logout", { defaultValue: "Logout" })}
                 </button>
               </div>
             ))}
           </div>
 
-          {/* footer */}
           <div className="mt-8 text-center">
             <button onClick={onLogoutAll} className="text-red-500 font-semibold hover:underline">
-              {t("settings.sessions.logoutAll", {
-                defaultValue: "Logout Semua Perangkat",
-              })}
+              {t("settings.sessions.logoutAll", { defaultValue: "Logout Semua Perangkat" })}
             </button>
           </div>
         </div>
@@ -640,24 +699,33 @@ function SessionModal({ t, sessions, onClose, onLogout, onLogoutAll }) {
 function ChangePasswordModal({ t, onClose, onSubmit }) {
   const [oldPass, setOldPass] = useState("");
   const [newPass, setNewPass] = useState("");
-  const canSave = oldPass.length >= 1 && newPass.length >= 1;
+  const [confirmPass, setConfirmPass] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const minOk = newPass.length >= 8;
+  const matchOk = newPass === confirmPass;
+  const canSave = oldPass.length >= 1 && minOk && matchOk && !loading;
+
+  async function handleSave() {
+    if (!canSave) return;
+    setLoading(true);
+    try {
+      await onSubmit?.(oldPass, newPass, confirmPass);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-[100]">
-      {/* overlay */}
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"
-        onClick={onClose}
-        aria-hidden
-      />
-      {/* modal card */}
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" onClick={onClose} aria-hidden />
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[95%] max-w-3xl">
         <div className="relative bg-white rounded-2xl shadow-2xl p-6 md:p-8 border border-black/10">
-          {/* close */}
           <button
             onClick={onClose}
             aria-label="Close"
             className="absolute right-4 top-4 p-2 rounded-full hover:bg-gray-100 text-[#7CC9B7]"
+            disabled={loading}
           >
             <IoClose size={22} />
           </button>
@@ -668,38 +736,56 @@ function ChangePasswordModal({ t, onClose, onSubmit }) {
           <p className="text-gray-600 mb-8 max-w-3xl">
             {t("settings.password.subtitle", {
               defaultValue:
-                "Silakan masukkan kata sandi lama Anda, lalu buat kata sandi baru yang lebih kuat. Pastikan Anda mengingat kata sandi baru ini untuk keamanan akun.",
+                "Silakan masukkan kata sandi lama Anda, lalu buat kata sandi baru yang lebih kuat. Minimal 8 karakter.",
             })}
           </p>
 
-          <div className="space-y-6">
+          <div className="space-y-4">
             <input
               type="password"
               value={oldPass}
               onChange={(e) => setOldPass(e.target.value)}
-              placeholder="Enter Your Password"
+              placeholder={t("settings.password.old", { defaultValue: "Password lama" })}
               className="w-full max-w-xl rounded-xl border border-black/10 px-4 py-3 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#36A58C]/40"
             />
+
             <input
               type="password"
               value={newPass}
               onChange={(e) => setNewPass(e.target.value)}
-              placeholder="Enter Your New Password"
+              placeholder={t("settings.password.new", { defaultValue: "Password baru (min 8)" })}
               className="w-full max-w-xl rounded-xl border border-black/10 px-4 py-3 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#36A58C]/40"
             />
+
+            <input
+              type="password"
+              value={confirmPass}
+              onChange={(e) => setConfirmPass(e.target.value)}
+              placeholder={t("settings.password.confirm", { defaultValue: "Konfirmasi password baru" })}
+              className="w-full max-w-xl rounded-xl border border-black/10 px-4 py-3 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#36A58C]/40"
+            />
+
+            {!minOk && newPass.length > 0 && (
+              <p className="text-sm text-red-600 font-semibold">
+                {t("settings.password.min", { defaultValue: "Password baru minimal 8 karakter." })}
+              </p>
+            )}
+            {minOk && confirmPass.length > 0 && !matchOk && (
+              <p className="text-sm text-red-600 font-semibold">
+                {t("settings.password.match", { defaultValue: "Konfirmasi password tidak sama." })}
+              </p>
+            )}
           </div>
 
           <div className="mt-10 flex justify-end">
             <button
               disabled={!canSave}
-              onClick={() => canSave && onSubmit?.(oldPass, newPass)}
+              onClick={handleSave}
               className={`h-10 px-6 rounded-lg font-semibold transition ${
-                canSave
-                  ? "bg-[#5CC9AF] text-white hover:opacity-90"
-                  : "bg-gray-300 text-white cursor-not-allowed"
+                canSave ? "bg-[#5CC9AF] text-white hover:opacity-90" : "bg-gray-300 text-white cursor-not-allowed"
               }`}
             >
-              {t("settings.password.save", { defaultValue: "Simpan" })}
+              {loading ? t("common.saving", { defaultValue: "Menyimpan..." }) : t("settings.password.save", { defaultValue: "Simpan" })}
             </button>
           </div>
         </div>

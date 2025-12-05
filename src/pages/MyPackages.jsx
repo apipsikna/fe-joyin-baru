@@ -1,111 +1,218 @@
 // src/pages/MyPackages.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PaketSaya from "../assets/PaketSaya.png";
+import iconsedih from "../assets/iconsedih.png";
 
 /* =======================
-   ✅ SETTING DALAM FILE
+   ✅ SEMUA SETTING DI AWAL FILE
+   - Kalau kamu ubah tinggi/lebar card, halaman (viewport) tetap.
+   - Yang scroll hanya area konten (di dalam viewport), bukan body page.
    ======================= */
-const PAKET_SAYA_CFG = {
-  scale: 1.45,
-  x: 0,
-  y: 0,
-  maxW: 900,
+const CFG = {
+  // background gradient
+  bgFrom: "#5CC9AF",
+  bgTo: "#D7E96F",
 
-  // ✅ Teks judul di atas gambar (bisa digeser & di-scale)
-  title: {
-    text: "Paket Saya",
+  // padding halaman
+  pagePadXMobile: 16,
+  pagePadXDesktop: 10,
+  pagePadTop: 28,
+  pagePadBottom: 18,
 
-    // posisi (px) relatif terhadap posisi default (center)
-    x: 0, // + ke kanan, - ke kiri
-    y: -50, // + ke bawah, - ke atas
+  // header / judul
+  titleText: "Obrolan",
+  headerGap: 14,
 
-    // jarak default dari teks ke gambar (px)
-    mb: 14,
+  // card putih
+  cardMaxW: 9000,
+  cardMinHvh: 100,
+  cardPadMobile: 32,
+  cardPadDesktop: 56,
+  cardRadiusMobile: 28,
+  cardRadiusDesktop: 34,
+  cardShadow: "0 18px 40px rgba(0,0,0,0.12)",
 
-    // ukuran & skala
-    size: 28, // px (base size)
-    scale: 1, // 1 = normal, 1.1 lebih besar, dst
-  },
+  // konten tengah
+  contentMaxW: 620,
+  iconSizeMobile: 88,
+  iconSizeDesktop: 96,
+  titleSizeMobile: 22,
+  titleSizeDesktop: 26,
+  textSizeMobile: 14,
+  textSizeDesktop: 16,
 
-  btn: {
-    bottomPct: 20,
-    w: 260,
-    h: 58,
-    radius: 12,
-    scale: 0.8,
+  // tombol
+  btnText: "Pilih Paket",
+  btnH: 48,
+  btnPX: 40,
+  btnRadius: 12,
+  btnColor: "#5FCAAC",
+  btnFontSize: 15,
+
+  // route
+  choosePlanRoute: "/checkout",
+
+  // animasi (kalau mau tweak cepat)
+  anim: {
+    dur: 520, // ms
+    ease: "cubic-bezier(.2,.9,.2,1)",
+    headerDelay: 40, // ms
+    cardDelay: 120, // ms
   },
 };
 
 export default function MyPackages() {
   const navigate = useNavigate();
+  const [enter, setEnter] = useState(false);
 
-  const goChoosePlan = () => {
-    navigate("/checkout");
-  };
-
-  const cfg = PAKET_SAYA_CFG;
+  // trigger animasi ketika mount
+  useEffect(() => {
+    const t = requestAnimationFrame(() => setEnter(true));
+    return () => cancelAnimationFrame(t);
+  }, []);
 
   return (
-    <div className="w-full min-h-full flex flex-col px-4 md:px-8 pt-6 pb-0 overflow-hidden font-poppins">
-      <div className="mt-auto w-full max-w-7xl mx-auto flex items-end justify-center">
-        <div className="relative w-full flex justify-center">
+    <div
+      className="joyin-packages h-[100dvh] w-full overflow-hidden font-poppins"
+      style={{
+        background: `linear-gradient(90deg, ${CFG.bgFrom} 0%, ${CFG.bgTo} 100%)`,
+      }}
+    >
+      {/* CSS variables responsive + animasi simple */}
+      <style>{`
+        .joyin-packages{
+          --padx:${CFG.pagePadXMobile}px;
+          --cardPad:${CFG.cardPadMobile}px;
+          --cardRadius:${CFG.cardRadiusMobile}px;
+
+          --icon:${CFG.iconSizeMobile}px;
+          --tSize:${CFG.titleSizeMobile}px;
+          --pSize:${CFG.textSizeMobile}px;
+        }
+        @media(min-width:768px){
+          .joyin-packages{
+            --padx:${CFG.pagePadXDesktop}px;
+            --cardPad:${CFG.cardPadDesktop}px;
+            --cardRadius:${CFG.cardRadiusDesktop}px;
+
+            --icon:${CFG.iconSizeDesktop}px;
+            --tSize:${CFG.titleSizeDesktop}px;
+            --pSize:${CFG.textSizeDesktop}px;
+          }
+        }
+
+        /* ===== Enter animation classes ===== */
+        .j-enter-bg{
+          opacity: ${enter ? 1 : 0};
+          filter: ${enter ? "blur(0px)" : "blur(10px)"};
+          transition: opacity ${CFG.anim.dur}ms ${CFG.anim.ease}, filter ${CFG.anim.dur}ms ${CFG.anim.ease};
+        }
+
+        .j-enter-header{
+          opacity: ${enter ? 1 : 0};
+          transform: ${enter ? "translateY(0px)" : "translateY(-10px)"};
+          transition: opacity ${CFG.anim.dur}ms ${CFG.anim.ease} ${CFG.anim.headerDelay}ms,
+                      transform ${CFG.anim.dur}ms ${CFG.anim.ease} ${CFG.anim.headerDelay}ms;
+        }
+
+        .j-enter-card{
+          opacity: ${enter ? 1 : 0};
+          transform: ${enter ? "translateY(0px) scale(1)" : "translateY(14px) scale(.985)"};
+          transition: opacity ${CFG.anim.dur}ms ${CFG.anim.ease} ${CFG.anim.cardDelay}ms,
+                      transform ${CFG.anim.dur}ms ${CFG.anim.ease} ${CFG.anim.cardDelay}ms;
+        }
+
+        .j-float-icon{
+          animation: jfloat 3.2s ease-in-out infinite;
+          animation-delay: ${enter ? "320ms" : "0ms"};
+        }
+        @keyframes jfloat{
+          0%,100%{ transform: translateY(0px); }
+          50%{ transform: translateY(-6px); }
+        }
+      `}</style>
+
+      {/* Background layer fade-in */}
+      <div className="absolute inset-0 j-enter-bg" aria-hidden />
+
+      {/* ====== HEADER (tetap, tidak ikut scroll) ====== */}
+      <header
+        className="shrink-0 relative z-10 j-enter-header"
+        style={{
+          paddingTop: CFG.pagePadTop,
+          paddingLeft: "var(--padx)",
+          paddingRight: "var(--padx)",
+        }}
+      >
+        <h1 className="text-center text-white font-extrabold tracking-wide text-3xl md:text-4xl">
+          {CFG.titleText}
+        </h1>
+        <div style={{ height: CFG.headerGap }} />
+      </header>
+
+      {/* ====== CONTENT AREA (yang scroll hanya ini) ====== */}
+      <main
+        className="flex-1 overflow-auto relative z-10"
+        style={{
+          paddingLeft: "var(--padx)",
+          paddingRight: "var(--padx)",
+          paddingBottom: CFG.pagePadBottom,
+        }}
+      >
+        <div className="mx-auto w-full j-enter-card" style={{ maxWidth: CFG.cardMaxW }}>
+          {/* Card putih */}
           <div
-            className="relative flex flex-col items-center"
+            className="bg-white border border-black/5 flex items-center justify-center"
             style={{
-              transform: `translate(${cfg.x}px, ${cfg.y}px) scale(${cfg.scale})`,
-              transformOrigin: "center bottom",
-              willChange: "transform",
+              borderRadius: "var(--cardRadius)",
+              boxShadow: CFG.cardShadow,
+              minHeight: `calc(${CFG.cardMinHvh}vh)`,
+              padding: "var(--cardPad)",
             }}
           >
-            {/* ✅ Teks di atas gambar (bisa digeser & di-scale) */}
-            <h1
-              className="text-white font-bold select-none"
-              style={{
-                marginBottom: `${cfg.title.mb}px`,
-                fontSize: `${cfg.title.size}px`,
-                transform: `translate(${cfg.title.x}px, ${cfg.title.y}px) scale(${cfg.title.scale})`,
-                transformOrigin: "center",
-                willChange: "transform",
-              }}
-            >
-              {cfg.title.text}
-            </h1>
+            <div className="text-center" style={{ maxWidth: CFG.contentMaxW }}>
+              <img
+                src={iconsedih}
+                alt="Sedih"
+                className="mx-auto select-none j-float-icon"
+                style={{ width: "var(--icon)", height: "var(--icon)" }}
+                draggable={false}
+              />
 
-            <img
-              src={PaketSaya}
-              alt="Paket Saya"
-              className="w-full h-auto select-none"
-              style={{ maxWidth: `${cfg.maxW}px` }}
-              draggable={false}
-              loading="lazy"
-            />
+              <h2
+                className="mt-6 font-extrabold text-gray-700"
+                style={{ fontSize: "var(--tSize)" }}
+              >
+                Ups, kamu belum punya paket nih
+              </h2>
 
-            {/* ✅ Tombol bisa di-scale */}
-            <button
-              onClick={goChoosePlan}
-              aria-label="Pilih Paket"
-              className="
-                absolute left-1/2 -translate-x-1/2
-                cursor-pointer text-white font-semibold
-                focus:outline-none focus:ring-2 focus:ring-[#5FCAAC]/70
-                hover:opacity-95 active:opacity-90 transition
-              "
-              style={{
-                bottom: `${cfg.btn.bottomPct}%`,
-                width: `${cfg.btn.w}px`,
-                height: `${cfg.btn.h}px`,
-                borderRadius: `${cfg.btn.radius}px`,
-                backgroundColor: "#5FCAAC",
-                transform: `translateX(-50%) scale(${cfg.btn.scale})`,
-                transformOrigin: "center",
-              }}
-            >
-              Pilih Paket
-            </button>
+              <p
+                className="mt-3 text-gray-600 leading-relaxed"
+                style={{ fontSize: "var(--pSize)" }}
+              >
+                Yuk pilih paket dulu biar bisa lanjut menikmati semua fitur chatbot
+                <br className="hidden md:block" />
+                dan bikin bisnismu makin lancar
+              </p>
+
+              <button
+                onClick={() => navigate(CFG.choosePlanRoute)}
+                className="mt-7 inline-flex items-center justify-center text-white font-bold shadow-sm hover:brightness-95 active:brightness-90 transition focus:outline-none focus:ring-2 focus:ring-white/70"
+                style={{
+                  height: CFG.btnH,
+                  paddingLeft: CFG.btnPX,
+                  paddingRight: CFG.btnPX,
+                  borderRadius: CFG.btnRadius,
+                  backgroundColor: CFG.btnColor,
+                  fontSize: CFG.btnFontSize,
+                }}
+              >
+                {CFG.btnText}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
