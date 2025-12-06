@@ -5,54 +5,64 @@ import { useNavigate } from "react-router-dom";
 
 import Navbar from "../components/Navbar1";
 import Footer from "../components/Footer";
-
 import { useAuth } from "../contexts/AuthContext";
 
 import bintang from "../assets/bintang2.png";
 import BgReferral from "../assets/BgReferral.png";
-import SectionRef1 from "../assets/SectionRef1.png";
-import SectionKeunggulaan from "../assets/SectionKeunggulan1.png";
-import YukGabung from "../assets/YukGabung.png";
+import JoyKado from "../assets/JoyKado.png";
+import logo from "../assets/logo.png";
+import YukGabung from "../assets/YukGabung2.png";
+
+// ✅ gambar 3 kartu (container + angka + icon) => overlay teks saja
+import section123 from "../assets/section123.png";
 
 function buildApiUrl(base, path) {
   const cleanBase = String(base || "").replace(/\/+$/, "");
-  // base boleh:
-  // - "http://localhost:3000"
-  // - "http://localhost:3000/api"
   if (cleanBase.endsWith("/api")) return `${cleanBase}${path}`;
   return `${cleanBase}/api${path}`;
 }
 
+import { useTranslation } from "react-i18next";
+
 export default function Referral() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { ready, isAuthenticated } = useAuth();
 
-  // === SETTING OFFSET & UKURAN GAMBAR SectionRef1 (bisa digeser & di-zoom via query param) ===
+  // === (tetap) SETTING & QUERY PARAMS buat section lain ===
   let REF_OFFSET = -100;
-  let REF_SCALE = 0.9;
+  let REF_SCALE = 1;
 
-  // === SETTING POSISI & SKALA TOMBOL "AYO BERGABUNG!" (section paling bawah) ===
-  let BTN_OFFSET_X = -240;
-  let BTN_OFFSET_Y = -1970;
+  let BTN_OFFSET_X = -220;
+  let BTN_OFFSET_Y = -2020;
   let BTN_SCALE = 1.25;
 
-  // === SETTING POSISI & SKALA SectionKeunggulaan ===
-  let KEUNG_OFFSET_X = 0;
-  let KEUNG_OFFSET_Y = 0;
-  let KEUNG_SCALE = 0.85;
-
-  // === SETTING POSISI YUKGABUNG (hanya atas-bawah) ===
   let YUK_OFFSET_Y = 100;
 
-  // === SETTING POSISI & SKALA BUTTON "BERGABUNG & DAPATKAN HADIAH" DI DALAM YUKGABUNG ===
   let JOIN_BTN_OFFSET_X = 0;
   let JOIN_BTN_OFFSET_Y = -55;
   let JOIN_BTN_SCALE = 1.4;
 
+  // ✅ overlay teks section123
+  let S123_TEXT_X = 0;
+  let S123_TEXT_Y = 0;
+  let S123_TEXT_SCALE = 1.1;
+
+  // ✅ kontrol gambar section123 (scale + geser)
+  let S123_IMG_X = 0; // px
+  let S123_IMG_Y = 0; // px
+  let S123_IMG_SCALE = 0.9; // multiplier
+  let S123_IMG_W = 1; // 1 = 100vw, 1.05 = 105vw, dst
+
+  // ✅✅ BARU: sempitkan kotak teks + benar-benar center di kontainer card
+  // (biar teks nggak melebar keluar card + posisi lebih pas di tengah)
+  let S123_BOX_W = 0.42; // LEBIH SEMPIT LAGI (was 0.50)
+  let S123_BOX_MAXW = 260; // (was 280)
+  let S123_BOX_TOP = 0.62; // (tetap, atau sesuaikan jika perlu)
+
   if (typeof window !== "undefined") {
     const qp = new URLSearchParams(window.location.search);
 
-    // SectionRef1
     const rawOffset = qp.get("ref_offset");
     if (rawOffset) {
       const parsed = parseInt(rawOffset, 10);
@@ -65,88 +75,110 @@ export default function Referral() {
       if (!Number.isNaN(parsedScale) && parsedScale > 0) REF_SCALE = parsedScale;
     }
 
-    // Tombol Ayo Bergabung (section paling bawah)
     const rawBtnX = qp.get("btn_x");
     if (rawBtnX) {
       const parsedX = parseInt(rawBtnX, 10);
       if (!Number.isNaN(parsedX)) BTN_OFFSET_X = parsedX;
     }
-
     const rawBtnY = qp.get("btn_y");
     if (rawBtnY) {
       const parsedY = parseInt(rawBtnY, 10);
       if (!Number.isNaN(parsedY)) BTN_OFFSET_Y = parsedY;
     }
-
     const rawBtnScale = qp.get("btn_scale");
     if (rawBtnScale) {
       const parsedBtnScale = parseFloat(rawBtnScale);
       if (!Number.isNaN(parsedBtnScale) && parsedBtnScale > 0) BTN_SCALE = parsedBtnScale;
     }
 
-    // SectionKeunggulaan
-    const rawKeunggX = qp.get("keungg_x");
-    if (rawKeunggX) {
-      const parsedKeunggX = parseInt(rawKeunggX, 10);
-      if (!Number.isNaN(parsedKeunggX)) KEUNG_OFFSET_X = parsedKeunggX;
-    }
-
-    const rawKeunggY = qp.get("keungg_y");
-    if (rawKeunggY) {
-      const parsedKeunggY = parseInt(rawKeunggY, 10);
-      if (!Number.isNaN(parsedKeunggY)) KEUNG_OFFSET_Y = parsedKeunggY;
-    }
-
-    const rawKeunggScale = qp.get("keungg_scale");
-    if (rawKeunggScale) {
-      const parsedKeunggScale = parseFloat(rawKeunggScale);
-      if (!Number.isNaN(parsedKeunggScale) && parsedKeunggScale > 0)
-        KEUNG_SCALE = parsedKeunggScale;
-    }
-
-    // YukGabung (atas-bawah)
     const rawYukY = qp.get("yuk_y");
     if (rawYukY) {
       const parsedYukY = parseInt(rawYukY, 10);
       if (!Number.isNaN(parsedYukY)) YUK_OFFSET_Y = parsedYukY;
     }
 
-    // Button "Bergabung & Dapatkan Hadiah" di dalam YukGabung
     const rawJoinBtnX = qp.get("join_btn_x");
     if (rawJoinBtnX) {
       const parsedJoinX = parseInt(rawJoinBtnX, 10);
       if (!Number.isNaN(parsedJoinX)) JOIN_BTN_OFFSET_X = parsedJoinX;
     }
-
     const rawJoinBtnY = qp.get("join_btn_y");
     if (rawJoinBtnY) {
       const parsedJoinY = parseInt(rawJoinBtnY, 10);
       if (!Number.isNaN(parsedJoinY)) JOIN_BTN_OFFSET_Y = parsedJoinY;
     }
-
     const rawJoinBtnScale = qp.get("join_btn_scale");
     if (rawJoinBtnScale) {
       const parsedJoinScale = parseFloat(rawJoinBtnScale);
-      if (!Number.isNaN(parsedJoinScale) && parsedJoinScale > 0)
-        JOIN_BTN_SCALE = parsedJoinScale;
+      if (!Number.isNaN(parsedJoinScale) && parsedJoinScale > 0) JOIN_BTN_SCALE = parsedJoinScale;
+    }
+
+    // ✅ overlay teks section123 (geser/scale)
+    const rawS123X = qp.get("s123_x");
+    if (rawS123X) {
+      const parsed = parseInt(rawS123X, 10);
+      if (!Number.isNaN(parsed)) S123_TEXT_X = parsed;
+    }
+    const rawS123Y = qp.get("s123_y");
+    if (rawS123Y) {
+      const parsed = parseInt(rawS123Y, 10);
+      if (!Number.isNaN(parsed)) S123_TEXT_Y = parsed;
+    }
+    const rawS123S = qp.get("s123_s");
+    if (rawS123S) {
+      const parsed = parseFloat(rawS123S);
+      if (!Number.isNaN(parsed) && parsed > 0) S123_TEXT_SCALE = parsed;
+    }
+
+    // ✅ kontrol gambar section123 (scale + geser + lebar vw)
+    const rawImgX = qp.get("s123_img_x");
+    if (rawImgX) {
+      const parsed = parseInt(rawImgX, 10);
+      if (!Number.isNaN(parsed)) S123_IMG_X = parsed;
+    }
+    const rawImgY = qp.get("s123_img_y");
+    if (rawImgY) {
+      const parsed = parseInt(rawImgY, 10);
+      if (!Number.isNaN(parsed)) S123_IMG_Y = parsed;
+    }
+    const rawImgS = qp.get("s123_img_s");
+    if (rawImgS) {
+      const parsed = parseFloat(rawImgS);
+      if (!Number.isNaN(parsed) && parsed > 0) S123_IMG_SCALE = parsed;
+    }
+    const rawImgW = qp.get("s123_img_w");
+    if (rawImgW) {
+      const parsed = parseFloat(rawImgW);
+      if (!Number.isNaN(parsed) && parsed > 0) S123_IMG_W = parsed;
+    }
+
+    // ✅✅ kotak teks: lebar + maxW + posisi top (biar gampang dipaskan)
+    const rawBoxW = qp.get("s123_box_w");
+    if (rawBoxW) {
+      const parsed = parseFloat(rawBoxW);
+      if (!Number.isNaN(parsed) && parsed > 0.1 && parsed <= 1.0) S123_BOX_W = parsed;
+    }
+    const rawBoxMaxW = qp.get("s123_box_maxw");
+    if (rawBoxMaxW) {
+      const parsed = parseInt(rawBoxMaxW, 10);
+      if (!Number.isNaN(parsed) && parsed >= 100) S123_BOX_MAXW = parsed;
+    }
+    const rawBoxTop = qp.get("s123_box_top");
+    if (rawBoxTop) {
+      const parsed = parseFloat(rawBoxTop);
+      if (!Number.isNaN(parsed) && parsed > 0 && parsed < 1) S123_BOX_TOP = parsed;
     }
   }
 
-  // === SCROLL KE ATAS SAAT HALAMAN REFERRAL DIBUKA DARI HALAMAN LAIN ===
   useEffect(() => {
     if (typeof window !== "undefined") window.scrollTo(0, 0);
   }, []);
 
   /* =========================
-     Referral Modal + API (Langkah C)
-     - FE hit GET /api/referrals/me
-     - Backend harus: get-or-create referralCode + return totalReferred
+     Referral Modal + API
   ========================== */
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || ""; // contoh: http://localhost:3000
-  const REFERRAL_ME_URL = useMemo(
-    () => buildApiUrl(API_BASE, "/referrals/me"),
-    [API_BASE]
-  );
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
+  const REFERRAL_ME_URL = useMemo(() => buildApiUrl(API_BASE, "/referrals/me"), [API_BASE]);
 
   const [showRefModal, setShowRefModal] = useState(false);
   const [refLoading, setRefLoading] = useState(false);
@@ -161,7 +193,6 @@ export default function Referral() {
   }, [refData?.myReferralCode]);
 
   const getAuthHeaders = () => {
-    // kalau kamu pakai cookies-only, header ini aman (boleh kosong)
     const token =
       localStorage.getItem("accessToken") ||
       localStorage.getItem("token") ||
@@ -194,26 +225,19 @@ export default function Referral() {
 
       const json = await safeJson(res);
 
-      // ✅ kalau 401 → suruh login
       if (res.status === 401) {
         throw new Error("Sesi kamu habis / belum login. Silakan login lagi.");
       }
 
       if (!res.ok) {
-        const msg =
-          json?.message ||
-          json?.error ||
-          `Gagal mengambil data referral (HTTP ${res.status})`;
+        const msg = json?.message || json?.error || `Gagal mengambil data referral (HTTP ${res.status})`;
         throw new Error(msg);
       }
 
-      // bentuk response kamu: { status:true, message:'..', data:{ myReferralCode, totalReferred } }
       const data = json?.data || {};
       const myReferralCode = String(data?.myReferralCode || "");
       const totalReferred = Number(data?.totalReferred || 0);
 
-      // ✅ Langkah C: backend idealnya selalu mengembalikan code.
-      // Tapi biar aman kalau kosong:
       if (!myReferralCode) {
         throw new Error(
           "Referral code kosong dari server. Pastikan endpoint /api/referrals/me melakukan get-or-create referralCode."
@@ -225,9 +249,7 @@ export default function Referral() {
       const msg = e?.message || "Terjadi kesalahan saat mengambil referral code.";
       setRefError(msg);
 
-      // redirect login kalau auth issue
       if (/login|sesi|401/i.test(msg)) {
-        // boleh tutup modal dulu biar halus
         setTimeout(() => {
           setShowRefModal(false);
           navigate("/login");
@@ -274,9 +296,27 @@ export default function Referral() {
     return `https://wa.me/?text=${encodeURIComponent(text)}`;
   }, [refData?.myReferralCode, referralLink]);
 
+  // ✅ teks overlay untuk 3 card
+  const STEP_TEXT = useMemo(
+    () => [
+      {
+        title: t("referral.how.steps.0.title", "Dapatkan Kode Unik"),
+        desc: t("referral.how.steps.0.desc", "Hanya tiga langkah mudah..."),
+      },
+      {
+        title: t("referral.how.steps.1.title", "Bagikan ke Teman"),
+        desc: t("referral.how.steps.1.desc", "Share kode Anda melalui WhatsApp..."),
+      },
+      {
+        title: t("referral.how.steps.2.title", "Dapatkan Bonus"),
+        desc: t("referral.how.steps.2.desc", "Ketika teman Anda mendaftar..."),
+      },
+    ],
+    [t]
+  );
+
   return (
     <div className="w-screen min-h-screen flex flex-col bg-white overflow-x-hidden font-poppins">
-      {/* NAVBAR */}
       <Navbar active="referral" />
 
       {/* ========= HERO ========= */}
@@ -302,13 +342,7 @@ export default function Referral() {
           className="absolute left-10 top-32 w-16 md:w-18 drop-shadow-[0_10px_22px_rgba(0,0,0,0.18)] pointer-events-none select-none z-10"
           initial={{ opacity: 0, y: -20, scale: 0.7 }}
           animate={{ opacity: 1, y: [0, -6, 0], scale: 1 }}
-          transition={{
-            duration: 2.1,
-            delay: 0.4,
-            ease: "easeInOut",
-            repeat: Infinity,
-            repeatType: "mirror",
-          }}
+          transition={{ duration: 2.1, delay: 0.4, ease: "easeInOut", repeat: Infinity, repeatType: "mirror" }}
         />
         <motion.img
           src={bintang}
@@ -316,13 +350,7 @@ export default function Referral() {
           className="absolute left-32 top-60 md:top-64 w-10 md:w-11 drop-shadow-[0_8px_18px_rgba(0,0,0,0.2)] pointer-events-none select-none z-10"
           initial={{ opacity: 0, y: 10, scale: 0.7 }}
           animate={{ opacity: 1, y: [0, 5, 0], scale: 1 }}
-          transition={{
-            duration: 2.4,
-            delay: 0.6,
-            ease: "easeInOut",
-            repeat: Infinity,
-            repeatType: "mirror",
-          }}
+          transition={{ duration: 2.4, delay: 0.6, ease: "easeInOut", repeat: Infinity, repeatType: "mirror" }}
         />
         <motion.img
           src={bintang}
@@ -330,13 +358,7 @@ export default function Referral() {
           className="absolute right-10 top-36 w-16 md:w-18 drop-shadow-[0_10px_22px_rgba(0,0,0,0.18)] pointer-events-none select-none z-10"
           initial={{ opacity: 0, y: -20, scale: 0.7 }}
           animate={{ opacity: 1, y: [0, -5, 0], scale: 1 }}
-          transition={{
-            duration: 2.2,
-            delay: 0.7,
-            ease: "easeInOut",
-            repeat: Infinity,
-            repeatType: "mirror",
-          }}
+          transition={{ duration: 2.2, delay: 0.7, ease: "easeInOut", repeat: Infinity, repeatType: "mirror" }}
         />
         <motion.img
           src={bintang}
@@ -344,21 +366,15 @@ export default function Referral() {
           className="absolute right-32 top-64 md:top-72 w-10 md:w-11 drop-shadow-[0_8px_18px_rgba(0,0,0,0.2)] pointer-events-none select-none z-10"
           initial={{ opacity: 0, y: 10, scale: 0.7 }}
           animate={{ opacity: 1, y: [0, 6, 0], scale: 1 }}
-          transition={{
-            duration: 2.5,
-            delay: 0.8,
-            ease: "easeInOut",
-            repeat: Infinity,
-            repeatType: "mirror",
-          }}
+          transition={{ duration: 2.5, delay: 0.8, ease: "easeInOut", repeat: Infinity, repeatType: "mirror" }}
         />
 
         {/* konten hero */}
         <motion.section
           className="
             absolute inset-x-0 top-0
-            max-w-5xl w-full mx-auto text-center 
-            px-4 sm:px-6 lg:px-8 
+            max-w-5xl w-full mx-auto text-center
+            px-4 sm:px-6 lg:px-8
             pt-32 md:pt-40 lg:pt-44
             pb-32 md:pb-40
             z-20
@@ -373,7 +389,7 @@ export default function Referral() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.45, ease: "easeOut" }}
           >
-            Dapatkan Keuntungan dari Referral Joyin!
+            {t("referral.hero.title", "Dapatkan Keuntungan dari Referral Joyin!")}
           </motion.h1>
 
           <motion.p
@@ -382,12 +398,10 @@ export default function Referral() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.55, ease: "easeOut" }}
           >
-            Temanmu dapat diskon spesial, kamu pun dapat hadiah menarik. Semakin banyak yang
-            bergabung, semakin banyak untung yang kamu dapat!
+            {t("referral.hero.desc", "Temanmu dapat diskon spesial...")}
           </motion.p>
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
-            {/* ✅ Langkah C: backend get-or-create via GET /api/referrals/me */}
             <motion.button
               type="button"
               onClick={handleGetReferral}
@@ -398,7 +412,7 @@ export default function Referral() {
               whileHover={{ scale: 1.05, y: 1 }}
               whileTap={{ scale: 0.96 }}
             >
-              Dapatkan Kode Referral
+              {t("referral.hero.btnCode", "Dapatkan Kode Referral")}
             </motion.button>
 
             <motion.button
@@ -414,7 +428,7 @@ export default function Referral() {
                 if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
               }}
             >
-              Pelajari Lebih Lanjut
+              {t("referral.hero.btnLearn", "Pelajari Lebih Lanjut")}
             </motion.button>
           </div>
         </motion.section>
@@ -423,58 +437,148 @@ export default function Referral() {
       {/* ========= SECTION 1 ========= */}
       <motion.section
         id="ref-info"
-        className="w-full bg-white"
-        initial={{ opacity: 0, y: REF_OFFSET + 90 }}
+        className="w-full bg-white pb-10 md:pb-16 lg:pb-20"
+        initial={{ opacity: 0, y: 70 }}
         whileInView={{ opacity: 1, y: REF_OFFSET }}
         viewport={{ once: true, amount: 0.35 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div className="w-full overflow-hidden">
-          <motion.img
-            src={SectionRef1}
-            alt="Ilustrasi referral Joyin"
-            className="w-full h-auto object-cover block"
-            initial={{ opacity: 0, y: 50, scale: REF_SCALE * 0.95 }}
-            whileInView={{ opacity: 1, y: 0, scale: REF_SCALE }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          />
+        <div className="w-full">
+          <div className="grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] items-center">
+            <motion.div
+              className="px-5 sm:px-8 md:pl-14 lg:pl-20 xl:pl-24 md:pr-10 lg:pr-12 py-14 md:py-20"
+              initial={{ opacity: 0, x: -22 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="w-full">
+                <h2 className="text-[40px] sm:text-[52px] md:text-[60px] font-extrabold text-gray-800 leading-[1.06]">
+                  <span>Kenapa Harus Ikut</span>
+                  <br />
+                  <span className="inline-flex flex-wrap items-baseline gap-3">
+                    <span>Program Referral</span>
+                    <img
+                      src={logo}
+                      alt="Joyin"
+                      className="inline-block h-[34px] sm:h-[44px] md:h-[50px] translate-y-[3px]"
+                      draggable={false}
+                    />
+                    <span>?</span>
+                  </span>
+                </h2>
+
+                <div className="mt-8 space-y-6 text-gray-600 text-[18px] sm:text-[20px] md:text-[22px] leading-relaxed">
+                  <p>
+                    Di Joyin, kami percaya hal baik pantas dibagikan! Ajak temanmu untuk bergabung,
+                    dan kalian berdua bisa dapetin hadiah spesial dari Joyin 🎉
+                  </p>
+                  <p>
+                    Setiap ajakan membawa kamu semakin dekat ke hadiah utama — kesempatan seru yang
+                    sayang banget kalau dilewatkan! Yuk, mulai bagikan link referral-mu sekarang dan
+                    raih hadiahnya!
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="w-full overflow-hidden"
+              initial={{ opacity: 0, x: 22, scale: 0.98 }}
+              whileInView={{ opacity: 1, x: 0, scale: 1 }}
+              viewport={{ once: true, amount: 0.35 }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <motion.img
+                src={JoyKado}
+                alt="JoyKado"
+                className="w-full max-w-none h-auto md:h-[620px] object-contain select-none"
+                draggable={false}
+                style={{ transform: `scale(${REF_SCALE})` }}
+                initial={{ y: 10 }}
+                whileInView={{ y: 0 }}
+                viewport={{ once: true, amount: 0.35 }}
+                transition={{ duration: 0.65, ease: "easeOut" }}
+              />
+            </motion.div>
+          </div>
         </div>
       </motion.section>
 
-      {/* ========= SECTION 2 ========= */}
-      <section className="w-full bg-white">
-        <motion.div
-          className="w-full overflow-hidden"
-          style={{ transformOrigin: "center top" }}
-          initial={{
-            opacity: 0,
-            x: KEUNG_OFFSET_X - 90,
-            y: KEUNG_OFFSET_Y + 40,
-            scale: KEUNG_SCALE * 0.9,
-            rotate: -4,
-          }}
-          whileInView={{
-            opacity: 1,
-            x: KEUNG_OFFSET_X,
-            y: KEUNG_OFFSET_Y,
-            scale: KEUNG_SCALE,
-            rotate: 0,
-          }}
-          viewport={{ once: true, amount: 0.35 }}
-          transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <motion.img
-            src={SectionKeunggulaan}
-            alt="Keunggulan program referral Joyin"
-            className="w-full h-auto object-cover block"
-            initial={{ opacity: 0, y: 26 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.7, delay: 0.06, ease: "easeOut" }}
-          />
-        </motion.div>
-      </section>
+      {/* ========= SECTION 2 (section123) ========= */}
+      <motion.section
+        className="w-full bg-white py-16 md:py-20"
+        initial={{ opacity: 0, y: 34 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.25 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <div className="w-full text-center px-4 sm:px-6">
+          <h2 className="text-[30px] sm:text-[34px] md:text-[40px] font-extrabold text-gray-700">
+            Cara Kerjanya Sangat Mudah!
+          </h2>
+          <p className="mt-3 text-gray-500 text-sm sm:text-base">
+            Hanya tiga langkah mudah buat nikmatin keseruan program referral Joyin
+          </p>
+        </div>
+
+        {/* gambar: FULL kanan-kiri + bisa di-scale & digeser */}
+        <div className="mt-10 md:mt-12 w-screen relative left-1/2 -translate-x-1/2 overflow-hidden">
+          <div
+            className="relative"
+            style={{
+              width: `${Math.round(S123_IMG_W * 100)}vw`,
+              left: "50%",
+              transform: `translateX(-50%) translate3d(${S123_IMG_X}px, ${S123_IMG_Y}px, 0) scale(${S123_IMG_SCALE})`,
+              transformOrigin: "center top",
+            }}
+          >
+            <img
+              src={section123}
+              alt="Cara kerja program referral Joyin"
+              className="w-full h-auto block select-none pointer-events-none"
+              draggable={false}
+            />
+
+            {/* overlay teks (dipusatkan + kotak dipersempit supaya fit card) */}
+            <div
+              className="absolute inset-0 pointer-events-none select-none"
+              style={{
+                transform: `translate3d(${S123_TEXT_X}px, ${S123_TEXT_Y}px, 0) scale(${S123_TEXT_SCALE})`,
+                transformOrigin: "center center",
+              }}
+            >
+              <div className="grid grid-cols-3 h-full">
+                {STEP_TEXT.map((s, i) => (
+                  <div key={i} className="relative">
+                    <div
+                      className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 text-center flex flex-col items-center justify-center"
+                      style={{
+                        top: `${Math.round(S123_BOX_TOP * 100)}%`,
+                        width: `${Math.round(S123_BOX_W * 100)}%`,
+                        maxWidth: S123_BOX_MAXW, // px
+                      }}
+                    >
+                      <div className="px-1">
+                        <div className="text-white font-extrabold text-[24px] sm:text-[26px] md:text-[30px] leading-snug drop-shadow-[0_6px_14px_rgba(0,0,0,0.25)]">
+                          {s.title}
+                        </div>
+                        <div className="mt-2 text-white/95 text-[14px] sm:text-[15px] md:text-[17px] leading-relaxed break-words drop-shadow-[0_6px_14px_rgba(0,0,0,0.25)]">
+                          {s.desc}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* (opsional) kalau teks masih kepanjangan, kamu bisa kecilin via ?s123_s=1.05 atau kecilin box via ?s123_box_w=0.54 */}
+          </div>
+
+          <div className="h-10 md:h-14" />
+        </div>
+      </motion.section>
 
       {/* ========= SECTION 3 ========= */}
       <motion.section
@@ -495,18 +599,32 @@ export default function Referral() {
             transition={{ duration: 0.8, ease: "easeOut" }}
           />
 
-          <div className="absolute top-[62%] left-1/2 -translate-x-1/2">
+          {/* Overlay Text & Button */}
+          <div className="absolute inset-x-0 bottom-[26%] md:bottom-[32%] flex flex-col items-center justify-end text-center px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.55 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="max-w-6xl mx-auto mb-16 md:mb-20"
+            >
+              <h2 className="text-white text-[26px] sm:text-[34px] md:text-[40px] lg:text-[46px] font-bold drop-shadow-md mb-4 md:mb-6">
+                {t("referral.join.title", "Yuk Gabung & Dapatkan Referral dari Joyin!")}
+              </h2>
+              <div className="max-w-3xl mx-auto">
+                <p className="text-white text-[15px] sm:text-[17px] md:text-[19px] leading-relaxed drop-shadow-sm px-2 md:px-10">
+                  {t("referral.join.desc", "Mulai perjalananmu bareng Joyin sekarang...")}
+                </p>
+              </div>
+            </motion.div>
+
             <motion.div
               initial={{
                 opacity: 0,
-                x: JOIN_BTN_OFFSET_X + 28,
-                y: JOIN_BTN_OFFSET_Y + 40,
                 scale: JOIN_BTN_SCALE * 0.85,
               }}
               whileInView={{
                 opacity: 1,
-                x: JOIN_BTN_OFFSET_X,
-                y: JOIN_BTN_OFFSET_Y,
                 scale: JOIN_BTN_SCALE,
               }}
               viewport={{ once: true, amount: 0.55 }}
@@ -516,7 +634,7 @@ export default function Referral() {
                 type="button"
                 className="
                   inline-flex items-center justify-center
-                  px-10 sm:px-12 py-3 sm:py-3.5
+                  px-10 sm:px-14 py-3 sm:py-4
                   rounded-full
                   bg-white
                   font-semibold
@@ -540,22 +658,12 @@ export default function Referral() {
       </motion.section>
 
       {/* ========= SECTION 4 ========= */}
-      <section className="w-full bg-white py-12 md:py-16">
+      <section className="w-full bg-white pt-12 md:pt-16 pb-10 md:pb-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <motion.div
             className="inline-block shadow-[0_8px_18px_rgba(0,0,0,0.08)] rounded-full"
-            initial={{
-              opacity: 0,
-              x: BTN_OFFSET_X,
-              y: BTN_OFFSET_Y + 90,
-              scale: BTN_SCALE * 0.8,
-            }}
-            whileInView={{
-              opacity: 1,
-              x: BTN_OFFSET_X,
-              y: BTN_OFFSET_Y,
-              scale: BTN_SCALE,
-            }}
+            initial={{ opacity: 0, x: BTN_OFFSET_X, y: BTN_OFFSET_Y + 90, scale: BTN_SCALE * 0.8 }}
+            whileInView={{ opacity: 1, x: BTN_OFFSET_X, y: BTN_OFFSET_Y, scale: BTN_SCALE }}
             viewport={{ once: true, amount: 0.45 }}
             transition={{ type: "spring", stiffness: 220, damping: 24 }}
           >
@@ -584,6 +692,10 @@ export default function Referral() {
         </div>
       </section>
 
+      <section className="w-full bg-white">
+        <div className="min-h-[120px] md:min-h-[180px]" />
+      </section>
+
       <Footer />
 
       {/* ===================== MODAL: Referral Code ===================== */}
@@ -597,13 +709,8 @@ export default function Referral() {
             aria-modal="true"
             role="dialog"
           >
-            {/* overlay */}
-            <div
-              className="absolute inset-0 bg-black/45 backdrop-blur-[2px]"
-              onClick={() => setShowRefModal(false)}
-            />
+            <div className="absolute inset-0 bg-black/45 backdrop-blur-[2px]" onClick={() => setShowRefModal(false)} />
 
-            {/* modal box */}
             <motion.div
               className="relative w-full max-w-[520px] rounded-2xl bg-white shadow-[0_20px_70px_rgba(0,0,0,0.35)] overflow-hidden"
               initial={{ y: 18, scale: 0.98, opacity: 0 }}
@@ -617,12 +724,8 @@ export default function Referral() {
                     <span className="text-emerald-700 font-black">%</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-[16px] font-extrabold text-gray-900">
-                      Kode Referral Kamu
-                    </h3>
-                    <p className="text-[12px] text-gray-500">
-                      Bagikan kode ini ke temanmu. Temanmu dapat diskon 6% saat beli paket.
-                    </p>
+                    <h3 className="text-[16px] font-extrabold text-gray-900">Kode Referral Kamu</h3>
+                    <p className="text-[12px] text-gray-500">Bagikan kode ini ke temanmu. Temanmu dapat diskon 6% saat beli paket.</p>
                   </div>
                   <button
                     onClick={() => setShowRefModal(false)}
@@ -644,9 +747,7 @@ export default function Referral() {
                   </div>
                 ) : refError ? (
                   <div className="py-4">
-                    <div className="rounded-xl bg-red-50 border border-red-100 p-4 text-red-700 text-sm">
-                      {refError}
-                    </div>
+                    <div className="rounded-xl bg-red-50 border border-red-100 p-4 text-red-700 text-sm">{refError}</div>
                     <div className="mt-4 flex gap-2">
                       <button
                         onClick={fetchReferralDetails}
@@ -664,11 +765,8 @@ export default function Referral() {
                   </div>
                 ) : (
                   <>
-                    {/* Code box */}
                     <div className="rounded-2xl border border-emerald-100 bg-emerald-50/40 p-4">
-                      <div className="text-[11px] font-semibold text-emerald-700 mb-2">
-                        KODE
-                      </div>
+                      <div className="text-[11px] font-semibold text-emerald-700 mb-2">KODE</div>
                       <div className="flex items-center gap-2">
                         <div className="flex-1 min-w-0">
                           <div className="font-black tracking-[0.25em] text-[20px] text-gray-900 truncate">
@@ -687,28 +785,19 @@ export default function Referral() {
                       </div>
                     </div>
 
-                    {/* progress */}
                     <div className="mt-4 rounded-2xl border border-gray-100 bg-white p-4">
                       <div className="flex items-center justify-between">
-                        <p className="text-[12px] font-bold text-gray-900">
-                          Progress hadiah paket Pro 1 bulan
-                        </p>
+                        <p className="text-[12px] font-bold text-gray-900">Progress hadiah paket Pro 1 bulan</p>
                         <p className="text-[12px] font-extrabold text-emerald-700">
                           {refData.totalReferred}/{TARGET}
                         </p>
                       </div>
                       <div className="mt-2 h-2 rounded-full bg-gray-100 overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-emerald-500"
-                          style={{ width: `${progressPct}%` }}
-                        />
+                        <div className="h-full rounded-full bg-emerald-500" style={{ width: `${progressPct}%` }} />
                       </div>
-                      <p className="mt-2 text-[11px] text-gray-500">
-                        Ajak {TARGET} orang menggunakan kode referralmu untuk dapat hadiah.
-                      </p>
+                      <p className="mt-2 text-[11px] text-gray-500">Ajak {TARGET} orang menggunakan kode referralmu untuk dapat hadiah.</p>
                     </div>
 
-                    {/* share actions */}
                     <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2">
                       <button
                         onClick={() => copyText(referralLink, "Link tersalin!")}
@@ -721,11 +810,10 @@ export default function Referral() {
                         href={waShareLink || "#"}
                         target="_blank"
                         rel="noreferrer"
-                        className={`px-4 py-2 rounded-xl font-semibold text-sm text-center ${
-                          waShareLink
-                            ? "bg-emerald-600 text-white hover:brightness-110"
-                            : "bg-gray-100 text-gray-400 pointer-events-none"
-                        }`}
+                        className={`px-4 py-2 rounded-xl font-semibold text-sm text-center ${waShareLink
+                          ? "bg-emerald-600 text-white hover:brightness-110"
+                          : "bg-gray-100 text-gray-400 pointer-events-none"
+                          }`}
                       >
                         Share WA
                       </a>
@@ -737,7 +825,6 @@ export default function Referral() {
                       </button>
                     </div>
 
-                    {/* toast */}
                     <AnimatePresence>
                       {!!copied && (
                         <motion.div
@@ -760,3 +847,16 @@ export default function Referral() {
     </div>
   );
 }
+
+/*
+🔧 Setting URL yang kepakai:
+- gambar section123:
+  ?s123_img_s=0.95&s123_img_x=0&s123_img_y=-10&s123_img_w=1.05
+- overlay teks:
+  ?s123_x=0&s123_y=0&s123_s=1.1
+- kotak teks (INI yang kamu minta):
+  ?s123_box_w=0.56&s123_box_maxw=300&s123_box_top=0.64
+
+Contoh:
+  /referral?s123_img_s=0.92&s123_img_w=1.05&s123_img_y=-10&s123_box_w=0.56&s123_box_maxw=300&s123_box_top=0.64
+*/

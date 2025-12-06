@@ -13,18 +13,6 @@ import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { resolveAvatarUrl } from "../utils/avatar";
 
-// ====== Menu config ======
-const NAV_ITEMS = [
-  { id: "referral", label: "Referral", kind: "route", target: "/referral" },
-  { id: "paket", label: "Paket", kind: "hash", target: "#paket" },
-  { id: "beranda", label: "Beranda", kind: "hash", target: "#beranda" },
-
-  // ✅ Tutorial sekarang langsung ke halaman tutorial
-  { id: "tutorial", label: "Tutorial", kind: "route", target: "/tutorial" },
-
-  { id: "tentang", label: "Tentang Kami", kind: "route", target: "/tentang" },
-];
-
 // ====== Tentukan active berdasarkan URL sekarang ======
 const deriveActiveFromLocation = (loc) => {
   const { pathname, hash } = loc;
@@ -38,7 +26,7 @@ const deriveActiveFromLocation = (loc) => {
       "#referral": "referral",
       "#paket": "paket",
       "#beranda": "beranda",
-      "#tutorial": "tutorial", // masih aman kalau kamu tetap pakai anchor di beranda
+      "#tutorial": "tutorial",
     };
     return map[hash] || "beranda";
   }
@@ -57,8 +45,16 @@ const getInitials = (name = "") =>
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { fetchMe, ready, isAuthenticated, logout } = useAuth();
+
+  const NAV_ITEMS = [
+    { id: "referral", label: t("navbar.referral", "Referral"), kind: "route", target: "/referral" },
+    { id: "paket", label: t("navbar.paket", "Paket"), kind: "hash", target: "#paket" },
+    { id: "beranda", label: t("navbar.beranda", "Beranda"), kind: "hash", target: "#beranda" },
+    { id: "tutorial", label: t("navbar.tutorial", "Tutorial"), kind: "route", target: "/tutorial" },
+    { id: "tentang", label: t("navbar.tentang", "Tentang Kami"), kind: "route", target: "/tentang" },
+  ];
 
   // ====== Active state & indicator ======
   const [active, setActive] = useState(() => deriveActiveFromLocation(location));
@@ -208,9 +204,8 @@ export default function Navbar() {
               href={item.target}
               ref={(el) => (itemRefs.current[item.id] = el)}
               onClick={(e) => handleClick(e, item)}
-              className={`relative inline-block font-bold transition-colors duration-200 ${
-                isActive ? "text-emerald-600" : "text-gray-900 hover:text-emerald-600"
-              }`}
+              className={`relative inline-block font-bold transition-colors duration-200 ${isActive ? "text-emerald-600" : "text-gray-900 hover:text-emerald-600"
+                }`}
               aria-current={isActive ? "page" : undefined}
             >
               {item.label}
@@ -221,8 +216,8 @@ export default function Navbar() {
         {/* Garis bawah meluncur */}
         <span
           className={`pointer-events-none absolute -bottom-1 h-[2px] rounded-full bg-emerald-500
-                      transition-[left,width,opacity] duration-300 ease-out
-                      ${indicator.ready ? "opacity-100" : "opacity-0"}`}
+                        transition-[left,width,opacity] duration-300 ease-out
+                        ${indicator.ready ? "opacity-100" : "opacity-0"}`}
           style={{ left: indicator.left, width: indicator.width }}
         />
       </div>
@@ -257,7 +252,7 @@ export default function Navbar() {
             className="px-6 py-2 rounded-lg font-semibold text-sm text-white transition-all duration-200 hover:brightness-110"
             style={{ background: "linear-gradient(to right, #5CC9AF, #5CC9BF)" }}
           >
-            Login
+            {t("navbar.login", "Login")}
           </button>
         )}
       </div>
@@ -277,6 +272,7 @@ function LandingProfile({
   onLogout,
   loaded,
 }) {
+  const { t } = useTranslation();
   const plan = profile?.planName || profile?.package || profile?.subscription || "Gratis";
 
   const rawAvatar =
@@ -370,7 +366,7 @@ function LandingProfile({
                 className="ml-auto text-[10px] font-semibold px-2 py-1 rounded-full
                            bg-emerald-50 text-emerald-700 border border-emerald-100 hover:bg-emerald-100"
               >
-                Dashboard
+                {t("navbar.dashboard", "Dashboard")}
               </button>
             </div>
 
@@ -379,14 +375,14 @@ function LandingProfile({
             <div className="p-2">
               <DropdownItem
                 icon={<HiOutlineHome size={16} />}
-                label="Dashboard"
-                sub="Kembali ke akun"
+                label={t("navbar.dashboard", "Dashboard")}
+                sub={t("common.back", "Kembali ke akun")}
                 onClick={onGoDashboard}
               />
               <LanguageSwitcher current={language} onChange={onChangeLanguage} />
               <DropdownItem
                 icon={<HiOutlineArrowRightOnRectangle size={16} />}
-                label="Keluar"
+                label={t("navbar.logout", "Keluar")}
                 danger
                 onClick={onLogout}
               />
@@ -425,6 +421,7 @@ function DropdownItem({ icon, label, sub, onClick, danger }) {
 }
 
 function LanguageSwitcher({ current, onChange }) {
+  const { t } = useTranslation();
   const langs = [
     { code: "id", label: "ID" },
     { code: "en", label: "EN" },
@@ -435,7 +432,7 @@ function LanguageSwitcher({ current, onChange }) {
         <div className="w-8 h-8 rounded-lg flex items-center justify-center border border-emerald-100 bg-white">
           <HiOutlineGlobeAlt size={16} />
         </div>
-        <p className="text-[12px] font-semibold text-gray-900">Bahasa</p>
+        <p className="text-[12px] font-semibold text-gray-900">{t("navbar.bahasa", "Bahasa")}</p>
       </div>
       <div className="flex gap-1.5 pl-10">
         {langs.map((l, idx) => (
@@ -443,10 +440,9 @@ function LanguageSwitcher({ current, onChange }) {
             key={l.code}
             onClick={() => onChange(l.code)}
             className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border transition
-              ${
-                current?.startsWith(l.code)
-                  ? "bg-emerald-500 text-white border-emerald-500"
-                  : "bg-white text-gray-700 border-emerald-200 hover:bg-emerald-50"
+              ${current?.startsWith(l.code)
+                ? "bg-emerald-500 text-white border-emerald-500"
+                : "bg-white text-gray-700 border-emerald-200 hover:bg-emerald-50"
               }`}
             initial={{ y: 4, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}

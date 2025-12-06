@@ -55,7 +55,7 @@ export const setAppLanguage = async (lng) => {
   document.documentElement.lang = normalized;
   try {
     localStorage.setItem(STORAGE_KEY, normalized);
-  } catch {}
+  } catch { }
 };
 
 export default i18n;

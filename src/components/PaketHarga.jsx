@@ -3,9 +3,11 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios"; // axios instance yg sdh terhubung AuthContext
+import { useTranslation } from "react-i18next";
 
 export default function PaketHarga() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loadingPlan, setLoadingPlan] = useState(null); // "BASIC" | "PRO" | ...
   const [snapReady, setSnapReady] = useState(false);
 
@@ -14,9 +16,9 @@ export default function PaketHarga() {
   const MIDTRANS_ENV = (import.meta.env.VITE_MIDTRANS_ENV || "sandbox").toLowerCase();
 
   const SNAP_BASE =
-  MIDTRANS_ENV === "sandbox"
-    ? "https://app.sandbox.midtrans.com/snap/snap.js" // ✅ sandbox
-    : "https://app.midtrans.com/snap/snap.js";        // ✅ production
+    MIDTRANS_ENV === "sandbox"
+      ? "https://app.sandbox.midtrans.com/snap/snap.js" // ✅ sandbox
+      : "https://app.midtrans.com/snap/snap.js";        // ✅ production
 
 
   // ===== Muat script Snap sekali =====
@@ -46,71 +48,38 @@ export default function PaketHarga() {
   const paketList = [
     {
       planId: "BASIC", // <- HARUS sesuai BE
-      title: "Paket Basic",
+      title: t("paket.plans.0.title", "Paket Basic"),
       price: "Rp 49.000",
-      features: [
-        "300 percakapan/bulan",
-        "Balasan otomatis 24/7",
-        "Integrasi WhatsApp mudah",
-        "Template balasan standar",
-        "Statistik bulanan sederhana",
-        "FAQ dasar bawaan",
-      ],
-      button: "Pilih Basic",
+      features: t("paket.plans.0.features", { returnObjects: true }) || [],
+      button: t("paket.plans.0.button", "Pilih Basic"),
     },
     {
       planId: "PRO",
-      title: "Paket Pro",
+      title: t("paket.plans.1.title", "Paket Pro"),
       price: "Rp 99.000",
-      features: [
-        "1.000 percakapan/bulan",
-        "Balasan otomatis 24/7",
-        "Template balasan custom",
-        "Auto-update FAQ produk",
-        "Statistik & insight pelanggan",
-        "Notifikasi chat masuk",
-        "Pesan sambutan personal",
-      ],
-      button: "Pilih Pro",
+      features: t("paket.plans.1.features", { returnObjects: true }) || [],
+      button: t("paket.plans.1.button", "Pilih Pro"),
     },
     {
       planId: "BUSINESS",
-      title: "Paket Bisnis",
+      title: t("paket.plans.2.title", "Paket Bisnis"),
       price: "Rp 199.000",
-      features: [
-        "5.000 percakapan/bulan",
-        "Multi-admin WhatsApp",
-        "Balasan otomatis 24/7",
-        "Template balasan premium",
-        "FAQ otomatis & terjadwal",
-        "Pesan terjadwal promosi",
-        "Laporan mingguan lengkap",
-        "Prioritas dukungan teknis",
-      ],
-      button: "Pilih Bisnis",
+      features: t("paket.plans.2.features", { returnObjects: true }) || [],
+      button: t("paket.plans.2.button", "Pilih Bisnis"),
     },
     {
       planId: "ENTERPRISE",
-      title: "Paket Enterprise",
+      title: t("paket.plans.3.title", "Paket Enterprise"),
       price: "Rp 499.000",
-      features: [
-        "Chat tanpa batas",
-        "Integrasi WhatsApp API penuh",
-        "Balasan otomatis 24/7",
-        "Statistik real-time & export data",
-        "Multi-admin + manajemen tim",
-        "Laporan custom & konsultasi setup",
-        "Prioritas dukungan & SLA support",
-        "Integrasi sistem internal (CRM/API)",
-      ],
-      button: "Pilih Enterprise",
+      features: t("paket.plans.3.features", { returnObjects: true }) || [],
+      button: t("paket.plans.3.button", "Pilih Enterprise"),
     },
   ];
 
   async function handleChoose(planId) {
     try {
       if (!snapReady || !window.snap) {
-        alert("Sedang menyiapkan pembayaran, coba lagi sebentar...");
+        alert(t("paket.loading", "Sedang menyiapkan pembayaran, coba lagi sebentar..."));
         return;
       }
       setLoadingPlan(planId);
@@ -154,8 +123,8 @@ export default function PaketHarga() {
       } else {
         alert(
           err?.response?.data?.message ||
-            err?.message ||
-            "Gagal memulai pembayaran."
+          err?.message ||
+          "Gagal memulai pembayaran."
         );
       }
     } finally {
@@ -166,11 +135,10 @@ export default function PaketHarga() {
   return (
     <section className="px-6 lg:px-20 py-20 bg-white">
       <h2 className="text-2xl lg:text-3xl font-bold text-center mb-6">
-        Temukan Paket yang Paling Cocok untukmu
+        {t("paket.title", "Temukan Paket yang Paling Cocok untukmu")}
       </h2>
       <p className="text-center text-gray-500 mb-12 max-w-xl mx-auto">
-        Joyin punya pilihan paket yang fleksibel buat segala kebutuhan. Mau yang
-        simpel atau lengkap? Tinggal pilih, Joyin yang bantuin!
+        {t("paket.desc", "Joyin punya pilihan paket yang fleksibel buat segala kebutuhan...")}
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -190,7 +158,7 @@ export default function PaketHarga() {
               </h3>
               <p className="text-center text-gray-700 font-semibold mt-2">
                 {paket.price}{" "}
-                <span className="text-sm text-gray-500">/ Bulan</span>
+                <span className="text-sm text-gray-500">{t("paket.month", "/ Bulan")}</span>
               </p>
               <ul className="mt-4 space-y-2 text-sm text-gray-600">
                 {paket.features.map((f, idx) => (
@@ -207,14 +175,13 @@ export default function PaketHarga() {
                 onClick={() => handleChoose(paket.planId)}
                 disabled={loadingPlan === paket.planId || !snapReady}
                 className={`w-full py-2 rounded-lg text-white font-semibold transition-colors duration-300
-                  ${
-                    loadingPlan === paket.planId || !snapReady
-                      ? "bg-gray-300 cursor-not-allowed"
-                      : "bg-green-400 hover:bg-yellow-400 hover:text-gray-800"
+                  ${loadingPlan === paket.planId || !snapReady
+                    ? "bg-gray-300 cursor-not-allowed"
+                    : "bg-green-400 hover:bg-yellow-400 hover:text-gray-800"
                   }`}
               >
                 {loadingPlan === paket.planId
-                  ? "Memulai pembayaran..."
+                  ? t("paket.loading", "Memulai pembayaran...")
                   : paket.button}
               </button>
               {!MIDTRANS_CLIENT_KEY && (

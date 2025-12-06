@@ -1,7 +1,9 @@
 import React, { useEffect } from "react";
 import testimoniData from "../data/testimoniData";
+import { useTranslation } from "react-i18next";
 
 export default function TestimoniCarousel() {
+  const { t } = useTranslation();
   useEffect(() => {
     applyCarouselEffects();
   }, []);
@@ -31,10 +33,10 @@ export default function TestimoniCarousel() {
   return (
     <section className="px-6 lg:px-20 py-20 bg-white overflow-hidden">
       <h2 className="text-2xl lg:text-3xl font-bold text-center mb-4">
-        Cerita dari Pengguna Joyin
+        {t("testimoni.title", "Cerita dari Pengguna Joyin")}
       </h2>
       <p className="text-center text-gray-500 mb-12 max-w-2xl mx-auto">
-        Mereka udah ngerasain gimana Joyin bantuin bisnis sehari-hari. Dari yang baru mulai sampai yang udah jalan lama — semua punya cerita seru bareng Joyin!
+        {t("testimoni.desc", "Mereka udah ngerasain gimana Joyin bantuin bisnis sehari-hari...")}
       </p>
 
       <div className="relative w-full max-w-[1100px] mx-auto flex justify-center items-center">

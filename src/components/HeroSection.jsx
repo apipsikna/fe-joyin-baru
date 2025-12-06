@@ -1,12 +1,14 @@
 // src/components/HeroSection.jsx
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import bintangKiri from "../assets/bintangKiri.png";
 import bintangKanan from "../assets/bintangKanan.png";
 
 export default function HeroSection() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Offset bintang (px). Nilai + ke bawah/kanan, nilai - ke atas/kiri.
   const [leftOffsetY, setLeftOffsetY] = useState(0);
@@ -140,20 +142,20 @@ export default function HeroSection() {
         transition={{ duration: 1, delay: 0.5 }}
       >
         <h1 className="text-3xl lg:text-5xl font-bold text-white leading-snug">
-          Chatbot Pintar Joyin,<br />Balesin Chat Otomatis<br />Tanpa Ribet
+          {t("hero.title", { defaultValue: "Chatbot Pintar Joyin, Balesin Chat Otomatis Tanpa Ribet" })}
         </h1>
         <p className="mt-4 text-black/90 text-base lg:text-lg">
-          Dengan chatbot AI, kamu nggak perlu nunggu lama lagi. Semua jawaban langsung tersedia dalam hitungan detik!
+          {t("hero.desc", { defaultValue: "Dengan chatbot AI, kamu nggak perlu nunggu lama lagi. Semua jawaban langsung tersedia dalam hitungan detik!" })}
         </p>
         <div className="mt-6 flex justify-center gap-4">
           <button
             onClick={() => navigate("/login")}
             className="bg-yellow-400 hover:bg-yellow-500 text-white px-6 py-3 rounded-lg font-semibold shadow-md transition"
           >
-            Ayo Mulai
+            {t("hero.btnStart", { defaultValue: "Ayo Mulai" })}
           </button>
           <button className="bg-white hover:bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-semibold shadow-md transition">
-            Pelajari Lebih Lanjut
+            {t("hero.btnLearn", { defaultValue: "Pelajari Lebih Lanjut" })}
           </button>
         </div>
       </motion.div>
