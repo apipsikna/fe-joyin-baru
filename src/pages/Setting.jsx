@@ -168,9 +168,9 @@ export default function Setting({ onBack }) {
       const normalized = next?.startsWith("en") ? "en" : "id";
       try {
         await i18n.changeLanguage(normalized);
-      } catch {}
+      } catch { }
       document.documentElement.lang = normalized;
-      try { localStorage.setItem(LANG_KEY, normalized); } catch {}
+      try { localStorage.setItem(LANG_KEY, normalized); } catch { }
     }
   }
 
@@ -196,11 +196,10 @@ export default function Setting({ onBack }) {
       {toast.show && (
         <div className="fixed top-4 right-4 z-[200]">
           <div
-            className={`px-4 py-3 rounded-xl shadow-lg border text-sm font-semibold ${
-              toast.type === "err"
+            className={`px-4 py-3 rounded-xl shadow-lg border text-sm font-semibold ${toast.type === "err"
                 ? "bg-red-50 text-red-700 border-red-200"
                 : "bg-emerald-50 text-emerald-700 border-emerald-200"
-            }`}
+              }`}
           >
             {toast.text}
           </div>
@@ -230,9 +229,8 @@ export default function Setting({ onBack }) {
                 key={tItem.id}
                 ref={(el) => (tabRefs.current[tItem.id] = el)}
                 onClick={() => setActiveTab(tItem.id)}
-                className={`py-3 transition-colors bg-transparent border-0 outline-none focus:outline-none ${
-                  activeTab === tItem.id ? "text-[#36A58C]" : "text-black/70 hover:text-black"
-                }`}
+                className={`py-3 transition-colors bg-transparent border-0 outline-none focus:outline-none ${activeTab === tItem.id ? "text-[#36A58C]" : "text-black/70 hover:text-black"
+                  }`}
               >
                 {tItem.label}
               </button>
@@ -259,7 +257,7 @@ export default function Setting({ onBack }) {
               action={
                 <LinkGhost
                   text={t("settings.privacy.viewList", { defaultValue: "Lihat daftar" })}
-                  onClick={() => {}}
+                  onClick={() => { }}
                 />
               }
             />
@@ -400,14 +398,12 @@ function Toggle({ checked, onChange, ariaLabel }) {
       aria-label={ariaLabel}
       aria-checked={checked}
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-300 focus:outline-none ${
-        checked ? "bg-[#36A58C]" : "bg-gray-300"
-      }`}
+      className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-300 focus:outline-none ${checked ? "bg-[#36A58C]" : "bg-gray-300"
+        }`}
     >
       <span
-        className={`absolute left-1 h-5 w-5 rounded-full bg-white shadow-sm transform transition-transform duration-300 ${
-          checked ? "translate-x-5" : "translate-x-0"
-        }`}
+        className={`absolute left-1 h-5 w-5 rounded-full bg-white shadow-sm transform transition-transform duration-300 ${checked ? "translate-x-5" : "translate-x-0"
+          }`}
       />
     </button>
   );
@@ -602,9 +598,8 @@ function Radio({ label, checked, onChange }) {
       style={{ WebkitAppearance: "none", appearance: "none" }}
     >
       <span
-        className={`inline-flex h-4 w-4 rounded-full border ${
-          checked ? "border-[#36A58C]" : "border-gray-400"
-        } items-center justify-center`}
+        className={`inline-flex h-4 w-4 rounded-full border ${checked ? "border-[#36A58C]" : "border-gray-400"
+          } items-center justify-center`}
       >
         <span className={`h-2.5 w-2.5 rounded-full ${checked ? "bg-[#36A58C]" : "bg-transparent"}`} />
       </span>
@@ -618,8 +613,8 @@ function PlaceholderBox({ t, activeTab }) {
     activeTab === "notif"
       ? t("settings.placeholder.notif", { defaultValue: "Notifikasi" })
       : activeTab === "language"
-      ? t("settings.placeholder.language", { defaultValue: "Bahasa" })
-      : t("settings.placeholder.support", { defaultValue: "Bantuan" });
+        ? t("settings.placeholder.language", { defaultValue: "Bahasa" })
+        : t("settings.placeholder.support", { defaultValue: "Bantuan" });
   return (
     <div className="w-full mt-6 text-gray-600">
       <div className="text-xl font-semibold mb-2">{label}</div>
@@ -781,9 +776,8 @@ function ChangePasswordModal({ t, onClose, onSubmit }) {
             <button
               disabled={!canSave}
               onClick={handleSave}
-              className={`h-10 px-6 rounded-lg font-semibold transition ${
-                canSave ? "bg-[#5CC9AF] text-white hover:opacity-90" : "bg-gray-300 text-white cursor-not-allowed"
-              }`}
+              className={`h-10 px-6 rounded-lg font-semibold transition ${canSave ? "bg-[#5CC9AF] text-white hover:opacity-90" : "bg-gray-300 text-white cursor-not-allowed"
+                }`}
             >
               {loading ? t("common.saving", { defaultValue: "Menyimpan..." }) : t("settings.password.save", { defaultValue: "Simpan" })}
             </button>

@@ -283,7 +283,7 @@ export default function Tutorial() {
                   {t("tutorial.headerTitle", "Pusat Tutorial Joyin")}
                 </h1>
                 <p className="text-white text-[14px] sm:text-[16px] md:text-[18px] lg:text-[20px] leading-relaxed drop-shadow-sm max-w-xl">
-                  {t("tutorial.headerDesc", "Di sini kamu bisa belajar cara menggunakan chatbot...")}
+                  {t("tutorial.headerDesc", "Di sini kamu bisa belajar cara menggunakan chatbot, cara mengintegrasikan ke berbagai platform, dan cara membuat ucapan yang menarik. Semua panduan dibuat simpel supaya kamu bisa langsung praktik.")}
                 </p>
               </div>
             </div>

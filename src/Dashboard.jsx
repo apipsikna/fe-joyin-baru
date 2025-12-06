@@ -38,7 +38,7 @@ const MENU = {
 };
 
 // ===== Placeholder sederhana untuk "Referral"
-function ReferralPlaceholder({ profile }) {
+function ReferralPlaceholder({ profile, t }) {
   const code =
     profile?.referralCode ||
     profile?.refCode ||
@@ -47,12 +47,20 @@ function ReferralPlaceholder({ profile }) {
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-bold mb-2">Referral</h1>
-      <p className="text-gray-600 mb-4">Halaman referral akan hadir di sini.</p>
+      <h1 className="text-xl font-bold mb-2">
+        {t("dashboard.referralPlaceholder.title", { defaultValue: "Referral" })}
+      </h1>
+      <p className="text-gray-600 mb-4">
+        {t("dashboard.referralPlaceholder.desc", {
+          defaultValue: "Halaman referral akan hadir di sini.",
+        })}
+      </p>
 
       <div className="bg-white/80 backdrop-blur border border-emerald-100 rounded-2xl p-4 max-w-xl shadow-sm">
         <p className="text-sm font-semibold text-gray-900 mb-1">
-          Kode Referral Kamu
+          {t("dashboard.referralPlaceholder.yourCode", {
+            defaultValue: "Kode Referral Kamu",
+          })}
         </p>
         <div className="flex items-center gap-2">
           <div className="px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-100 font-semibold text-emerald-700 text-sm">
@@ -68,8 +76,10 @@ function ReferralPlaceholder({ profile }) {
           )}
         </div>
         <p className="text-xs text-gray-600 mt-3">
-          Pengguna yang memasukkan kode saat registrasi akan mendapat diskon
-          (sesuai aturan kamu).
+          {t("dashboard.referralPlaceholder.info", {
+            defaultValue:
+              "Pengguna yang memasukkan kode saat registrasi akan mendapat diskon (sesuai aturan kamu).",
+          })}
         </p>
       </div>
     </div>
@@ -121,9 +131,9 @@ export default function Dashboard() {
         if (!cancelled)
           setError(
             err?.message ||
-              t("dashboard.errorLoadProfile", {
-                defaultValue: "Failed to load profile",
-              })
+            t("dashboard.errorLoadProfile", {
+              defaultValue: "Failed to load profile",
+            })
           );
       } finally {
         if (!cancelled) setLoading(false);
@@ -153,8 +163,12 @@ export default function Dashboard() {
   }, []);
 
   const firstName = useMemo(
-    () => (profile?.name || "Pengguna").split(" ")[0],
-    [profile?.name]
+    () =>
+      (
+        profile?.name ||
+        t("dashboard.profile.defaultName", { defaultValue: "Pengguna" })
+      ).split(" ")[0],
+    [profile?.name, t]
   );
 
   if (loading) return <LoadingSpinner />;
@@ -178,6 +192,7 @@ export default function Dashboard() {
         {/* Profile Top Right */}
         <div className="fixed top-2.5 right-6 md:right-8 z-50" ref={dropdownRef}>
           <TopRightProfile
+            t={t}
             profile={profile}
             firstName={firstName}
             language={i18n.language}
@@ -210,7 +225,9 @@ export default function Dashboard() {
         {activeMenu === MENU.BOT_SETTINGS && <BotSettings />}
         {activeMenu === MENU.REPORTS && <Reports />}
         {activeMenu === MENU.PACKAGES && <MyPackages />}
-        {activeMenu === MENU.REFERRAL && <ReferralPlaceholder profile={profile} />}
+        {activeMenu === MENU.REFERRAL && (
+          <ReferralPlaceholder profile={profile} t={t} />
+        )}
         {activeMenu === MENU.SETTINGS && (
           <Setting onBack={() => setActiveMenu(MENU.HOME)} />
         )}
@@ -299,8 +316,8 @@ function SidebarButton({ icon: Icon, text, active, onClick, landing }) {
         active
           ? "bg-[#5CC9AF] text-white shadow-sm"
           : landing
-          ? "text-emerald-700 hover:bg-emerald-50 border border-emerald-100"
-          : "text-gray-600 hover:bg-gray-50",
+            ? "text-emerald-700 hover:bg-emerald-50 border border-emerald-100"
+            : "text-gray-600 hover:bg-gray-50",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300",
       ].join(" ")}
     >
@@ -310,8 +327,8 @@ function SidebarButton({ icon: Icon, text, active, onClick, landing }) {
           active
             ? "bg-white/20 border-white/20"
             : landing
-            ? "bg-emerald-50 border-emerald-100"
-            : "bg-gray-50 border-gray-100 group-hover:bg-gray-100",
+              ? "bg-emerald-50 border-emerald-100"
+              : "bg-gray-50 border-gray-100 group-hover:bg-gray-100",
         ].join(" ")}
       >
         <Icon
@@ -320,8 +337,8 @@ function SidebarButton({ icon: Icon, text, active, onClick, landing }) {
             active
               ? "text-white"
               : landing
-              ? "text-emerald-700"
-              : "text-gray-600"
+                ? "text-emerald-700"
+                : "text-gray-600"
           }
         />
       </span>
@@ -333,6 +350,7 @@ function SidebarButton({ icon: Icon, text, active, onClick, landing }) {
 
 /* ================= TopRightProfile ================= */
 function TopRightProfile({
+  t,
   profile,
   firstName,
   language,
@@ -344,7 +362,10 @@ function TopRightProfile({
   onLogout,
 }) {
   const plan =
-    profile?.planName || profile?.package || profile?.subscription || "Gratis";
+    profile?.planName ||
+    profile?.package ||
+    profile?.subscription ||
+    t("dashboard.profile.planFree", { defaultValue: "Gratis" });
 
   const rawAvatar =
     profile?.avatar ||
@@ -451,7 +472,8 @@ function TopRightProfile({
 
               <div className="min-w-0">
                 <p className="text-[12px] font-bold text-gray-900 truncate">
-                  {profile?.name || "Pengguna"}
+                  {profile?.name ||
+                    t("dashboard.profile.defaultName", { defaultValue: "Pengguna" })}
                 </p>
                 {profile?.email && (
                   <p className="text-[11px] text-gray-500 truncate">
@@ -465,7 +487,7 @@ function TopRightProfile({
                 className="ml-auto text-[10px] font-semibold px-2 py-1 rounded-full
                            bg-emerald-50 text-emerald-700 border border-emerald-100 hover:bg-emerald-100"
               >
-                Profil
+                {t("dashboard.profile.viewProfile", { defaultValue: "Profil" })}
               </button>
             </div>
 
@@ -474,14 +496,22 @@ function TopRightProfile({
             <div className="p-2">
               <DropdownItem
                 icon={<HiOutlineCog6Tooth size={16} />}
-                label="Pengaturan"
-                sub="Bahasa & preferensi"
+                label={t("dashboard.dropdown.settings", {
+                  defaultValue: "Pengaturan",
+                })}
+                sub={t("dashboard.dropdown.settingsSub", {
+                  defaultValue: "Bahasa & preferensi",
+                })}
                 onClick={onGoSettings}
               />
-              <LanguageSwitcher current={language} onChange={onChangeLanguage} />
+              <LanguageSwitcher
+                t={t}
+                current={language}
+                onChange={onChangeLanguage}
+              />
               <DropdownItem
                 icon={<HiOutlineArrowRightOnRectangle size={16} />}
-                label="Keluar"
+                label={t("dashboard.dropdown.logout", { defaultValue: "Keluar" })}
                 danger
                 onClick={onLogout}
               />
@@ -499,11 +529,10 @@ function DropdownItem({ icon, label, sub, onClick, danger }) {
       onClick={onClick}
       role="menuitem"
       className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition
-      ${
-        danger
+      ${danger
           ? "text-red-600 hover:bg-red-50"
           : "text-gray-800 hover:bg-emerald-50"
-      }`}
+        }`}
       whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 500, damping: 30 }}
     >
@@ -515,9 +544,8 @@ function DropdownItem({ icon, label, sub, onClick, danger }) {
       </div>
       <div className="text-left leading-tight">
         <p
-          className={`text-[12px] font-semibold ${
-            danger ? "text-red-600" : "text-gray-900"
-          }`}
+          className={`text-[12px] font-semibold ${danger ? "text-red-600" : "text-gray-900"
+            }`}
         >
           {label}
         </p>
@@ -527,7 +555,7 @@ function DropdownItem({ icon, label, sub, onClick, danger }) {
   );
 }
 
-function LanguageSwitcher({ current, onChange }) {
+function LanguageSwitcher({ t, current, onChange }) {
   const langs = [
     { code: "id", label: "ID" },
     { code: "en", label: "EN" },
@@ -538,7 +566,9 @@ function LanguageSwitcher({ current, onChange }) {
         <div className="w-8 h-8 rounded-lg flex items-center justify-center border border-emerald-100 bg-white">
           <HiOutlineGlobeAlt size={16} />
         </div>
-        <p className="text-[12px] font-semibold text-gray-900">Bahasa</p>
+        <p className="text-[12px] font-semibold text-gray-900">
+          {t("dashboard.dropdown.language", { defaultValue: "Bahasa" })}
+        </p>
       </div>
       <div className="flex gap-1.5 pl-10">
         {langs.map((l, idx) => (
@@ -546,10 +576,9 @@ function LanguageSwitcher({ current, onChange }) {
             key={l.code}
             onClick={() => onChange(l.code)}
             className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border transition
-              ${
-                current?.startsWith(l.code)
-                  ? "bg-emerald-500 text-white border-emerald-500"
-                  : "bg-white text-gray-700 border-emerald-200 hover:bg-emerald-50"
+              ${current?.startsWith(l.code)
+                ? "bg-emerald-500 text-white border-emerald-500"
+                : "bg-white text-gray-700 border-emerald-200 hover:bg-emerald-50"
               }`}
             initial={{ y: 4, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}

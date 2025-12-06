@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Navbar from "../components/Navbar1";
 import Footer from "../components/Footer";
+import { useTranslation } from "react-i18next";
 
 import bintang from "../assets/bintang2.png";
 import bintangkecil from "../assets/bintangkecil.png";
@@ -108,6 +109,7 @@ const PURPLE_LAYER_Y_DEFAULT = {
 };
 
 export default function TentangKami() {
+  const { t } = useTranslation();
   // ===== Konfigurasi default maskot =====
   const DEFAULT_MASCOT = {
     side: "left",
@@ -135,8 +137,8 @@ export default function TentangKami() {
       qp.get("m_side") === "right"
         ? "right"
         : qp.get("m_side") === "left"
-        ? "left"
-        : DEFAULT_MASCOT.side,
+          ? "left"
+          : DEFAULT_MASCOT.side,
     width: Number(
       qp.get("m_w") || LEFT_MASCOT_SETTINGS.width || DEFAULT_MASCOT.width
     ),
@@ -149,8 +151,8 @@ export default function TentangKami() {
       qp.get("m_flip") === "1"
         ? true
         : qp.get("m_flip") === "0"
-        ? false
-        : DEFAULT_MASCOT.flip,
+          ? false
+          : DEFAULT_MASCOT.flip,
     showOnMobile:
       qp.get("m_mobile") === "1" ? true : DEFAULT_MASCOT.showOnMobile,
     peek: Number(qp.get("m_peek") || DEFAULT_MASCOT.peek),
@@ -264,8 +266,8 @@ export default function TentangKami() {
       ? "bottom left"
       : "bottom right"
     : M.side === "left"
-    ? "bottom right"
-    : "bottom left";
+      ? "bottom right"
+      : "bottom left";
 
   const mascotTranslateY = (M.translateY || 0) + MASCOT_SHIFT.offsetY;
 
@@ -274,9 +276,8 @@ export default function TentangKami() {
     bottom: 0,
     ...sidePos,
     width: `${M.width}px`,
-    transform: `translateY(${mascotTranslateY}px) rotate(${M.rotate}deg) ${
-      M.flip ? "scaleX(-1)" : ""
-    }`,
+    transform: `translateY(${mascotTranslateY}px) rotate(${M.rotate}deg) ${M.flip ? "scaleX(-1)" : ""
+      }`,
     transformOrigin,
     zIndex: 10,
   };
@@ -453,7 +454,10 @@ export default function TentangKami() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.35, ease: "easeOut" }}
           >
-            Kenalan Yuk dengan Joyin!
+            {t(
+              "about.hero.title",
+              { defaultValue: "Kenalan Yuk dengan Joyin!" }
+            )}
           </motion.h1>
           <motion.p
             className="mt-6 md:mt-8 lg:mt-10 text-white/95 text-base md:text-lg leading-relaxed md:leading-8"
@@ -461,11 +465,10 @@ export default function TentangKami() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.45, ease: "easeOut" }}
           >
-            Selamat datang di Joyin, sahabat bisnis kamu dalam urusan ngobrol
-            sama pelanggan. Kami percaya komunikasi cepat dan hangat bikin
-            pelanggan makin nyaman. Joyin hadir untuk bantu kamu merespons
-            otomatis 24 jam nonstop, jadi bisnis tetap jalan walau kamu lagi
-            santai.
+            {t(
+              "about.hero.desc",
+              { defaultValue: "Selamat datang di Joyin, sahabat bisnis kamu dalam urusan ngobrol sama pelanggan. Kami percaya komunikasi cepat dan hangat bikin pelanggan makin nyaman. Joyin hadir untuk bantu kamu merespons otomatis 24 jam nonstop, jadi bisnis tetap jalan walau kamu lagi santai." }
+            )}
           </motion.p>
         </div>
       </motion.section>
@@ -524,10 +527,10 @@ export default function TentangKami() {
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.65, ease: "easeOut" }}
           >
-            Joyin hadir untuk bantu kamu merespons otomatis selama 24 jam penuh,
-            jadi bisnis tetap berjalan walau kamu lagi santai. Dengan sistem
-            pintar kami, setiap interaksi terasa lebih personal tanpa perlu
-            repot balas satu per satu.
+            {t(
+              "about.mascot.p1",
+              { defaultValue: "Joyin hadir untuk bantu kamu merespons otomatis selama 24 jam penuh, jadi bisnis tetap berjalan walau kamu lagi santai. Dengan sistem pintar kami, setiap interaksi terasa lebih personal tanpa perlu repot balas satu per satu." }
+            )}
           </motion.p>
 
           <motion.p
@@ -537,9 +540,10 @@ export default function TentangKami() {
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.65, delay: 0.1, ease: "easeOut" }}
           >
-            Kami ingin menciptakan pengalaman pelanggan yang lebih ringan dan
-            menyenangkan. Setiap pesan dibalas dengan cepat, namun tetap punya
-            manusia yang membuat pelanggan merasa diperhatikan.
+            {t(
+              "about.mascot.p2",
+              { defaultValue: "Kami ingin menciptakan pengalaman pelanggan yang lebih ringan dan menyenangkan. Setiap pesan dibalas dengan cepat, namun tetap punya manusia yang membuat pelanggan merasa diperhatikan." }
+            )}
           </motion.p>
         </div>
       </motion.section>
@@ -677,7 +681,10 @@ export default function TentangKami() {
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
-            Buat Chat Lebih Hidup Tanpa Ribet
+            {t(
+              "about.joyCemerlang.title",
+              { defaultValue: "Buat Chat Lebih Hidup Tanpa Ribet" }
+            )}
           </motion.h2>
 
           <div className="mt-8 md:mt-10 flex flex-col lg:flex-row items-center justify-between gap-8 md:gap-10">
@@ -694,9 +701,10 @@ export default function TentangKami() {
               viewport={{ once: true, amount: 0.5 }}
               transition={{ duration: 0.7, ease: "easeOut" }}
             >
-              Nggak perlu lagi begadang atau terus mantengin layar hanya demi
-              respon cepat. Joyin siap bantu kamu tetap terhubung kapan pun, di
-              mana pun, tanpa kehilangan rasa hangat dalam percakapan.
+              {t(
+                "about.joyCemerlang.left",
+                { defaultValue: "Nggak perlu lagi begadang atau terus mantengin layar hanya demi respon cepat. Joyin siap bantu kamu tetap terhubung kapan pun, di mana pun, tanpa kehilangan rasa hangat dalam percakapan." }
+              )}
             </motion.p>
 
             {/* JoyCemerlang */}
@@ -736,10 +744,10 @@ export default function TentangKami() {
               viewport={{ once: true, amount: 0.5 }}
               transition={{ duration: 0.7, delay: 0.05, ease: "easeOut" }}
             >
-              Dengan Joyin, cukup atur sekali dan biarkan chatbot kami bekerja
-              untukmu — menjawab otomatis dengan gaya ramah dan natural,
-              membuat pelanggan tetap dekat, dan bisnismu makin berkembang tanpa
-              ribet.
+              {t(
+                "about.joyCemerlang.right",
+                { defaultValue: "Dengan Joyin, cukup atur sekali dan biarkan chatbot kami bekerja untukmu — menjawab otomatis dengan gaya ramah dan natural, membuat pelanggan tetap dekat, dan bisnismu makin berkembang tanpa ribet." }
+              )}
             </motion.p>
           </div>
         </div>
@@ -838,7 +846,10 @@ export default function TentangKami() {
             viewport={{ once: true, amount: 0.5 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
-            Selalu Ada Ruang untuk Berkembang
+            {t(
+              "about.growth.title",
+              { defaultValue: "Selalu Ada Ruang untuk Berkembang" }
+            )}
           </motion.h2>
           <motion.p
             className="mt-6 leading-relaxed md:leading-[1.9] text-black"
@@ -848,10 +859,10 @@ export default function TentangKami() {
             viewport={{ once: true, amount: 0.5 }}
             transition={{ duration: 0.6, delay: 0.05, ease: "easeOut" }}
           >
-            Kami percaya setiap bisnis punya cara unik buat terhubung dengan
-            pelanggan. Karena itu, Joyin terus berkembang biar bisa menyesuaikan
-            diri dengan gaya komunikasi bisnismu — dari obrolan santai sampai
-            layanan profesional, semua bisa kamu atur dengan mudah.
+            {t(
+              "about.growth.body",
+              { defaultValue: "Kami percaya setiap bisnis punya cara unik buat terhubung dengan pelanggan. Karena itu, Joyin terus berkembang biar bisa menyesuaikan diri dengan gaya komunikasi bisnismu — dari obrolan santai sampai layanan profesional, semua bisa kamu atur dengan mudah." }
+            )}
           </motion.p>
         </motion.div>
       </motion.section>
@@ -891,7 +902,10 @@ export default function TentangKami() {
               viewport={{ once: true, amount: 0.55 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
             >
-              Yuk, Tumbuh Bareng Joyin!
+              {t(
+                "about.cta.title",
+                { defaultValue: "Yuk, Tumbuh Bareng Joyin!" }
+              )}
             </motion.h2>
 
             <motion.p
@@ -901,10 +915,10 @@ export default function TentangKami() {
               viewport={{ once: true, amount: 0.55 }}
               transition={{ duration: 0.6, delay: 0.06, ease: "easeOut" }}
             >
-              Nggak ada kata terlalu cepat buat mulai pakai Joyin. Coba sekarang
-              dan rasakan gimana mudahnya ngobrol dengan pelanggan tanpa ribet.
-              Yuk, gabung bareng kami dan biarkan Joyin bantu bisnismu tumbuh
-              lebih cepat dan lebih dekat!
+              {t(
+                "about.cta.desc",
+                { defaultValue: "Nggak ada kata terlalu cepat buat mulai pakai Joyin. Coba sekarang dan rasakan gimana mudahnya ngobrol dengan pelanggan tanpa ribet. Yuk, gabung bareng kami dan biarkan Joyin bantu bisnismu tumbuh lebih cepat dan lebih dekat!" }
+              )}
             </motion.p>
 
             <motion.p
@@ -914,7 +928,7 @@ export default function TentangKami() {
               viewport={{ once: true, amount: 0.55 }}
               transition={{ duration: 0.55, delay: 0.1, ease: "easeOut" }}
             >
-              Hubungi Kami
+              {t("about.cta.contact", { defaultValue: "Hubungi Kami" })}
             </motion.p>
 
             {/* Tombol kontak */}

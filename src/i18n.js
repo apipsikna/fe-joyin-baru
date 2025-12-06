@@ -2,7 +2,6 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
-// kamu bisa pecah file json, ini contoh minimal
 const resources = {
   id: {
     translation: {
@@ -14,6 +13,136 @@ const resources = {
       dashboard: {
         sidebar: { home: "Beranda", chat: "Obrolan", botSettings: "Pengaturan Bot", reports: "Laporan", packages: "Paket Saya", referral: "Referral", backToLanding: "Kembali ke Beranda" },
       },
+      navbar: {
+        referral: "Referral",
+        paket: "Paket",
+        beranda: "Beranda",
+        tutorial: "Tutorial",
+        tentang: "Tentang Kami",
+        login: "Login",
+        dashboard: "Dashboard",
+        logout: "Keluar",
+        bahasa: "Bahasa",
+      },
+      hero: {
+        title: "Chatbot Pintar Joyin, Balesin Chat Otomatis Tanpa Ribet",
+        desc: "Dengan chatbot AI, kamu nggak perlu nunggu lama lagi. Semua jawaban langsung tersedia dalam hitungan detik!",
+        btnStart: "Ayo Mulai",
+        btnLearn: "Pelajari Lebih Lanjut",
+      },
+      fitur: {
+        title: "Yang Kamu Dapatkan di Joyin",
+        items: [
+          { title: "Joyin Personality", desc: "Atur gaya ngobrol si Joyin sesuai karakter bisnismu-ramah, formal, santai? Bisa semua!." },
+          { title: "Knowledge Base", desc: "Simpan semua info penting soal produk atau layananmu, biar Joyin bisa jawab dengan tepat." },
+          { title: "Auto-Ignore List", desc: "Mau skip nomor spam atau iseng? Joyin bisa diatur buat ngabaikan otomatis." },
+          { title: "Online 24/7", desc: "Joyin selalu bisa jawab chat pelanggan kapan pun, bahkan saat kamu lagi tidur!" },
+        ]
+      },
+      keunggulan: {
+        title: "Kenapa harus pakai chatbot ini?",
+        items: [
+          { title: "Respons Kilat", desc: "Jawaban langsung keluar dalam hitungan detik. Gak pake tunggu-tungguan." },
+          { title: "Aktif 24/7", desc: "Chatbot ini gak kenal kata libur. Mau nanya tengah malam pun tetap dilayani — kapan aja, selalu siap!" },
+          { title: "Multitasking", desc: "Bisa bantu banyak orang sekaligus tanpa kewalahan. Gak ada antri panjang, semua dilayani barengan!" },
+          { title: "Ramah & Sabar", desc: "Bisa diajak ngobrol santai tanpa takut di-judge. Mau tanya berulang kali juga tetap dijawab, gak bosenan." },
+          { title: "Hemat Biaya", desc: "Gak perlu banyak tim CS. Chatbot bantu handle pertanyaan umum secara otomatis — efisien dan praktis." },
+          { title: "Jawaban Akurat", desc: "Dibekali AI yang pintar, jadi jawaban gak asal. Informasi yang keluar tetap konsisten, meski ditanya 100 kali." },
+          { title: "Bisa Disesuaikan", desc: "Mau gaya formal, sopan, atau receh? Semua bisa diatur biar sesuai dengan identitas usahamu!" },
+          { title: "Mudah Terintegrasi", desc: "Full Power di WhatsApp Joyin khusus buat WhatsApp, jadi performanya optimal untuk balasin chat pelanggan tanpa delay." },
+        ]
+      },
+      paket: {
+        title: "Temukan Paket yang Paling Cocok untukmu",
+        desc: "Joyin punya pilihan paket yang fleksibel buat segala kebutuhan. Mau yang simpel atau lengkap? Tinggal pilih, Joyin yang bantuin!",
+        month: "/ Bulan",
+        loading: "Memulai pembayaran...",
+        plans: [
+          {
+            title: "Paket Basic",
+            features: ["300 percakapan/bulan", "Balasan otomatis 24/7", "Integrasi WhatsApp mudah", "Template balasan standar", "Statistik bulanan sederhana", "FAQ dasar bawaan"],
+            button: "Pilih Basic"
+          },
+          {
+            title: "Paket Pro",
+            features: ["1.000 percakapan/bulan", "Balasan otomatis 24/7", "Template balasan custom", "Auto-update FAQ produk", "Statistik & insight pelanggan", "Notifikasi chat masuk", "Pesan sambutan personal"],
+            button: "Pilih Pro"
+          },
+          {
+            title: "Paket Bisnis",
+            features: ["5.000 percakapan/bulan", "Multi-admin WhatsApp", "Balasan otomatis 24/7", "Template balasan premium", "FAQ otomatis & terjadwal", "Pesan terjadwal promosi", "Laporan mingguan lengkap", "Prioritas dukungan teknis"],
+            button: "Pilih Bisnis"
+          },
+          {
+            title: "Paket Enterprise",
+            features: ["Chat tanpa batas", "Integrasi WhatsApp API penuh", "Balasan otomatis 24/7", "Statistik real-time & export data", "Multi-admin + manajemen tim", "Laporan custom & konsultasi setup", "Prioritas dukungan & SLA support", "Integrasi sistem internal (CRM/API)"],
+            button: "Pilih Enterprise"
+          },
+        ]
+      },
+      testimoni: {
+        title: "Cerita dari Pengguna Joyin",
+        desc: "Mereka udah ngerasain gimana Joyin bantuin bisnis sehari-hari. Dari yang baru mulai sampai yang udah jalan lama — semua punya cerita seru bareng Joyin!",
+        items: [
+          {
+            name: "Amalia",
+            role: "Owner Skincare",
+            text: "Respon makin cepat, aku jadi bisa fokus ke hal lain. Joyin bantu banget pas lagi banyak chat masuk, semua dijawab tanpa ribet!"
+          },
+          {
+            name: "Ahmad Afif",
+            role: "Freelancer & Designer",
+            text: "Pernah dicoba buat landing page bisnis kecil-kecilan, ternyata chatbot-nya langsung nyambung sama pengunjung. Auto trust naik!"
+          },
+          {
+            name: "Yayapiv",
+            role: "Penjual di Shopee & Instagram",
+            text: "Joyin bantu banget waktu orderan lagi rame. Pertanyaan umum dijawab otomatis, aku tinggal kirim barang!"
+          },
+        ]
+      },
+      footer: {
+        quickLinks: "Quick Links",
+        support: "Support",
+        contact: "Contact Us",
+        links: {
+          fitur: "Fitur",
+          reseller: "Reseller",
+          about: "Tentang Kami",
+          faq: "FAQ",
+          privacy: "Kebijakan Privasi",
+          terms: "Syarat dan Ketentuan"
+        },
+        copyright: "© {{year}} Joyin.id. All rights reserved."
+      },
+      referral: {
+        hero: {
+          title: "Dapatkan Keuntungan dari Referral Joyin!",
+          desc: "Temanmu dapat diskon spesial, kamu pun dapat hadiah menarik. Semakin banyak yang bergabung, semakin banyak untung yang kamu dapat!",
+          btnCode: "Dapatkan Kode Referral",
+          btnLearn: "Pelajari Lebih Lanjut"
+        },
+        how: {
+          steps: [
+            { title: "Dapatkan Kode Unik", desc: "Hanya tiga langkah mudah buat nikmatin keseruan program referral Joyin" },
+            { title: "Bagikan ke Teman", desc: "Share kode Anda melalui WhatsApp, Instagram, Facebook, atau platform sosial media lainnya" },
+            { title: "Dapatkan Bonus", desc: "Ketika teman Anda mendaftar dan bertransaksi, Anda langsung mendapat bonus!" }
+          ]
+        },
+        join: {
+          title: "Yuk Gabung & Dapatkan Referral dari Joyin!",
+          desc: "Mulai perjalananmu bareng Joyin sekarang. Setelah daftar, kamu bisa langsung bagikan kode referral-mu dan kumpulkan hadiah seru dari setiap teman yang ikut bergabung!"
+        }
+      },
+      tutorial: {
+        headerTitle: "Pusat Tutorial Joyin",
+        headerDesc: "Di sini kamu bisa belajar cara menggunakan chatbot, cara mengintegrasikan ke berbagai platform, dan cara membuat ucapan yang menarik. Semua panduan dibuat simpel supaya kamu bisa langsung praktik.",
+        search: "Cari Tutorial...",
+        view: "Lihat",
+        prev: "Sebelumnya",
+        next: "Berikutnya",
+        page: "Halaman {{current}} dari {{total}}"
+      }
     },
   },
   en: {
@@ -25,7 +154,179 @@ const resources = {
       },
       dashboard: {
         sidebar: { home: "Home", chat: "Chat", botSettings: "Bot Settings", reports: "Reports", packages: "My Packages", referral: "Referral", backToLanding: "Back to Home" },
+        errorLoadProfile: "Failed to load profile",
+        referralPlaceholder: {
+          title: "Referral",
+          desc: "Referral page will be here.",
+          yourCode: "Your Referral Code",
+          info: "Users who enter the code during registration will get a discount (according to your rules)."
+        },
+        profile: {
+          planFree: "Free",
+          defaultName: "User",
+          viewProfile: "Profile"
+        },
+        dropdown: {
+          settings: "Settings",
+          settingsSub: "Language & preferences",
+          logout: "Logout",
+          language: "Language"
+        }
       },
+      navbar: {
+        referral: "Referral",
+        paket: "Plans",
+        beranda: "Home",
+        tutorial: "Tutorial",
+        tentang: "About Us",
+        login: "Login",
+        dashboard: "Dashboard",
+        logout: "Logout",
+        bahasa: "Language",
+      },
+      hero: {
+        title: "Smart Chatbot Joyin, Reply Chats Automatically Without Hassle",
+        desc: "With AI chatbot, you don't need to wait long anymore. All answers are instantly available in seconds!",
+        btnStart: "Start Now",
+        btnLearn: "Learn More",
+      },
+      fitur: {
+        title: "What You Get with Joyin",
+        items: [
+          { title: "Joyin Personality", desc: "Set Joyin's chat style according to your business character—friendly, formal, casual? Can do all!" },
+          { title: "Knowledge Base", desc: "Store all important product or service info, so Joyin can answer accurately." },
+          { title: "Auto-Ignore List", desc: "Want to skip spam or prank numbers? Joyin can be set to ignore automatically." },
+          { title: "Online 24/7", desc: "Joyin can always answer customer chats anytime, even when you're sleeping!" },
+        ]
+      },
+      keunggulan: {
+        title: "Why use this chatbot?",
+        items: [
+          { title: "Lightning Fast Response", desc: "Answers come out instantly in seconds. No waiting around." },
+          { title: "Active 24/7", desc: "This chatbot knows no holidays. Even at midnight, it serves — anytime, always ready!" },
+          { title: "Multitasking", desc: "Can help many people at once without being overwhelmed. No long cues, everyone served together!" },
+          { title: "Friendly & Patient", desc: "Can be chatted with casually without fear of judgement. Asked repeatedly, it answers without getting bored." },
+          { title: "Cost Effective", desc: "No need for many CS teams. Chatbot helps handle common questions automatically — efficient and practical." },
+          { title: "Accurate Answers", desc: "Equipped with smart AI, so answers aren't random. Information remains consistent, even if asked 100 times." },
+          { title: "Customizable", desc: "Want formal, polite, or casual style? All can be set to match your business identity!" },
+          { title: "Easy Integration", desc: "Full Power on WhatsApp Joyin specifically for WhatsApp, so performance is optimal for replying to customer chats without delay." },
+        ]
+      },
+      paket: {
+        title: "Find the Plan That Suits You Best",
+        desc: "Joyin has flexible plan options for all needs. Want simple or complete? Just choose, Joyin helps!",
+        month: "/ Month",
+        loading: "Starting payment...",
+        plans: [
+          {
+            title: "Basic Plan",
+            features: ["300 conversations/month", "24/7 Auto reply", "Easy WhatsApp Integration", "Standard reply templates", "Simple monthly stats", "Built-in basic FAQ"],
+            button: "Select Basic"
+          },
+          {
+            title: "Pro Plan",
+            features: ["1,000 conversations/month", "24/7 Auto reply", "Custom reply templates", "Auto-update product FAQ", "Customer stats & insights", "Incoming chat notifications", "Personal welcome message"],
+            button: "Select Pro"
+          },
+          {
+            title: "Business Plan",
+            features: ["5,000 conversations/month", "Multi-admin WhatsApp", "24/7 Auto reply", "Premium reply templates", "Auto & scheduled FAQ", "Scheduled promo messages", "Complete weekly reports", "Priority technical support"],
+            button: "Select Business"
+          },
+          {
+            title: "Enterprise Plan",
+            features: ["Unlimited chats", "Full WhatsApp API Integration", "24/7 Auto reply", "Real-time stat & data export", "Multi-admin + team management", "Custom report & setup consultation", "Priority support & SLA", "Internal system integration (CRM/API)"],
+            button: "Select Enterprise"
+          },
+        ]
+      },
+      testimoni: {
+        title: "Stories from Joyin Users",
+        desc: "They've experienced how Joyin helps daily business. From starters to long-runners — all have exciting stories with Joyin!",
+        items: [
+          {
+            name: "Amalia",
+            role: "Owner Skincare",
+            text: "Response gets faster, I can focus on other things. Joyin really helps when many chats come in, all answered without hassle!"
+          },
+          {
+            name: "Ahmad Afif",
+            role: "Freelancer & Designer",
+            text: "Tried for a small business landing page, turned out the chatbot connects instantly with visitors. Auto trust goes up!"
+          },
+          {
+            name: "Yayapiv",
+            role: "Shopee & Instagram Seller",
+            text: "Joyin helps a lot when orders are high. Common questions answered automatically, I just ship goods!"
+          },
+        ]
+      },
+      footer: {
+        quickLinks: "Quick Links",
+        support: "Support",
+        contact: "Contact Us",
+        links: {
+          fitur: "Features",
+          reseller: "Reseller",
+          about: "About Us",
+          faq: "FAQ",
+          privacy: "Privacy Policy",
+          terms: "Terms and Conditions"
+        },
+        copyright: "© {{year}} Joyin.id. All rights reserved."
+      },
+      referral: {
+        hero: {
+          title: "Get Benefits from Joyin Referral!",
+          desc: "Your friends get special discounts, you get attractive rewards. The more people join, the more profit you get!",
+          btnCode: "Get Referral Code",
+          btnLearn: "Learn More"
+        },
+        how: {
+          steps: [
+            { title: "Get Unique Code", desc: "Just three easy steps to enjoy the excitement of Joyin referral program" },
+            { title: "Share with Friends", desc: "Share your code via WhatsApp, Instagram, Facebook, or other social media platforms" },
+            { title: "Get Bonus", desc: "When your friend registers and transacts, you instantly get a bonus!" }
+          ]
+        },
+        join: {
+          title: "Join & Get Referral from Joyin!",
+          desc: "Start your journey with Joyin now. After registering, you can immediately share your referral code and collect exciting rewards from every friend who joins!"
+        }
+      },
+      tutorial: {
+        headerTitle: "Joyin Tutorial Center",
+        headerDesc: "Here you can learn how to use the chatbot, how to integrate into various platforms, and how to create attractive greetings. All guides are made simple so you can practice immediately.",
+        search: "Search Tutorials...",
+        view: "View",
+        prev: "Previous",
+        next: "Next",
+        page: "Page {{current}} of {{total}}"
+      },
+      about: {
+        hero: {
+          title: "Let's Get to Know Joyin!",
+          desc: "Welcome to Joyin, your business best friend in handling customer chats. We believe fast and warm communication makes customers more comfortable. Joyin is here to help you respond automatically 24 hours nonstop, so your business keeps running even when you're relaxing."
+        },
+        mascot: {
+          p1: "Joyin is here to help you respond automatically for a full 24 hours, so your business keeps running even when you're relaxing. With our smart system, every interaction feels more personal without the hassle of replying one by one.",
+          p2: "We want to create a lighter and more enjoyable customer experience. Every message is replied to quickly, yet still has a human touch that makes customers feel cared for."
+        },
+        joyCemerlang: {
+          title: "Make Chat More Alive Without the Hassle",
+          left: "No need to stay up late or keep staring at the screen just for a fast response. Joyin is ready to help you stay connected anytime, anywhere, without losing the warmth of conversation.",
+          right: "With Joyin, just set it up once and let our chatbot work for you — answering automatically with a friendly and natural style, keeping customers close, and helping your business grow without the hassle."
+        },
+        growth: {
+          title: "Always Room to Grow",
+          body: "We believe every business has a unique way to connect with customers. That's why Joyin keeps growing to adapt to your business communication style — from casual chats to professional services, you can easily manage it all."
+        },
+        cta: {
+          title: "Let's Grow with Joyin!",
+          desc: "There's no such thing as too early to start using Joyin. Try it now and feel how easy it is to chat with customers without the hassle. Come join us and let Joyin help your business grow faster and closer!",
+          contact: "Contact Us"
+        }
+      }
     },
   },
 };
