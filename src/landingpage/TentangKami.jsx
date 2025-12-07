@@ -1,7 +1,6 @@
 // src/landingpage/TentangKami.jsx
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import Navbar from "../components/Navbar1";
 import Footer from "../components/Footer";
 import { useTranslation } from "react-i18next";
 
@@ -347,54 +346,19 @@ export default function TentangKami() {
     return st;
   };
 
-  // ===== Offset hero agar tepat di bawah navbar =====
-  const navWrapRef = useRef(null);
-  const [heroOffset, setHeroOffset] = useState(0);
 
-  useEffect(() => {
-    const wrap = navWrapRef.current;
-    if (!wrap) return;
-    const navEl = wrap.querySelector("nav") || wrap.firstElementChild || wrap;
-    if (!navEl) return;
-
-    const compute = () => {
-      const style = window.getComputedStyle(navEl);
-      const pos = style.position;
-      const h = Math.round(navEl.getBoundingClientRect().height || 0);
-      setHeroOffset(pos === "fixed" || pos === "sticky" ? h : 0);
-    };
-
-    compute();
-
-    const ro = new ResizeObserver(compute);
-    ro.observe(navEl);
-    window.addEventListener("resize", compute);
-
-    return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", compute);
-    };
-  }, []);
 
   // 🌟 SCROLL KE ATAS SAAT MASUK HALAMAN TENTANG KAMI
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      window.scrollTo(0, 0);
-    }
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
   }, []);
 
   return (
     <div className="w-screen min-h-screen font-poppins bg-white overflow-x-hidden">
-      {/* Bungkus Navbar agar bisa diukur */}
-      <div ref={navWrapRef}>
-        <Navbar />
-      </div>
-
       {/* ==== HERO TENTANG JOYIN ==== */}
       <motion.section
-        className="relative w-full pt-8 pb-36 min-h-[560px]"
+        className="relative w-full pt-28 pb-36 min-h-[560px]" // [MOD] Added pt-28 (was just pt-8 but relied on marginTop)
         style={{
-          marginTop: heroOffset ? `${heroOffset}px` : undefined,
           background:
             "linear-gradient(180deg, \
 #37B796 0%, \

@@ -146,7 +146,7 @@ const resources = {
           privacy: "Kebijakan Privasi",
           terms: "Syarat dan Ketentuan"
         },
-        copyright: "© {{year}} Joyin.id. All rights reserved."
+        copyright: "Joyin.id. All rights reserved."
       },
       referral: {
         hero: {
@@ -370,7 +370,7 @@ const resources = {
           privacy: "Privacy Policy",
           terms: "Terms and Conditions"
         },
-        copyright: "© {{year}} Joyin.id. All rights reserved."
+        copyright: "Joyin.id. All rights reserved."
       },
       referral: {
         hero: {

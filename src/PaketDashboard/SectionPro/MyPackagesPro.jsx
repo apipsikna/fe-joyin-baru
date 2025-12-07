@@ -22,7 +22,7 @@ const PAGE_CFG = {
   pxMobile: 20,
   pxDesktop: 32,
   pt: 48,
-  pb: 0,
+  pb: 100,
 };
 
 /* =======================
@@ -31,41 +31,35 @@ const PAGE_CFG = {
 const STAT_CARD_CFG = {
   maxW: 380,
   radius: 22,
-
   minHMobile: 132,
   minHDesktop: 140,
-
   padXMobile: 28,
   padYMobile: 22,
   padXDesktop: 30,
   padYDesktop: 26,
-
   titleMobilePx: 16,
   titleDesktopPx: 18,
   valueMobilePx: 28,
   valueDesktopPx: 30,
-
   childrenSlotMobile: 16,
   childrenSlotDesktop: 18,
 };
 
 /* =======================
-   ✅ WADAH PUTIH (padding konten)
+   ✅ WADAH PUTIH
    ======================= */
 const SECTION_PUTIH_CFG = {
   maxW: 2000,
-
   padMobileX: 18,
   padMobileTop: 40,
-  padMobileBottom: 90,
-
+  padMobileBottom: 28,
   padDesktopX: 110,
   padDesktopTop: 300,
-  padDesktopBottom: 180,
+  padDesktopBottom: 60,
 };
 
 /* =======================
-   ✅ PANJANGKAN CONTAINER PUTIH (min-height)
+   ✅ PANJANGKAN CONTAINER PUTIH
    ======================= */
 const SECTION_PUTIH_WRAP_CTRL = {
   minHMobile: 760,
@@ -79,14 +73,13 @@ const SECTION_PUTIH_IMG_CTRL = {
   translateXMobile: 0,
   translateYMobile: 0,
   scaleMobile: 1,
-
   translateXDesktop: 0,
   translateYDesktop: 72,
   scaleDesktop: 1.09,
 };
 
 /* =======================
-   ✅ TURUNKAN KONTEN “Fitur yang Didapatkan”
+   ✅ TURUNKAN KONTEN
    ======================= */
 const SECTION_PUTIH_CONTENT_CTRL = {
   yMobile: 45,
@@ -102,41 +95,19 @@ const ACTIONS_CTRL = {
 };
 
 /* =======================
-   ✅ FEATURE CARD (hover naik + shadow)
+   ✅ FEATURE CARD CONTROLLER (MATCH BASIC)
    ======================= */
 const FEATURE_CARD_CTRL = {
-  radius: 18,
-  borderPx: 1.5,
-
-  hMobile: 112,
-  hDesktop: 120,
-
-  padXMobile: 22,
-  padYMobile: 18,
-
-  padXDesktop: 26,
-  padYDesktop: 20,
-
-  gapMobile: 14,
-  gapDesktop: 16,
-
-  iconMobile: 22,
-  iconDesktop: 24,
-
+  hMobile: 132,
+  hDesktop: 142,
   descLines: 2,
-
-  hoverLiftPx: 6,
-  shadowBase: "0 10px 24px rgba(0,0,0,0.08)",
-  shadowHover: "0 20px 48px rgba(0,0,0,0.16)",
 };
 
 const FEATURE_TEXT_CTRL = {
   titleMobilePx: 16,
   titleDesktopPx: 18,
-
   descMobilePx: 13,
   descDesktopPx: 14,
-
   titleLineHeight: 1.25,
   descLineHeight: 1.4,
 };
@@ -150,7 +121,6 @@ function StatCard({ title, value, children }) {
           {value}
         </div>
       </div>
-
       <div className="_statSlot mt-4">{children ? children : null}</div>
     </div>
   );
@@ -177,18 +147,30 @@ function ActionButton({ children, onClick, variant = "primary" }) {
   );
 }
 
+// ✅ Matches MyPackagesBasic Style
 function FeatureCard({ icon: Icon, title, desc }) {
   return (
-    <div className="_featureOuter w-full">
-      <div className="_featureInner">
-        <div className="_featureRow">
-          <div className="_featureIconWrap">
+    <div
+      className={[
+        "_featureCard",
+        "w-full",
+        "rounded-2xl p-[1px]",
+        "bg-gradient-to-r from-[#5FCAAC] to-[#DAEC75]",
+        "transition-all duration-200 ease-out transform",
+        "hover:-translate-y-1.5 hover:shadow-[0_22px_60px_rgba(0,0,0,0.18)]",
+      ].join(" ")}
+    >
+      <div className="h-full w-full rounded-[1rem] bg-white px-6 py-5">
+        <div className="h-full flex items-start gap-3">
+          <div className="mt-[2px] shrink-0 text-black">
             <Icon className="_featureIcon" />
           </div>
 
           <div className="min-w-0 flex-1">
-            <div className="_featureTitle">{title}</div>
-            <div className="_featureDesc">{desc}</div>
+            <div className="_featureTitle font-extrabold text-gray-900">
+              {title}
+            </div>
+            <div className="_featureDesc mt-1 text-gray-500">{desc}</div>
           </div>
         </div>
       </div>
@@ -218,30 +200,27 @@ export default function MyPackagesPro() {
   };
 
   const fadeUp = {
-    hidden: { opacity: 0, y: 14, filter: "blur(7px)" },
+    hidden: { opacity: 0, y: 14 },
     show: {
       opacity: 1,
       y: 0,
-      filter: "blur(0px)",
       transition: { duration: reduceMotion ? 0 : 0.6, ease: EASE },
     },
   };
 
   const fadeOnly = {
-    hidden: { opacity: 0, filter: "blur(10px)" },
+    hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      filter: "blur(0px)",
       transition: { duration: reduceMotion ? 0 : 0.7, ease: EASE },
     },
   };
 
   const statCardIn = {
-    hidden: { opacity: 0, y: 16, filter: "blur(8px)" },
+    hidden: { opacity: 0, y: 16 },
     show: (i = 0) => ({
       opacity: 1,
       y: 0,
-      filter: "blur(0px)",
       transition: {
         duration: reduceMotion ? 0 : 0.55,
         ease: EASE,
@@ -251,11 +230,10 @@ export default function MyPackagesPro() {
   };
 
   const featureIn = {
-    hidden: { opacity: 0, y: 14, filter: "blur(8px)" },
+    hidden: { opacity: 0, y: 14 },
     show: (i = 0) => ({
       opacity: 1,
       y: 0,
-      filter: "blur(0px)",
       transition: {
         duration: reduceMotion ? 0 : 0.45,
         ease: "easeOut",
@@ -266,11 +244,9 @@ export default function MyPackagesPro() {
 
   return (
     <motion.div
-      // ✅ scroll tetap bisa, tapi scrollbar DISAMARKAN (yang kanan itu)
-      className="w-full overflow-x-hidden font-poppins _vh _noScrollbar"
+      className="w-full min-h-full font-poppins"
       style={{
         background: `linear-gradient(90deg, ${GRADIENT_FROM} 0%, ${GRADIENT_TO} 100%)`,
-        overflowY: "auto",
       }}
       variants={page}
       initial="hidden"
@@ -287,32 +263,11 @@ export default function MyPackagesPro() {
         }}
       >
         <style>{`
-          /* ✅ Viewport height stabil + scroll container */
-          ._vh{ height: 100vh; height: 100dvh; }
+          /* ✅ Sembunyikan scrollbar */
+          body { -ms-overflow-style: none; scrollbar-width: none; }
+          body::-webkit-scrollbar { display: none; }
 
-          /* ✅ Hilangkan scrollbar (WAJIB: di container scroll + juga html/body) */
-          html, body{
-            -ms-overflow-style: none !important;
-            scrollbar-width: none !important;
-          }
-          html::-webkit-scrollbar,
-          body::-webkit-scrollbar{
-            width: 0 !important;
-            height: 0 !important;
-            display: none !important;
-          }
-
-          ._noScrollbar{
-            -ms-overflow-style: none !important;
-            scrollbar-width: none !important;
-          }
-          ._noScrollbar::-webkit-scrollbar{
-            width: 0 !important;
-            height: 0 !important;
-            display: none !important;
-          }
-
-          /* ✅ Matikan outline bawaan tombol */
+          /* ✅ Matikan outline tombol */
           .joyin-btn { outline: none; }
           .joyin-btn:focus, .joyin-btn:focus-visible, .joyin-btn:active { outline: none; }
           .joyin-btn::-moz-focus-inner { border: 0; }
@@ -332,12 +287,16 @@ export default function MyPackagesPro() {
             min-height: ${STAT_CARD_CFG.minHMobile}px;
             padding: ${STAT_CARD_CFG.padYMobile}px ${STAT_CARD_CFG.padXMobile}px;
           }
-          ._statTitle{ font-size: ${STAT_CARD_CFG.titleMobilePx}px; }
+          ._statTitle{
+            font-size: ${STAT_CARD_CFG.titleMobilePx}px;
+          }
           ._statValue{
             font-size: ${STAT_CARD_CFG.valueMobilePx}px;
             line-height: 1.1;
           }
-          ._statSlot{ min-height: ${STAT_CARD_CFG.childrenSlotMobile}px; }
+          ._statSlot{
+            min-height: ${STAT_CARD_CFG.childrenSlotMobile}px;
+          }
 
           @media (min-width: 768px){
             ._pagePad{
@@ -353,101 +312,35 @@ export default function MyPackagesPro() {
             ._statSlot{ min-height: ${STAT_CARD_CFG.childrenSlotDesktop}px; }
           }
 
-          /* =======================
-             ✅ PANJANGKAN SECTION PUTIH (min-height)
-             ======================= */
-          ._spWrap{
-            min-height: ${SECTION_PUTIH_WRAP_CTRL.minHMobile}px;
-          }
-          @media (min-width: 768px){
-            ._spWrap{
-              min-height: ${SECTION_PUTIH_WRAP_CTRL.minHDesktop}px;
-            }
-          }
+          /* ✅ Samakan tinggi 6 feature card (MATCH BASIC CSS) */
+          ._featureCard { height: ${FEATURE_CARD_CTRL.hMobile}px; }
+          @media (min-width: 768px) { ._featureCard { height: ${FEATURE_CARD_CTRL.hDesktop}px; } }
 
-          /* =======================
-             ✅ BACKGROUND SectionPutih (stretch)
-             ======================= */
-          ._spBg{
-            background-image: url("${SectionPutih}");
-            background-repeat: no-repeat;
-            background-position: center top;
-            background-size: 100% 100%;
-          }
-
-          /* =======================
-             ✅ FEATURE CARD + HOVER (naik + shadow)
-             ======================= */
-          ._featureOuter{
-            height: ${FEATURE_CARD_CTRL.hMobile}px;
-            border-radius: ${FEATURE_CARD_CTRL.radius}px;
-            padding: ${FEATURE_CARD_CTRL.borderPx}px;
-            background: linear-gradient(90deg, ${GRADIENT_FROM} 0%, ${GRADIENT_TO} 100%);
-            box-shadow: ${FEATURE_CARD_CTRL.shadowBase};
-            transform: translateY(0);
-            transition: transform 180ms ease-out, box-shadow 200ms ease-out;
-            will-change: transform, box-shadow;
-          }
-          ._featureOuter:hover{
-            transform: translateY(-${FEATURE_CARD_CTRL.hoverLiftPx}px);
-            box-shadow: ${FEATURE_CARD_CTRL.shadowHover};
-          }
-          ._featureOuter:active{
-            transform: translateY(-2px);
-          }
-          @media (prefers-reduced-motion: reduce){
-            ._featureOuter{ transition: none !important; }
-          }
-
-          ._featureInner{
-            height: 100%;
-            width: 100%;
-            background: #fff;
-            border-radius: ${FEATURE_CARD_CTRL.radius - 3}px;
-            padding: ${FEATURE_CARD_CTRL.padYMobile}px ${FEATURE_CARD_CTRL.padXMobile}px;
-          }
-          ._featureRow{
-            height: 100%;
-            display: flex;
-            gap: ${FEATURE_CARD_CTRL.gapMobile}px;
-            align-items: flex-start;
-          }
-          ._featureIconWrap{ margin-top: 2px; flex: 0 0 auto; color: #111827; }
-          ._featureIcon{ font-size: ${FEATURE_CARD_CTRL.iconMobile}px; }
-
+          /* ✅ Ukuran teks feature */
           ._featureTitle{
             font-size: ${FEATURE_TEXT_CTRL.titleMobilePx}px;
             line-height: ${FEATURE_TEXT_CTRL.titleLineHeight};
-            font-weight: 700;
-            color: #111827;
             display: -webkit-box;
             -webkit-line-clamp: 1;
             -webkit-box-orient: vertical;
             overflow: hidden;
           }
           ._featureDesc{
-            margin-top: 6px;
             font-size: ${FEATURE_TEXT_CTRL.descMobilePx}px;
             line-height: ${FEATURE_TEXT_CTRL.descLineHeight};
-            color: rgba(107,114,128,1);
             display: -webkit-box;
             -webkit-line-clamp: ${FEATURE_CARD_CTRL.descLines};
             -webkit-box-orient: vertical;
             overflow: hidden;
           }
-
-          @media (min-width: 768px){
-            ._featureOuter{ height: ${FEATURE_CARD_CTRL.hDesktop}px; }
-            ._featureInner{
-              padding: ${FEATURE_CARD_CTRL.padYDesktop}px ${FEATURE_CARD_CTRL.padXDesktop}px;
-            }
-            ._featureRow{ gap: ${FEATURE_CARD_CTRL.gapDesktop}px; }
-            ._featureIcon{ font-size: ${FEATURE_CARD_CTRL.iconDesktop}px; }
+          ._featureIcon{ font-size: 22px; }
+          @media (min-width: 768px) {
             ._featureTitle{ font-size: ${FEATURE_TEXT_CTRL.titleDesktopPx}px; }
             ._featureDesc{ font-size: ${FEATURE_TEXT_CTRL.descDesktopPx}px; }
+            ._featureIcon{ font-size: 26px; }
           }
 
-          /* ✅ Transform background SectionPutih */
+          /* ✅ Transform gambar SectionPutih (mobile) */
           ._spImg {
             transform:
               translate(${SECTION_PUTIH_IMG_CTRL.translateXMobile}px,
@@ -456,7 +349,10 @@ export default function MyPackagesPro() {
             transform-origin: center center;
           }
 
+          /* ✅ Turunkan konten di dalam SectionPutih */
           ._spContent { transform: translateY(${SECTION_PUTIH_CONTENT_CTRL.yMobile}px); }
+
+          /* ✅ Turunkan 3 tombol action */
           ._actionsShift { transform: translateY(${ACTIONS_CTRL.yMobile}px); }
 
           @media (min-width: 768px) {
@@ -536,44 +432,46 @@ export default function MyPackagesPro() {
             </motion.div>
           </div>
 
-          {/* Actions */}
           <motion.div
             variants={fadeOnly}
             initial="hidden"
             animate="show"
             className="mt-9 flex flex-wrap items-center justify-center gap-4 _actionsShift"
           >
-            <ActionButton onClick={() => {}}>Perpanjang Paket</ActionButton>
-            <ActionButton onClick={() => {}}>Upgrade Paket</ActionButton>
-            <ActionButton variant="danger" onClick={() => {}}>
+            <ActionButton onClick={() => { }}>Perpanjang Paket</ActionButton>
+            <ActionButton onClick={() => { }}>Upgrade Paket</ActionButton>
+            <ActionButton variant="danger" onClick={() => { }}>
               Batalkan Paket
             </ActionButton>
           </motion.div>
 
-          {/* ✅ MANFAAT (dipanjangin sampai bawah) */}
+          {/* ✅ MANFAAT */}
           <div className="mt-10 flex justify-center">
-            <div
-              className="relative w-full _spWrap"
-              style={{ maxWidth: SECTION_PUTIH_CFG.maxW }}
-            >
-              {/* Background image stretch */}
-              <motion.div
+            <div className="relative w-full" style={{ maxWidth: SECTION_PUTIH_CFG.maxW }}>
+
+              {/* Background image: Matches Basic (fadeOnly, no separate stretch logic needed if using basic style properly? 
+                  Wait, Basic uses <motion.img> for _spImg. Pro used div with bg-image.
+                  I will switch Pro to use <motion.img> like Basic for consistency and cleaner code.
+              */}
+              <motion.img
                 variants={fadeOnly}
                 initial="hidden"
                 animate="show"
-                className="absolute inset-0 _spBg _spImg"
-                aria-hidden="true"
+                src={SectionPutih}
+                alt="SectionPutih"
+                className="absolute inset-0 w-full h-full object-fill select-none _spImg"
+                draggable="false"
+                style={{}}
               />
 
-              {/* Konten */}
               <motion.div
                 variants={fadeOnly}
                 initial="hidden"
                 animate="show"
-                className="absolute inset-0 z-10"
+                className="relative z-10"
               >
                 <div
-                  className="_spPad _spContent h-full"
+                  className="_spPad _spContent"
                   style={{
                     paddingLeft: SECTION_PUTIH_CFG.padMobileX,
                     paddingRight: SECTION_PUTIH_CFG.padMobileX,
@@ -638,7 +536,6 @@ export default function MyPackagesPro() {
               </motion.div>
             </div>
           </div>
-          {/* /manfaat */}
         </div>
       </div>
     </motion.div>

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios"; // axios instance yg sdh terhubung AuthContext
 import { useTranslation } from "react-i18next";
+import { HiCheckCircle } from "react-icons/hi2";
 
 export default function PaketHarga() {
   const navigate = useNavigate();
@@ -141,55 +142,58 @@ export default function PaketHarga() {
         {t("paket.desc", "Joyin punya pilihan paket yang fleksibel buat segala kebutuhan...")}
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {paketList.map((paket, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: 0, y: -30 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.35 }}
             viewport={{ once: true }}
-            className="bg-white border rounded-3xl p-6 hover:shadow-2xl flex flex-col h-full"
+            transition={{ delay: i * 0.1, duration: 0.5 }}
+            className="flex flex-col h-full bg-white rounded-3xl border border-gray-100 shadow-[0_10px_40px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.1)] transition-all duration-300 p-6 md:p-8 hover:-translate-y-2"
           >
-            <div className="flex-grow">
-              <h3 className="text-xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-green-400">
+            <div className="mb-6">
+              <h3 className="text-lg font-bold text-gray-400 uppercase tracking-wider mb-2">
                 {paket.title}
               </h3>
-              <p className="text-center text-gray-700 font-semibold mt-2">
-                {paket.price}{" "}
-                <span className="text-sm text-gray-500">{t("paket.month", "/ Bulan")}</span>
-              </p>
-              <ul className="mt-4 space-y-2 text-sm text-gray-600">
-                {paket.features.map((f, idx) => (
-                  <li key={idx} className="flex items-start">
-                    <span className="text-green-500 text-lg mr-2">✓</span>
-                    <span>{f}</span>
-                  </li>
-                ))}
-              </ul>
+              <div className="flex items-baseline text-gray-900">
+                <span className="text-3xl lg:text-4xl font-extrabold tracking-tight">
+                  {paket.price}
+                </span>
+                <span className="ml-2 text-sm font-medium text-gray-400">
+                  {t("paket.month", "/ Bulan")}
+                </span>
+              </div>
             </div>
 
-            <div className="mt-6">
-              <button
-                onClick={() => handleChoose(paket.planId)}
-                disabled={loadingPlan === paket.planId || !snapReady}
-                className={`w-full py-2 rounded-lg text-white font-semibold transition-colors duration-300
-                  ${loadingPlan === paket.planId || !snapReady
-                    ? "bg-gray-300 cursor-not-allowed"
-                    : "bg-green-400 hover:bg-yellow-400 hover:text-gray-800"
-                  }`}
-              >
-                {loadingPlan === paket.planId
-                  ? t("paket.loading", "Memulai pembayaran...")
-                  : paket.button}
-              </button>
-              {!MIDTRANS_CLIENT_KEY && (
-                <p className="mt-2 text-xs text-red-500">
-                  VITE_MIDTRANS_CLIENT_KEY belum diset di .env
-                </p>
-              )}
-            </div>
+            <ul className="flex-1 space-y-4 mb-8">
+              {paket.features.map((f, idx) => (
+                <li key={idx} className="flex items-start">
+                  <HiCheckCircle className="w-6 h-6 text-emerald-400 shrink-0 mr-3" />
+                  <span className="text-[15px] font-medium text-gray-600 leading-relaxed">
+                    {f}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            <button
+              onClick={() => handleChoose(paket.planId)}
+              disabled={loadingPlan === paket.planId || !snapReady}
+              className={`w-full py-4 rounded-xl font-bold text-sm tracking-wide transition-all duration-200 shadow-md ${loadingPlan === paket.planId || !snapReady
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-emerald-500 text-white hover:bg-emerald-400 hover:shadow-lg active:scale-95"
+                }`}
+            >
+              {loadingPlan === paket.planId
+                ? t("paket.loading", "Memulai...")
+                : paket.button}
+            </button>
+            {!MIDTRANS_CLIENT_KEY && (
+              <p className="mt-3 text-[10px] text-center text-red-400 font-mono">
+                ! KEY MISSING
+              </p>
+            )}
           </motion.div>
         ))}
       </div>

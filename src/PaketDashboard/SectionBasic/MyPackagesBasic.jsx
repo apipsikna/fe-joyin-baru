@@ -164,7 +164,6 @@ function FeatureCard({ icon: Icon, title, desc }) {
         "w-full",
         "rounded-2xl p-[1px]",
         "bg-gradient-to-r from-[#5FCAAC] to-[#DAEC75]",
-        "shadow-[0_14px_32px_rgba(0,0,0,0.10)]",
         "transition-all duration-200 ease-out transform",
         "hover:-translate-y-1.5 hover:shadow-[0_22px_60px_rgba(0,0,0,0.18)]",
       ].join(" ")}
@@ -458,9 +457,9 @@ export default function MyPackagesBasic() {
             animate="show"
             className="mt-9 flex flex-wrap items-center justify-center gap-4 _actionsShift"
           >
-            <ActionButton onClick={() => {}}>Perpanjang Paket</ActionButton>
-            <ActionButton onClick={() => {}}>Upgrade Paket</ActionButton>
-            <ActionButton variant="danger" onClick={() => {}}>
+            <ActionButton onClick={() => { }}>Perpanjang Paket</ActionButton>
+            <ActionButton onClick={() => { }}>Upgrade Paket</ActionButton>
+            <ActionButton variant="danger" onClick={() => { }}>
               Batalkan Paket
             </ActionButton>
           </motion.div>

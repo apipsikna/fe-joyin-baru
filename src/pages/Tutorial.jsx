@@ -1,7 +1,6 @@
 // src/pages/Tutorial.jsx
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
-import Navbar from "../components/Navbar1";
 import Footer from "../components/Footer";
 import SectionTutorial from "../assets/SectionTutor.png";
 import { useTranslation } from "react-i18next";
@@ -179,8 +178,11 @@ export default function Tutorial() {
   const [page, setPage] = useState(1);
   const [mounted, setMounted] = useState(false);
 
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "auto" });
     // aktifkan animasi setelah mount
     const id = requestAnimationFrame(() => setMounted(true));
     return () => cancelAnimationFrame(id);
@@ -245,7 +247,6 @@ export default function Tutorial() {
 
   return (
     <div className="w-screen min-h-screen font-poppins overflow-x-hidden bg-white text-black">
-      <Navbar />
 
       <main className="pt-24 md:pt-28">
         {/* SectionTutorial (adjustable) */}

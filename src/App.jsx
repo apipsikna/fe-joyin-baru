@@ -5,6 +5,7 @@ import {
   Routes,
   Route,
   Navigate,
+  Outlet,
 } from "react-router-dom";
 
 import "./i18n";
@@ -41,6 +42,16 @@ import Basic from "./PaketDashboard/Basic";
 import Pro from "./PaketDashboard/Pro";
 import Bisnis from "./PaketDashboard/Bisnis";
 import Enterprise from "./PaketDashboard/Enterprise";
+import ScrollToTop from "./components/ScrollToTop";
+
+function PublicLayout() {
+  return (
+    <>
+      <Navbar />
+      <Outlet />
+    </>
+  );
+}
 
 /* ================== FORCE LIGHT THEME (tetap putih walau Chrome/System Dark) ================== */
 function ForceLightTheme() {
@@ -106,8 +117,6 @@ function LandingPage() {
 
   return (
     <div className="w-screen min-h-screen font-poppins overflow-x-hidden bg-white text-black">
-      <Navbar />
-
       <section id="beranda" className="scroll-mt-24">
         <HeroSection />
       </section>
@@ -169,9 +178,15 @@ function AppInner() {
       <HtmlLangSync />
 
       <Router>
+        <ScrollToTop />
         <Routes>
-          {/* Landing page */}
-          <Route path="/" element={<LandingPage />} />
+          {/* Public Layout wraps these pages */}
+          <Route element={<PublicLayout />}>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/tentang" element={<TentangKami />} />
+            <Route path="/referral" element={<Referral />} />
+            <Route path="/tutorial" element={<Tutorial />} />
+          </Route>
 
           {/* LOGIN */}
           <Route
@@ -198,11 +213,6 @@ function AppInner() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-
-          {/* Publik */}
-          <Route path="/tentang" element={<TentangKami />} />
-          <Route path="/referral" element={<Referral />} />
-          <Route path="/tutorial" element={<Tutorial />} />
 
           {/* Bukti Pembayaran */}
           <Route path="/bukti-pembayaran" element={<BuktiPembayaran />} />

@@ -6,6 +6,8 @@ import {
   HiOutlineChartBar,
   HiOutlineDevicePhoneMobile,
   HiOutlineQuestionMarkCircle,
+  HiOutlinePhone,
+  HiOutlineCalendar,
 } from "react-icons/hi2";
 import { motion, useReducedMotion } from "framer-motion";
 
@@ -134,7 +136,6 @@ function FeatureCard({ icon: Icon, title, desc }) {
         "w-full",
         "rounded-2xl p-[1px]",
         "bg-gradient-to-r from-[#5FCAAC] to-[#DAEC75]",
-        "shadow-[0_14px_32px_rgba(0,0,0,0.10)]",
         "transition-all duration-200 ease-out transform",
         "hover:-translate-y-1.5 hover:shadow-[0_22px_60px_rgba(0,0,0,0.18)]",
       ].join(" ")}
@@ -227,7 +228,7 @@ export default function MyPackagesBisnis() {
 
   return (
     <motion.div
-      className="w-full overflow-x-hidden font-poppins"
+      className="w-full min-h-full font-poppins"
       style={{
         background: `linear-gradient(90deg, ${GRADIENT_FROM} 0%, ${GRADIENT_TO} 100%)`,
       }}
@@ -407,9 +408,9 @@ export default function MyPackagesBisnis() {
             animate="show"
             className="mt-9 flex flex-wrap items-center justify-center gap-4 _actionsShift"
           >
-            <ActionButton onClick={() => {}}>Perpanjang Paket</ActionButton>
-            <ActionButton onClick={() => {}}>Upgrade Paket</ActionButton>
-            <ActionButton variant="danger" onClick={() => {}}>
+            <ActionButton onClick={() => { }}>Perpanjang Paket</ActionButton>
+            <ActionButton onClick={() => { }}>Upgrade Paket</ActionButton>
+            <ActionButton variant="danger" onClick={() => { }}>
               Batalkan Paket
             </ActionButton>
           </motion.div>
@@ -423,15 +424,16 @@ export default function MyPackagesBisnis() {
                 animate="show"
                 src={SectionPutih}
                 alt="SectionPutih"
-                className="w-full h-auto select-none _spImg"
+                className="absolute inset-0 w-full h-full object-fill select-none _spImg"
                 draggable="false"
+                style={{}}
               />
 
               <motion.div
                 variants={fadeOnly}
                 initial="hidden"
                 animate="show"
-                className="absolute inset-0 z-10"
+                className="relative z-10"
               >
                 <div
                   className="_spPad _spContent"
@@ -450,13 +452,13 @@ export default function MyPackagesBisnis() {
                     {[
                       {
                         icon: HiOutlineChatBubbleLeftRight,
-                        title: "3.000 percakapan/bulan",
-                        desc: "Melayani interaksi pelanggan lebih banyak untuk operasional bisnis.",
+                        title: "5.000 percakapan/bulan",
+                        desc: "Bisa melayani hingga 5000 interaksi pelanggan setiap bulannya.",
                       },
                       {
-                        icon: HiOutlineSquares2X2,
-                        title: "Template balasan premium",
-                        desc: "Template lebih lengkap untuk berbagai skenario customer service.",
+                        icon: HiOutlineChartBar,
+                        title: "Laporan mingguan lengkap",
+                        desc: "Dapatkan ringkasan performa chat setiap minggu untuk memantau perkembangan.",
                       },
                       {
                         icon: HiOutlineClock,
@@ -464,20 +466,30 @@ export default function MyPackagesBisnis() {
                         desc: "Chatbot aktif sepanjang hari untuk menjawab pesan kapan saja.",
                       },
                       {
-                        icon: HiOutlineChartBar,
-                        title: "Statistik lebih detail",
-                        desc: "Pantau performa bot dengan laporan yang lebih lengkap.",
+                        icon: HiOutlineSquares2X2,
+                        title: "Template balasan premium",
+                        desc: "Format jawaban siap pakai yang lebih rapi, profesional, dan bisa diatur bebas.",
                       },
                       {
                         icon: HiOutlineDevicePhoneMobile,
-                        title: "Integrasi WhatsApp mudah",
-                        desc: "Cukup beberapa langkah untuk langsung terhubung ke WhatsApp Anda.",
+                        title: "Multi-admin WhatsApp",
+                        desc: "Beberapa admin bisa membalas chat pelanggan secara bersamaan.",
                       },
                       {
                         icon: HiOutlineQuestionMarkCircle,
-                        title: "FAQ & manajemen pengetahuan",
-                        desc: "Kelola FAQ + pengetahuan agar bot makin akurat menjawab.",
+                        title: "FAQ otomatis & terjadwal",
+                        desc: "Jawaban umum langsung muncul otomatis, bisa dijadwalkan sesuai kebutuhan.",
                       },
+                      {
+                        icon: HiOutlinePhone, // Need to import this or use similar
+                        title: "Prioritas dukungan teknis",
+                        desc: "Tim support lebih cepat merespons dan membantu pengaturan bisnis Anda.",
+                      },
+                      {
+                        icon: HiOutlineCalendar, // Need to import this or use similar
+                        title: "Pesan terjadwal promosi",
+                        desc: "Kirim broadcast promo atau pengingat ke pelanggan secara otomatis.",
+                      }
                     ].map((it, i) => (
                       <motion.div
                         key={it.title}

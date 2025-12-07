@@ -1,9 +1,8 @@
 // src/landingpage/Referral.jsx
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
-import Navbar from "../components/Navbar1";
 import Footer from "../components/Footer";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -170,8 +169,8 @@ export default function Referral() {
     }
   }
 
-  useEffect(() => {
-    if (typeof window !== "undefined") window.scrollTo(0, 0);
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
   }, []);
 
   /* =========================
@@ -318,7 +317,6 @@ export default function Referral() {
 
   return (
     <div className="w-screen min-h-screen flex flex-col bg-white overflow-x-hidden font-poppins">
-      <Navbar active="referral" />
 
       {/* ========= HERO ========= */}
       <motion.main

@@ -58,9 +58,8 @@ export default function Navbar() {
 
   // ====== Active state & indicator ======
   const [active, setActive] = useState(() => deriveActiveFromLocation(location));
-  const menuRef = useRef(null);
+  const [indicator, setIndicator] = useState({ left: 0, width: 0 });
   const itemRefs = useRef({});
-  const [indicator, setIndicator] = useState({ left: 0, width: 0, ready: false });
 
   // ===== Profile state (untuk tampil di landing) =====
   const [profile, setProfile] = useState({});
@@ -72,35 +71,16 @@ export default function Navbar() {
     setActive(deriveActiveFromLocation(location));
   }, [location]);
 
-  const updateIndicator = () => {
-    const menu = menuRef.current;
-    const el = itemRefs.current[active];
-    if (!el || !menu) return;
-
-    const menuRect = menu.getBoundingClientRect();
-    const elRect = el.getBoundingClientRect();
-
-    setIndicator({
-      left: elRect.left - menuRect.left,
-      width: elRect.width,
-      ready: true,
-    });
-  };
-
+  // Update underline position
   useLayoutEffect(() => {
-    updateIndicator();
-    if (document?.fonts?.ready) {
-      document.fonts.ready.then(() => requestAnimationFrame(updateIndicator));
+    const el = itemRefs.current[active];
+    if (el) {
+      setIndicator({
+        left: el.offsetLeft,
+        width: el.offsetWidth,
+      });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active]);
-
-  useEffect(() => {
-    const onResize = () => updateIndicator();
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [active, i18n.language]);
 
   // Klik item menu
   const handleClick = (e, item) => {
@@ -183,26 +163,25 @@ export default function Navbar() {
   );
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 lg:px-16 py-4 bg-white shadow-sm">
+    <nav className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 lg:px-16 py-4 bg-white shadow-sm font-poppins">
       <div className="flex items-center space-x-2">
         <img
           src={logo}
           alt="Logo"
           className="h-12"
-          onLoad={() => requestAnimationFrame(updateIndicator)}
         />
       </div>
 
       {/* Menu */}
-      <div ref={menuRef} className="relative hidden lg:flex items-center gap-8 text-sm">
+      <div className="relative hidden lg:flex items-center gap-8 text-sm">
         {NAV_ITEMS.map((item) => {
           const isActive = active === item.id;
 
           return (
             <a
               key={item.id}
-              href={item.target}
               ref={(el) => (itemRefs.current[item.id] = el)}
+              href={item.target}
               onClick={(e) => handleClick(e, item)}
               className={`relative inline-block font-bold transition-colors duration-200 ${isActive ? "text-emerald-600" : "text-gray-900 hover:text-emerald-600"
                 }`}
@@ -213,12 +192,14 @@ export default function Navbar() {
           );
         })}
 
-        {/* Garis bawah meluncur */}
+        {/* Manual Underline Indicator - Horizontal Only */}
         <span
-          className={`pointer-events-none absolute -bottom-1 h-[2px] rounded-full bg-emerald-500
-                        transition-[left,width,opacity] duration-300 ease-out
-                        ${indicator.ready ? "opacity-100" : "opacity-0"}`}
-          style={{ left: indicator.left, width: indicator.width }}
+          className="absolute -bottom-1 h-[2px] rounded-full bg-emerald-500 transition-all duration-300 ease-in-out"
+          style={{
+            left: indicator.left,
+            width: indicator.width,
+            opacity: indicator.width ? 1 : 0,
+          }}
         />
       </div>
 

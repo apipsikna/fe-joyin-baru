@@ -6,6 +6,9 @@ import {
   HiOutlineChartBar,
   HiOutlineDevicePhoneMobile,
   HiOutlineQuestionMarkCircle,
+  HiOutlineUserGroup,
+  HiOutlineClipboardDocumentList,
+  HiOutlineLink,
 } from "react-icons/hi2";
 import { motion, useReducedMotion } from "framer-motion";
 
@@ -133,7 +136,6 @@ function FeatureCard({ icon: Icon, title, desc }) {
         "w-full",
         "rounded-2xl p-[1px]",
         "bg-gradient-to-r from-[#5FCAAC] to-[#DAEC75]",
-        "shadow-[0_14px_32px_rgba(0,0,0,0.10)]",
         "transition-all duration-200 ease-out transform",
         "hover:-translate-y-1.5 hover:shadow-[0_22px_60px_rgba(0,0,0,0.18)]",
       ].join(" ")}
@@ -226,7 +228,7 @@ export default function MyPackagesEnterprise() {
 
   return (
     <motion.div
-      className="w-full overflow-x-hidden font-poppins"
+      className="w-full min-h-full font-poppins"
       style={{
         background: `linear-gradient(90deg, ${GRADIENT_FROM} 0%, ${GRADIENT_TO} 100%)`,
       }}
@@ -400,9 +402,9 @@ export default function MyPackagesEnterprise() {
             animate="show"
             className="mt-9 flex flex-wrap items-center justify-center gap-4 _actionsShift"
           >
-            <ActionButton onClick={() => {}}>Perpanjang Paket</ActionButton>
-            <ActionButton onClick={() => {}}>Upgrade Paket</ActionButton>
-            <ActionButton variant="danger" onClick={() => {}}>
+            <ActionButton onClick={() => { }}>Perpanjang Paket</ActionButton>
+            <ActionButton onClick={() => { }}>Upgrade Paket</ActionButton>
+            <ActionButton variant="danger" onClick={() => { }}>
               Batalkan Paket
             </ActionButton>
           </motion.div>
@@ -415,15 +417,16 @@ export default function MyPackagesEnterprise() {
                 animate="show"
                 src={SectionPutih}
                 alt="SectionPutih"
-                className="w-full h-auto select-none _spImg"
+                className="absolute inset-0 w-full h-full object-fill select-none _spImg"
                 draggable="false"
+                style={{}}
               />
 
               <motion.div
                 variants={fadeOnly}
                 initial="hidden"
                 animate="show"
-                className="absolute inset-0 z-10"
+                className="relative z-10"
               >
                 <div
                   className="_spPad _spContent"
@@ -442,34 +445,44 @@ export default function MyPackagesEnterprise() {
                     {[
                       {
                         icon: HiOutlineChatBubbleLeftRight,
-                        title: "Unlimited percakapan*",
-                        desc: "Skalakan layanan dengan batas yang sangat tinggi (sesuaikan sesuai paket real kamu).",
+                        title: "Chat tanpa batas",
+                        desc: "Layani pelanggan tanpa khawatir batas jumlah percakapan.",
                       },
                       {
-                        icon: HiOutlineSquares2X2,
-                        title: "Template & Workflow Advanced",
-                        desc: "Template dinamis + alur otomatis lanjutan untuk banyak skenario.",
+                        icon: HiOutlineChartBar,
+                        title: "Statistik real-time & export data",
+                        desc: "Pantau performa secara langsung dan unduh data untuk analisis lanjutan.",
                       },
                       {
                         icon: HiOutlineClock,
                         title: "Balasan otomatis 24/7",
-                        desc: "Bot aktif sepanjang hari untuk menjawab pesan kapan saja.",
+                        desc: "Chatbot aktif sepanjang hari untuk menjawab pesan kapan saja.",
                       },
                       {
-                        icon: HiOutlineChartBar,
-                        title: "Analitik & laporan mendalam",
-                        desc: "Dashboard performa lengkap untuk keputusan bisnis yang lebih cepat.",
+                        icon: HiOutlineClipboardDocumentList, // Icon match guess
+                        title: "Laporan custom & konsultasi setup",
+                        desc: "Dapatkan laporan khusus sesuai kebutuhan bisnis + bantuan setup dari tim ahli.",
                       },
                       {
                         icon: HiOutlineDevicePhoneMobile,
-                        title: "Integrasi WhatsApp & CRM",
-                        desc: "Integrasi eksternal (CRM / Webhook / API) untuk automasi end-to-end.",
+                        title: "Integrasi WhatsApp API penuh",
+                        desc: "Akses penuh API resmi untuk performa lebih stabil dan profesional.",
                       },
                       {
-                        icon: HiOutlineQuestionMarkCircle,
-                        title: "Knowledge Base + FAQ Advanced",
-                        desc: "Kelola FAQ, dokumen, dan training bot secara fleksibel.",
+                        icon: HiOutlineQuestionMarkCircle, // Or maybe HiOutlineSupport? QuestionMark seems ok for support/help
+                        title: "Prioritas dukungan & SLA support",
+                        desc: "Akses jalur dukungan prioritas dengan standar layanan yang terjamin.",
                       },
+                      {
+                        icon: HiOutlineUserGroup,
+                        title: "Multi-admin + manajemen tim",
+                        desc: "Tambahkan banyak admin dan kelola peran atau tugas tim dengan mudah.",
+                      },
+                      {
+                        icon: HiOutlineLink,
+                        title: "Integrasi sistem internal (CRM/API)",
+                        desc: "Hubungkan chatbot ke CRM, sistem internal, atau API kustom perusahaan.",
+                      }
                     ].map((it, i) => (
                       <motion.div
                         key={it.title}
