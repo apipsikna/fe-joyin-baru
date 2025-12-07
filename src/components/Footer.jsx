@@ -17,7 +17,7 @@ export default function Footer() {
         {/* Tengah - Navigasi */}
         <div className="flex-1 grid grid-cols-2 gap-12">
           <div>
-            <h3 className="font-bold text-[18px] mb-3">{t("footer.links", "Quick Links")}</h3>
+            <h3 className="font-bold text-[18px] mb-3">{t("footer.quickLinks", "Quick Links")}</h3>
             <ul className="space-y-2 text-[16px] font-medium">
               <li>
                 <a href="#" className="text-black font-semibold hover:underline">

@@ -100,11 +100,13 @@ const readNum = (qp, key, fallback) => {
   return Number.isFinite(v) ? v : fallback;
 };
 
+import { useReferralCode } from "../../hooks/useReferralCode";
+
 export default function ReferralPro({ profile }) {
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 
-  // ✅ Animasi masuk (aman: tidak mengubah layout / setting)
+  // ✅ Animasi masuk
   const page = {
     hidden: { opacity: 0 },
     show: {
@@ -128,7 +130,6 @@ export default function ReferralPro({ profile }) {
     },
   };
 
-  // ✅ Untuk layer yang sudah punya transform sendiri (bintang), animasikan opacity/blur saja
   const fadeOnly = {
     hidden: { opacity: 0, filter: "blur(10px)" },
     show: {
@@ -163,11 +164,7 @@ export default function ReferralPro({ profile }) {
     }),
   };
 
-  const referralCode = useMemo(() => {
-    const code =
-      profile?.referralCode || profile?.refCode || profile?.referral?.code || "";
-    return String(code || "").trim();
-  }, [profile]);
+  const { referralCode } = useReferralCode(profile);
 
   const [copied, setCopied] = useState(false);
 

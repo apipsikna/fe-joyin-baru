@@ -13,6 +13,39 @@ const resources = {
       dashboard: {
         sidebar: { home: "Beranda", chat: "Obrolan", botSettings: "Pengaturan Bot", reports: "Laporan", packages: "Paket Saya", referral: "Referral", backToLanding: "Kembali ke Beranda" },
       },
+      home: {
+        welcome: "Selamat datang",
+        user: "Pengguna",
+        subtitle: "Joyin siap nemenin bisnismu.",
+        incomingChats: "Chat Masuk",
+        monthlyChats: "Chat Bulanan",
+        answeredChats: "Chat Terjawab",
+        totalChats: "Total Chat",
+        stats: {
+          title: "Statistik Pengiriman Pesan",
+          messages: "Pesan",
+          avgPerMonth: "rata-rata/bulan",
+          average: "Rata-rata",
+          note: "Data di atas merupakan contoh. Integrasikan dengan API analitik Anda untuk angka aktual."
+        },
+        bot: {
+          title: "Customer Service Bot",
+          active: "Aktif",
+          desc: "Bot layanan pelanggan yang membantu menjawab pertanyaan, memberikan panduan, dan mendukung kebutuhan pelanggan.",
+          manage: "Kelola Bot"
+        },
+        services: {
+          title: "Layanan Bot Tersedia",
+          item1: "Menjawab pertanyaan pelanggan otomatis",
+          item2: "Memberikan panduan produk & layanan",
+          item3: "Mendukung kebutuhan pelanggan 24/7",
+          item4: "Statistik performa bot real-time"
+        }
+      },
+      months: {
+        janShort: "Jan", febShort: "Feb", marShort: "Mar", aprShort: "Apr", mayShort: "Mei", junShort: "Jun",
+        julShort: "Jul", augShort: "Agu", sepShort: "Sep", octShort: "Okt", novShort: "Nov", decShort: "Des"
+      },
       navbar: {
         referral: "Referral",
         paket: "Paket",
@@ -122,6 +155,16 @@ const resources = {
           btnCode: "Dapatkan Kode Referral",
           btnLearn: "Pelajari Lebih Lanjut"
         },
+        why: {
+          title1: "Kenapa Harus Ikut",
+          title2: "Program Referral",
+          desc1: "Di Joyin, kami percaya hal baik pantas dibagikan! Ajak temanmu untuk bergabung, dan kalian berdua bisa dapetin hadiah spesial dari Joyin 🎉",
+          desc2: "Setiap ajakan membawa kamu semakin dekat ke hadiah utama — kesempatan seru yang sayang banget kalau dilewatkan! Yuk, mulai bagikan link referral-mu sekarang dan raih hadiahnya!"
+        },
+        section2: {
+          title: "Cara Kerjanya Sangat Mudah!",
+          desc: "Hanya tiga langkah mudah buat nikmatin keseruan program referral Joyin"
+        },
         how: {
           steps: [
             { title: "Dapatkan Kode Unik", desc: "Hanya tiga langkah mudah buat nikmatin keseruan program referral Joyin" },
@@ -131,8 +174,29 @@ const resources = {
         },
         join: {
           title: "Yuk Gabung & Dapatkan Referral dari Joyin!",
-          desc: "Mulai perjalananmu bareng Joyin sekarang. Setelah daftar, kamu bisa langsung bagikan kode referral-mu dan kumpulkan hadiah seru dari setiap teman yang ikut bergabung!"
-        }
+          desc: "Mulai perjalananmu bareng Joyin sekarang. Setelah daftar, kamu bisa langsung bagikan kode referral-mu dan kumpulkan hadiah seru dari setiap teman yang ikut bergabung!",
+          btn: "Bergabung & Dapatkan Hadiah"
+        },
+        bottomCta: "Ayo Bergabung!",
+        modal: {
+          title: "Kode Referral Kamu",
+          desc: "Bagikan kode ini ke temanmu. Temanmu dapat diskon 6% saat beli paket.",
+          loading: "Mengambil kode referral...",
+          retry: "Coba Lagi",
+          close: "Tutup",
+          codeLabel: "KODE",
+          codeNote: "1 orang hanya bisa pakai 1x kode referral saat registrasi.",
+          copy: "Copy",
+          progressTitle: "Progress hadiah paket Pro 1 bulan",
+          progressNote: "Ajak {{target}} orang menggunakan kode referralmu untuk dapat hadiah."
+        },
+        errors: {
+          sessionExpired: "Sesi kamu habis / belum login. Silakan login lagi.",
+          fetchFailed: "Gagal mengambil data referral",
+          general: "Terjadi kesalahan saat mengambil referral code."
+        },
+        copySuccess: "Berhasil disalin!",
+        copySuccessShort: "Kode tersalin!"
       },
       tutorial: {
         headerTitle: "Pusat Tutorial Joyin",
@@ -172,6 +236,39 @@ const resources = {
           logout: "Logout",
           language: "Language"
         }
+      },
+      home: {
+        welcome: "Welcome",
+        user: "User",
+        subtitle: "Joyin is ready to accompany your business.",
+        incomingChats: "Incoming Chats",
+        monthlyChats: "Monthly Chats",
+        answeredChats: "Answered Chats",
+        totalChats: "Total Chats",
+        stats: {
+          title: "Message Delivery Statistics",
+          messages: "Messages",
+          avgPerMonth: "average/month",
+          average: "Average",
+          note: "The data above is an example. Integrate with your analytics API for actual figures."
+        },
+        bot: {
+          title: "Customer Service Bot",
+          active: "Active",
+          desc: "Customer service bot that helps answer questions, provide guides, and support customer needs.",
+          manage: "Manage Bot"
+        },
+        services: {
+          title: "Bot Services Available",
+          item1: "Auto-answer customer questions",
+          item2: "Provide product & service guides",
+          item3: "Support customer needs 24/7",
+          item4: "Real-time bot performance statistics"
+        }
+      },
+      months: {
+        janShort: "Jan", febShort: "Feb", marShort: "Mar", aprShort: "Apr", mayShort: "May", junShort: "Jun",
+        julShort: "Jul", augShort: "Aug", sepShort: "Sep", octShort: "Oct", novShort: "Nov", decShort: "Dec"
       },
       navbar: {
         referral: "Referral",
@@ -282,6 +379,16 @@ const resources = {
           btnCode: "Get Referral Code",
           btnLearn: "Learn More"
         },
+        why: {
+          title1: "Why Join the",
+          title2: "Referral Program",
+          desc1: "At Joyin, we believe good things are worth sharing! Invite your friends to join, and both of you can get special rewards from Joyin 🎉",
+          desc2: "Every invitation brings you closer to the main prize — an exciting opportunity you don't want to miss! Come on, start sharing your referral link now and get the prize!"
+        },
+        section2: {
+          title: "It Works Very Easily!",
+          desc: "Just three easy steps to enjoy the excitement of Joyin referral program"
+        },
         how: {
           steps: [
             { title: "Get Unique Code", desc: "Just three easy steps to enjoy the excitement of Joyin referral program" },
@@ -291,8 +398,29 @@ const resources = {
         },
         join: {
           title: "Join & Get Referral from Joyin!",
-          desc: "Start your journey with Joyin now. After registering, you can immediately share your referral code and collect exciting rewards from every friend who joins!"
-        }
+          desc: "Start your journey with Joyin now. After registering, you can immediately share your referral code and collect exciting rewards from every friend who joins!",
+          btn: "Join & Get Rewards"
+        },
+        bottomCta: "Let's Join!",
+        modal: {
+          title: "Your Referral Code",
+          desc: "Share this code with your friends. Your friends get a 6% discount when buying a package.",
+          loading: "Fetching referral code...",
+          retry: "Try Again",
+          close: "Close",
+          codeLabel: "CODE",
+          codeNote: "1 person can only use 1x referral code during registration.",
+          copy: "Copy",
+          progressTitle: "Pro 1 month package reward progress",
+          progressNote: "Invite {{target}} people to use your referral code to get rewards."
+        },
+        errors: {
+          sessionExpired: "Your session has expired / not logged in. Please login again.",
+          fetchFailed: "Failed to fetch referral data",
+          general: "An error occurred while fetching referral code."
+        },
+        copySuccess: "Copied successfully!",
+        copySuccessShort: "Code copied!"
       },
       tutorial: {
         headerTitle: "Joyin Tutorial Center",

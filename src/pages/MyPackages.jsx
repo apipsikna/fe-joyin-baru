@@ -20,7 +20,7 @@ const CFG = {
   pagePadBottom: 18,
 
   // header / judul
-  titleText: "Obrolan",
+  titleText: "Paket Saya",
   headerGap: 14,
 
   // card putih

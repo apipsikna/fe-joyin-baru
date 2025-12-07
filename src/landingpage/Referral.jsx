@@ -226,11 +226,11 @@ export default function Referral() {
       const json = await safeJson(res);
 
       if (res.status === 401) {
-        throw new Error("Sesi kamu habis / belum login. Silakan login lagi.");
+        throw new Error(t("referral.errors.sessionExpired", "Sesi kamu habis / belum login. Silakan login lagi."));
       }
 
       if (!res.ok) {
-        const msg = json?.message || json?.error || `Gagal mengambil data referral (HTTP ${res.status})`;
+        const msg = json?.message || json?.error || t("referral.errors.fetchFailed", "Gagal mengambil data referral");
         throw new Error(msg);
       }
 
@@ -246,7 +246,7 @@ export default function Referral() {
 
       setRefData({ myReferralCode, totalReferred });
     } catch (e) {
-      const msg = e?.message || "Terjadi kesalahan saat mengambil referral code.";
+      const msg = e?.message || t("referral.errors.general", "Terjadi kesalahan saat mengambil referral code.");
       setRefError(msg);
 
       if (/login|sesi|401/i.test(msg)) {
@@ -270,10 +270,11 @@ export default function Referral() {
     await fetchReferralDetails();
   };
 
-  const copyText = async (text, label = "Berhasil disalin!") => {
+  const copyText = async (text, label) => {
+    const successLabel = label || t("referral.copySuccess", "Berhasil disalin!");
     try {
       await navigator.clipboard.writeText(text);
-      setCopied(label);
+      setCopied(successLabel);
       setTimeout(() => setCopied(""), 1400);
     } catch {
       window.prompt("Copy manual:", text);
@@ -454,10 +455,10 @@ export default function Referral() {
             >
               <div className="w-full">
                 <h2 className="text-[40px] sm:text-[52px] md:text-[60px] font-extrabold text-gray-800 leading-[1.06]">
-                  <span>Kenapa Harus Ikut</span>
+                  <span>{t("referral.why.title1", "Kenapa Harus Ikut")}</span>
                   <br />
                   <span className="inline-flex flex-wrap items-baseline gap-3">
-                    <span>Program Referral</span>
+                    <span>{t("referral.why.title2", "Program Referral")}</span>
                     <img
                       src={logo}
                       alt="Joyin"
@@ -470,13 +471,10 @@ export default function Referral() {
 
                 <div className="mt-8 space-y-6 text-gray-600 text-[18px] sm:text-[20px] md:text-[22px] leading-relaxed">
                   <p>
-                    Di Joyin, kami percaya hal baik pantas dibagikan! Ajak temanmu untuk bergabung,
-                    dan kalian berdua bisa dapetin hadiah spesial dari Joyin 🎉
+                    {t("referral.why.desc1", "Di Joyin, kami percaya hal baik pantas dibagikan! Ajak temanmu untuk bergabung, dan kalian berdua bisa dapetin hadiah spesial dari Joyin 🎉")}
                   </p>
                   <p>
-                    Setiap ajakan membawa kamu semakin dekat ke hadiah utama — kesempatan seru yang
-                    sayang banget kalau dilewatkan! Yuk, mulai bagikan link referral-mu sekarang dan
-                    raih hadiahnya!
+                    {t("referral.why.desc2", "Setiap ajakan membawa kamu semakin dekat ke hadiah utama — kesempatan seru yang sayang banget kalau dilewatkan! Yuk, mulai bagikan link referral-mu sekarang dan raih hadiahnya!")}
                   </p>
                 </div>
               </div>
@@ -515,10 +513,10 @@ export default function Referral() {
       >
         <div className="w-full text-center px-4 sm:px-6">
           <h2 className="text-[30px] sm:text-[34px] md:text-[40px] font-extrabold text-gray-700">
-            Cara Kerjanya Sangat Mudah!
+            {t("referral.section2.title", "Cara Kerjanya Sangat Mudah!")}
           </h2>
           <p className="mt-3 text-gray-500 text-sm sm:text-base">
-            Hanya tiga langkah mudah buat nikmatin keseruan program referral Joyin
+            {t("referral.section2.desc", "Hanya tiga langkah mudah buat nikmatin keseruan program referral Joyin")}
           </p>
         </div>
 
@@ -650,7 +648,7 @@ export default function Referral() {
                 whileTap={{ scale: 0.96 }}
                 onClick={() => navigate("/signup")}
               >
-                Bergabung &amp; Dapatkan Hadiah
+                {t("referral.join.btn", "Bergabung & Dapatkan Hadiah")}
               </motion.button>
             </motion.div>
           </div>
@@ -686,7 +684,7 @@ export default function Referral() {
               whileTap={{ scale: 0.96 }}
               onClick={() => navigate("/signup")}
             >
-              Ayo Bergabung!
+              {t("referral.bottomCta", "Ayo Bergabung!")}
             </motion.button>
           </motion.div>
         </div>
@@ -724,8 +722,8 @@ export default function Referral() {
                     <span className="text-emerald-700 font-black">%</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-[16px] font-extrabold text-gray-900">Kode Referral Kamu</h3>
-                    <p className="text-[12px] text-gray-500">Bagikan kode ini ke temanmu. Temanmu dapat diskon 6% saat beli paket.</p>
+                    <h3 className="text-[16px] font-extrabold text-gray-900">{t("referral.modal.title", "Kode Referral Kamu")}</h3>
+                    <p className="text-[12px] text-gray-500">{t("referral.modal.desc", "Bagikan kode ini ke temanmu. Temanmu dapat diskon 6% saat beli paket.")}</p>
                   </div>
                   <button
                     onClick={() => setShowRefModal(false)}
@@ -742,7 +740,7 @@ export default function Referral() {
                   <div className="py-10 text-center">
                     <div className="inline-flex items-center gap-2 text-gray-600">
                       <span className="w-4 h-4 rounded-full border-2 border-gray-300 border-t-transparent animate-spin" />
-                      Mengambil kode referral...
+                      {t("referral.modal.loading", "Mengambil kode referral...")}
                     </div>
                   </div>
                 ) : refError ? (
@@ -753,41 +751,41 @@ export default function Referral() {
                         onClick={fetchReferralDetails}
                         className="px-4 py-2 rounded-xl bg-emerald-600 text-white font-semibold text-sm hover:brightness-110"
                       >
-                        Coba Lagi
+                        {t("referral.modal.retry", "Coba Lagi")}
                       </button>
                       <button
                         onClick={() => setShowRefModal(false)}
                         className="px-4 py-2 rounded-xl bg-gray-100 text-gray-700 font-semibold text-sm hover:bg-gray-200"
                       >
-                        Tutup
+                        {t("referral.modal.close", "Tutup")}
                       </button>
                     </div>
                   </div>
                 ) : (
                   <>
                     <div className="rounded-2xl border border-emerald-100 bg-emerald-50/40 p-4">
-                      <div className="text-[11px] font-semibold text-emerald-700 mb-2">KODE</div>
+                      <div className="text-[11px] font-semibold text-emerald-700 mb-2">{t("referral.modal.codeLabel", "KODE")}</div>
                       <div className="flex items-center gap-2">
                         <div className="flex-1 min-w-0">
                           <div className="font-black tracking-[0.25em] text-[20px] text-gray-900 truncate">
                             {refData.myReferralCode}
                           </div>
                           <div className="mt-2 text-[12px] text-gray-500">
-                            1 orang hanya bisa pakai 1x kode referral saat registrasi.
+                            {t("referral.modal.codeNote", "1 orang hanya bisa pakai 1x kode referral saat registrasi.")}
                           </div>
                         </div>
                         <button
-                          onClick={() => copyText(refData.myReferralCode, "Kode tersalin!")}
+                          onClick={() => copyText(refData.myReferralCode, t("referral.copySuccessShort", "Kode tersalin!"))}
                           className="shrink-0 px-4 py-2 rounded-xl bg-white border border-emerald-200 text-emerald-700 font-semibold text-sm hover:bg-emerald-50"
                         >
-                          Copy
+                          {t("referral.modal.copy", "Copy")}
                         </button>
                       </div>
                     </div>
 
                     <div className="mt-4 rounded-2xl border border-gray-100 bg-white p-4">
                       <div className="flex items-center justify-between">
-                        <p className="text-[12px] font-bold text-gray-900">Progress hadiah paket Pro 1 bulan</p>
+                        <p className="text-[12px] font-bold text-gray-900">{t("referral.modal.progressTitle", "Progress hadiah paket Pro 1 bulan")}</p>
                         <p className="text-[12px] font-extrabold text-emerald-700">
                           {refData.totalReferred}/{TARGET}
                         </p>
@@ -795,7 +793,7 @@ export default function Referral() {
                       <div className="mt-2 h-2 rounded-full bg-gray-100 overflow-hidden">
                         <div className="h-full rounded-full bg-emerald-500" style={{ width: `${progressPct}%` }} />
                       </div>
-                      <p className="mt-2 text-[11px] text-gray-500">Ajak {TARGET} orang menggunakan kode referralmu untuk dapat hadiah.</p>
+                      <p className="mt-2 text-[11px] text-gray-500">{t("referral.modal.progressNote", "Ajak {{target}} orang menggunakan kode referralmu untuk dapat hadiah.", { target: TARGET })}</p>
                     </div>
 
                     <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2">

@@ -50,10 +50,13 @@ const readNum = (qp, key, fallback) => {
   return Number.isFinite(v) ? v : fallback;
 };
 
+import { useReferralCode } from "../../hooks/useReferralCode";
+
 export default function ReferralEnterprise({ profile }) {
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 
+  // ✅ Animasi masuk
   const page = {
     hidden: { opacity: 0 },
     show: {
@@ -111,10 +114,7 @@ export default function ReferralEnterprise({ profile }) {
     }),
   };
 
-  const referralCode = useMemo(() => {
-    const code = profile?.referralCode || profile?.refCode || profile?.referral?.code || "";
-    return String(code || "").trim();
-  }, [profile]);
+  const { referralCode } = useReferralCode(profile);
 
   const [copied, setCopied] = useState(false);
 
