@@ -206,6 +206,58 @@ const resources = {
         prev: "Sebelumnya",
         next: "Berikutnya",
         page: "Halaman {{current}} dari {{total}}"
+      },
+      obrolan: {
+        title: "Obrolan",
+        emptyState: {
+          title: "Ups, kamu belum punya paket nih",
+          desc1: "Yuk pilih paket dulu biar bisa lanjut menikmati semua fitur chatbot",
+          desc2: "dan bikin bisnismu makin lancar",
+          btn: "Pilih Paket"
+        }
+      },
+      myPackages: {
+        title: "Paket Saya",
+        emptyState: {
+          title: "Ups, kamu belum punya paket nih",
+          desc1: "Yuk pilih paket dulu biar bisa lanjut menikmati semua fitur chatbot",
+          desc2: "dan bikin bisnismu makin lancar",
+          btn: "Pilih Paket"
+        }
+      },
+      report: {
+        title: "Laporan",
+        emptyState: {
+          title: "Ups, kamu belum punya paket nih",
+          desc1: "Yuk pilih paket dulu biar bisa lanjut menikmati semua fitur chatbot",
+          desc2: "dan bikin bisnismu makin lancar",
+          btn: "Pilih Paket"
+        }
+      },
+      botSettings: {
+        title: "Pengaturan Bot",
+        emptyState: {
+          title: "Ups, kamu belum punya paket nih",
+          desc1: "Yuk pilih paket dulu biar bisa lanjut menikmati semua fitur chatbot",
+          desc2: "dan bikin bisnismu makin lancar",
+          btn: "Pilih Paket"
+        }
+      },
+      referralDashboard: {
+        heroTitle: "Ajak Teman, Dapatkan Komisi",
+        heroDesc: "Ajak temanmu pakai Joyin dan nikmati hadiahnya bareng-bareng! Makin banyak yang gabung, makin besar keuntungan yang kamu dapat.",
+        yourCode: "Kode Referral Anda :",
+        copy: "Salin",
+        copied: "Tersalin",
+        listTitle: "Daftar Referral",
+        table: {
+          no: "No",
+          name: "Nama",
+          email: "Email",
+          date: "Waktu",
+          status: "Status"
+        },
+        empty: "Belum ada referral"
       }
     },
   },
@@ -454,6 +506,58 @@ const resources = {
           desc: "There's no such thing as too early to start using Joyin. Try it now and feel how easy it is to chat with customers without the hassle. Come join us and let Joyin help your business grow faster and closer!",
           contact: "Contact Us"
         }
+      },
+      obrolan: {
+        title: "Chat",
+        emptyState: {
+          title: "Oops, you don't have a plan yet",
+          desc1: "Let's choose a plan first to continue enjoying all chatbot features",
+          desc2: "and make your business smoother",
+          btn: "Choose Plan"
+        }
+      },
+      myPackages: {
+        title: "My Packages",
+        emptyState: {
+          title: "Oops, you don't have a plan yet",
+          desc1: "Let's choose a plan first to continue enjoying all chatbot features",
+          desc2: "and make your business smoother",
+          btn: "Choose Plan"
+        }
+      },
+      report: {
+        title: "Report",
+        emptyState: {
+          title: "Oops, you don't have a plan yet",
+          desc1: "Let's choose a plan first to continue enjoying all chatbot features",
+          desc2: "and make your business smoother",
+          btn: "Choose Plan"
+        }
+      },
+      botSettings: {
+        title: "Bot Settings",
+        emptyState: {
+          title: "Oops, you don't have a plan yet",
+          desc1: "Let's choose a plan first to continue enjoying all chatbot features",
+          desc2: "and make your business smoother",
+          btn: "Choose Plan"
+        }
+      },
+      referralDashboard: {
+        heroTitle: "Invite Friends, Get Commission",
+        heroDesc: "Invite your friends to use Joyin and enjoy the rewards together! The more people join, the bigger profit you get.",
+        yourCode: "Your Referral Code :",
+        copy: "Copy",
+        copied: "Copied",
+        listTitle: "Referral List",
+        table: {
+          no: "No",
+          name: "Name",
+          email: "Email",
+          date: "Time",
+          status: "Status"
+        },
+        empty: "No referrals yet"
       }
     },
   },

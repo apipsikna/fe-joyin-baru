@@ -1,5 +1,6 @@
 // src/pages/Report.jsx
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import iconsedih from "../assets/iconsedih.png";
 
@@ -20,7 +21,7 @@ const CFG = {
   pagePadBottom: 18,
 
   // header / judul
-  titleText: "Laporan",
+  // titleText: "Laporan", // Removed, used in translation
   headerGap: 14,
 
   // card putih
@@ -42,7 +43,7 @@ const CFG = {
   textSizeDesktop: 16,
 
   // tombol
-  btnText: "Pilih Paket",
+  // btnText: "Pilih Paket", // Removed, used in translation
   btnH: 48,
   btnPX: 40,
   btnRadius: 12,
@@ -62,6 +63,7 @@ const CFG = {
 };
 
 export default function MyPackages() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [enter, setEnter] = useState(false);
 
@@ -145,7 +147,7 @@ export default function MyPackages() {
         }}
       >
         <h1 className="text-center text-white font-extrabold tracking-wide text-3xl md:text-4xl">
-          {CFG.titleText}
+          {t("report.title")}
         </h1>
         <div style={{ height: CFG.headerGap }} />
       </header>
@@ -183,16 +185,16 @@ export default function MyPackages() {
                 className="mt-6 font-extrabold text-gray-700"
                 style={{ fontSize: "var(--tSize)" }}
               >
-                Ups, kamu belum punya paket nih
+                {t("report.emptyState.title")}
               </h2>
 
               <p
                 className="mt-3 text-gray-600 leading-relaxed"
                 style={{ fontSize: "var(--pSize)" }}
               >
-                Yuk pilih paket dulu biar bisa lanjut menikmati semua fitur chatbot
+                {t("report.emptyState.desc1")}
                 <br className="hidden md:block" />
-                dan bikin bisnismu makin lancar
+                {t("report.emptyState.desc2")}
               </p>
 
               <button
@@ -207,7 +209,7 @@ export default function MyPackages() {
                   fontSize: CFG.btnFontSize,
                 }}
               >
-                {CFG.btnText}
+                {t("report.emptyState.btn")}
               </button>
             </div>
           </div>

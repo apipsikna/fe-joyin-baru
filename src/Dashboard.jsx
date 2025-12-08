@@ -24,7 +24,8 @@ import Reports from "./pages/Report";
 import MyPackages from "./pages/MyPackages";
 import BotSettings from "./pages/BotSettings";
 import Setting from "./pages/Setting";
-import Obrolan from "./pages/Obrolan"; // ✅ Tambah ini
+import Obrolan from "./pages/Obrolan";
+import ReferralDashboard from "./pages/ReferralDashboard"; // ✅ Tambah ini
 
 // ===== Menu keys (stabil, tidak tergantung terjemahan)
 const MENU = {
@@ -226,7 +227,7 @@ export default function Dashboard() {
         {activeMenu === MENU.REPORTS && <Reports />}
         {activeMenu === MENU.PACKAGES && <MyPackages />}
         {activeMenu === MENU.REFERRAL && (
-          <ReferralPlaceholder profile={profile} t={t} />
+          <ReferralDashboard profile={profile} />
         )}
         {activeMenu === MENU.SETTINGS && (
           <Setting onBack={() => setActiveMenu(MENU.HOME)} />
