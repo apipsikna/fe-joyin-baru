@@ -1,4 +1,5 @@
 import React, { useMemo, useRef, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
@@ -62,6 +63,7 @@ function getNowTime() {
 }
 
 export default function ObrolanEnterprise() {
+  const { t } = useTranslation();
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 
@@ -256,7 +258,7 @@ export default function ObrolanEnterprise() {
     >
       <motion.div variants={fadeUp} className="relative w-full px-6 pt-6 shrink-0">
         <h1 className="text-center text-white font-semibold text-[44px] leading-none tracking-wide">
-          Obrolan
+          {t("obrolanEnterprise.title")}
         </h1>
       </motion.div>
 
@@ -346,7 +348,7 @@ export default function ObrolanEnterprise() {
                       {activeConv.name}
                     </p>
                     <p className="text-[12px] text-gray-400">
-                      {activeConv.online ? "Online" : "Offline"}
+                      {activeConv.online ? t("obrolanEnterprise.online") : t("obrolanEnterprise.offline")}
                     </p>
                   </motion.div>
                 </AnimatePresence>

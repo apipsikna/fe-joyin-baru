@@ -20,6 +20,8 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [wrongPw, setWrongPw] = useState(false);
 
+  const alertProcessed = React.useRef(false);
+
   // Auto-hide alert
   useEffect(() => {
     if (!alert) return;
@@ -29,24 +31,39 @@ export default function Login() {
 
   // ✅ Handle redirect dari Google OAuth (?token=...&refreshToken=...&user=...)
   useEffect(() => {
+    if (alertProcessed.current) return; // Mencegah eksekusi 2x di StrictMode
+
     const params = new URLSearchParams(location.search);
     const token = params.get("token");
     const refreshToken = params.get("refreshToken");
     const user = params.get("user");
 
     if (token) {
+      alertProcessed.current = true; // Tandai sudah diproses
+
       // simpan & set default header agar request sesudahnya langsung authorized
-      try { localStorage.setItem("accessToken", token); } catch {}
+      try { localStorage.setItem("accessToken", token); } catch { }
       api.defaults.headers.common.Authorization = `Bearer ${token}`;
       setAccessToken(token); // informasikan ke context
 
-      if (refreshToken) try { localStorage.setItem("refreshToken", refreshToken); } catch {}
-      if (user) try { localStorage.setItem("user", user); } catch {}
+      let role = "USER";
+      if (refreshToken) try { localStorage.setItem("refreshToken", refreshToken); } catch { }
+      if (user) {
+        try {
+          localStorage.setItem("user", user);
+          const parsed = JSON.parse(user);
+          role = parsed.role || "USER";
+        } catch { }
+      }
 
       // Tampilkan alert sukses dulu, baru navigate
       setAlert({ type: "success", message: "Login Google berhasil!" });
       setTimeout(() => {
-        navigate("/dashboard", { replace: true });
+        if (role === "ADMIN") {
+          navigate("/admin", { replace: true });
+        } else {
+          navigate("/dashboard", { replace: true });
+        }
       }, 1000);
     }
   }, [location, navigate, setAccessToken]);
@@ -55,19 +72,35 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setAlert(null);
+    // Kita tidak null-kan alert di sini agar tidak 'kedip' jika error sama,
+    // tapi nanti akan ditimpa value baru.
     setWrongPw(false);
 
     try {
       // fungsi login dari context akan memanggil setAccessToken ketika sukses
-      await login(email, password);
+      const response = await login(email, password);
+
+      // DEBUG: Cek struktur response
+      console.log("LOGIN RESPONSE FULL:", response);
+
+      // Cek role dari response (sesuaikan struktur BE)
+      const role = response?.user?.role || response?.data?.user?.role || response?.data?.role || "USER";
+
+      console.log("EXTRACTED ROLE:", role);
 
       // Tampilkan alert sukses dulu, baru navigate
-      setAlert({ type: "success", message: "Login berhasil!" });
+      setAlert({ type: "success", message: "Berhasil masuk ke akun!" });
       setLoading(false);
       setTimeout(() => {
-        navigate("/dashboard", { replace: true });
-      }, 1000);
+        setLoading(true); // Munculkan loading sesaat sebelum pindah halaman
+        if (role === "ADMIN") {
+          console.log("REDIRECTING TO ADMIN DASHBOARD");
+          navigate("/admin", { replace: true });
+        } else {
+          console.log("REDIRECTING TO USER DASHBOARD");
+          navigate("/dashboard", { replace: true });
+        }
+      }, 1500);
     } catch (err) {
       const status = err?.response?.status;
       const backendMsg = err?.response?.data?.message || err?.message || "";
@@ -81,8 +114,11 @@ export default function Login() {
         msg = backendMsg;
       }
 
-      setAlert({ type: "error", message: msg });
       setLoading(false);
+      // Cek jika alert yg sama sedang tampil, jangan setAlert lagi (biar smooth)
+      if (alert?.type === 'error' && alert?.message === msg) return;
+
+      setAlert({ type: "error", message: msg });
     }
   };
 
@@ -99,14 +135,13 @@ export default function Login() {
     const isSuccess = type === "success";
     return (
       <motion.div
-        initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -30 }}
-        className={`fixed top-6 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-lg text-sm font-medium z-50 transition-all duration-300 ${
-          isSuccess
-            ? "bg-gradient-to-r from-[#52c8b0] to-[#78d98d] text-white"
-            : "bg-red-500 text-white"
-        }`}
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.8 }}
+        className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 px-8 py-4 rounded-xl shadow-2xl text-center font-medium z-50 transition-all duration-300 ${isSuccess
+          ? "bg-gradient-to-r from-[#52c8b0] to-[#78d98d] text-white"
+          : "bg-red-500 text-white"
+          }`}
       >
         {message}
       </motion.div>
@@ -114,7 +149,7 @@ export default function Login() {
   };
 
   return (
-    <div className="w-screen h-screen bg-white flex items-center justify-center font-poppins relative overflow-y-auto">
+    <div className="w-screen h-screen bg-white overflow-hidden relative">
       <AnimatePresence>
         {alert && <AlertMessage type={alert.type} message={alert.message} />}
       </AnimatePresence>
@@ -127,7 +162,7 @@ export default function Login() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -100 }}
             transition={{ duration: 0.4 }}
-            className="w-full h-full absolute top-0 left-0"
+            className="w-full h-full absolute top-0 left-0 z-10"
           >
             <SignUp onBack={() => setShowSignUp(false)} />
           </motion.div>
@@ -138,16 +173,29 @@ export default function Login() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 100 }}
             transition={{ duration: 0.4 }}
-            className="flex flex-col lg:flex-row w-full max-w-[1200px] h-[80%] bg-white rounded-lg shadow-md overflow-hidden"
+            className="flex flex-col lg:flex-row w-full h-full relative"
           >
+            {/* Tombol Panah Kembali ke Beranda */}
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => navigate("/")}
+              className="absolute top-6 left-6 p-2 rounded-full hover:bg-gray-100 transition z-20"
+              aria-label="Kembali ke Beranda"
+              type="button"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </motion.button>
+
             {/* Kiri - Form Login */}
-            <div className="w-full lg:w-1/2 flex flex-col justify-center px-10">
-              <h2 className="text-2xl text-black font-bold mb-2 text-center">LOGIN</h2>
-              <p className="text-center text-gray-500 mb-6">Enter your email and password to Login</p>
+            <div className="w-full lg:w-1/2 flex flex-col justify-center px-12 lg:px-24 bg-white relative z-0">
+              <h2 className="text-4xl text-black font-bold mb-4 text-center lg:text-left">LOGIN</h2>
+              <p className="text-center lg:text-left text-gray-500 mb-10 text-lg">Enter your email and password to Login</p>
 
               <motion.form
                 onSubmit={handleLogin}
-                className="space-y-4 max-w-md mx-auto w-full"
+                className="space-y-6 w-full"
                 animate={wrongPw ? { x: [0, -6, 6, -4, 4, -2, 2, 0] } : {}}
                 transition={{ duration: 0.4 }}
               >
@@ -156,7 +204,7 @@ export default function Login() {
                   placeholder="Enter Email Address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 border rounded-full outline-none text-sm bg-white"
+                  className="w-full px-6 py-4 border rounded-full outline-none text-base bg-white shadow-sm focus:ring-2 focus:ring-[#52c8b0] transition-all"
                   disabled={loading}
                   required
                 />
@@ -168,15 +216,14 @@ export default function Login() {
                     placeholder="Enter Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className={`w-full px-4 py-3 border rounded-full outline-none text-sm bg-white pr-10 ${
-                      wrongPw ? "border-red-500 ring-1 ring-red-400" : ""
-                    }`}
+                    className={`w-full px-6 py-4 border rounded-full outline-none text-base bg-white shadow-sm pr-12 focus:ring-2 focus:ring-[#52c8b0] transition-all ${wrongPw ? "border-red-500 ring-1 ring-red-400" : ""
+                      }`}
                     disabled={loading}
                     required
                   />
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500"
+                    className="h-6 w-6 absolute right-5 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -195,25 +242,24 @@ export default function Login() {
                   </svg>
                 </div>
 
-                <div className="text-right text-sm">
+                <div className="text-right text-base">
                   <button
                     type="button"
                     onClick={() => navigate("/forgot-password", { state: { email } })}
-                    className="text-green-500 hover:underline"
+                    className="text-green-500 hover:underline font-medium"
                   >
                     Forgot Password?
                   </button>
                 </div>
 
-                <div className="flex justify-center">
+                <div className="flex justify-center lg:justify-start">
                   <button
                     type="submit"
                     disabled={loading}
-                    className={`w-[150px] text-white py-2 rounded-full text-sm transition ${
-                      loading
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-gradient-to-r from-[#52c8b0] to-[#78d98d] hover:from-[#43b79c] hover:to-[#66c97b]"
-                    }`}
+                    className={`w-full text-white py-3 rounded-full text-lg font-semibold transition shadow-lg ${loading
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-gradient-to-r from-[#52c8b0] to-[#78d98d] hover:from-[#43b79c] hover:to-[#66c97b] transform hover:-translate-y-1"
+                      }`}
                   >
                     {loading ? "Loading..." : "Login"}
                   </button>
@@ -221,41 +267,39 @@ export default function Login() {
               </motion.form>
 
               {/* OR */}
-              <div className="flex items-center gap-2 my-6 max-w-md mx-auto w-full">
+              <div className="flex items-center gap-4 my-8 w-full">
                 <div className="flex-grow h-px bg-gray-300" />
-                <span className="text-sm text-gray-400">or</span>
+                <span className="text-base text-gray-400 font-medium">or</span>
                 <div className="flex-grow h-px bg-gray-300" />
               </div>
 
               {/* Login Google */}
-              <div className="max-w-md mx-auto w-full">
+              <div className="w-full">
                 <button
                   onClick={handleGoogleLogin}
-                  className="w-full text-black flex items-center justify-center gap-3 py-2 border rounded-md bg-gray-100 hover:bg-gray-200 text-sm transition"
+                  className="w-full text-black flex items-center justify-center gap-3 py-3 border border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100 text-base font-medium transition shadow-sm"
                   disabled={loading}
                 >
-                  <img src="https://img.icons8.com/color/16/000000/google-logo.png" alt="Google" />
+                  <img src="https://img.icons8.com/color/24/000000/google-logo.png" alt="Google" />
                   Login with Google
                 </button>
               </div>
 
               {/* Sign up */}
-              <p className="text-sm mt-6 text-center text-gray-600">
+              <p className="text-base mt-8 text-center lg:text-left text-gray-600">
                 Don't have an account?{" "}
                 <span
                   onClick={() => setShowSignUp(true)}
-                  className="bg-gradient-to-r from-[#52c8b0] to-[#78d98d] bg-clip-text text-transparent hover:underline cursor-pointer"
+                  className="bg-gradient-to-r from-[#52c8b0] to-[#78d98d] bg-clip-text text-transparent hover:underline cursor-pointer font-semibold"
                 >
                   Sign Up
                 </span>
               </p>
             </div>
 
-            {/* Kanan - Gambar */}
-            <div className="hidden lg:flex items-center justify-center w-1/2 bg-white">
-              <div className="rounded-xl p-6 w-[450px] h-[400px] overflow-hidden">
-                <img src={image} alt="Illustration" className="w-full h-full object-cover rounded-xl" />
-              </div>
+            {/* Kanan - Gambar Full */}
+            <div className="hidden lg:block w-1/2 h-full bg-gray-50">
+              <img src={image} alt="Illustration" className="w-full h-full object-cover" />
             </div>
           </motion.div>
         )}

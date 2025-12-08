@@ -1,5 +1,6 @@
 // src/PaketDashboard/SectionPro/MyPackagesPro.jsx
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   HiOutlineChatBubbleLeftRight,
   HiOutlineClock,
@@ -181,6 +182,7 @@ function FeatureCard({ icon: Icon, title, desc }) {
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
 export default function MyPackagesPro() {
+  const { t } = useTranslation();
   const [progressPct] = useState(78);
 
   const reduceMotion = useReducedMotion();
@@ -379,10 +381,10 @@ export default function MyPackagesPro() {
           {/* Title */}
           <motion.div variants={fadeUp} className="text-center">
             <h1 className="text-white font-extrabold text-[34px] md:text-[44px] leading-tight">
-              Paket Pro
+              {t("myPackagesPro.title")}
             </h1>
             <p className="mt-2 text-white/85 text-[14px] md:text-[15px]">
-              Atur dan cek status paket langganan Anda
+              {t("myPackagesPro.desc")}
             </p>
           </motion.div>
 
@@ -395,7 +397,7 @@ export default function MyPackagesPro() {
               animate="show"
               className="w-full flex justify-center"
             >
-              <StatCard title="Durasi Langganan" value="3 Bulan" />
+              <StatCard title={t("myPackagesPro.stats.duration")} value={t("myPackagesPro.stats.durationVal")} />
             </motion.div>
 
             <motion.div
@@ -406,8 +408,8 @@ export default function MyPackagesPro() {
               className="w-full flex justify-center"
             >
               <StatCard
-                title="Masa Aktif"
-                value="15 Hari Lagi"
+                title={t("myPackagesPro.stats.active")}
+                value={t("myPackagesPro.stats.activeVal")}
                 children={
                   <div className="w-full">
                     <div className="h-[6px] w-full rounded-full bg-white/35 overflow-hidden">
@@ -428,7 +430,7 @@ export default function MyPackagesPro() {
               animate="show"
               className="w-full flex justify-center"
             >
-              <StatCard title="Jatuh Tempo" value="1 Januari 2026" />
+              <StatCard title={t("myPackagesPro.stats.due")} value={t("myPackagesPro.stats.dueVal")} />
             </motion.div>
           </div>
 
@@ -438,10 +440,10 @@ export default function MyPackagesPro() {
             animate="show"
             className="mt-9 flex flex-wrap items-center justify-center gap-4 _actionsShift"
           >
-            <ActionButton onClick={() => { }}>Perpanjang Paket</ActionButton>
-            <ActionButton onClick={() => { }}>Upgrade Paket</ActionButton>
+            <ActionButton onClick={() => { }}>{t("myPackagesPro.buttons.renew")}</ActionButton>
+            <ActionButton onClick={() => { }}>{t("myPackagesPro.buttons.upgrade")}</ActionButton>
             <ActionButton variant="danger" onClick={() => { }}>
-              Batalkan Paket
+              {t("myPackagesPro.buttons.cancel")}
             </ActionButton>
           </motion.div>
 
@@ -480,45 +482,45 @@ export default function MyPackagesPro() {
                   }}
                 >
                   <h2 className="text-[24px] md:text-[28px] font-extrabold text-gray-900">
-                    Fitur yang Didapatkan
+                    {t("myPackagesPro.features.title")}
                   </h2>
 
                   <div className="mt-7 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     {[
                       {
                         icon: HiOutlineChatBubbleLeftRight,
-                        title: "1000 percakapan/bulan",
-                        desc: "Bisa melayani hingga 1000 interaksi pelanggan setiap bulannya.",
+                        title: t("myPackagesPro.features.f1.title"),
+                        desc: t("myPackagesPro.features.f1.desc"),
                       },
                       {
                         icon: HiOutlinePresentationChartLine,
-                        title: "Statistik & insight pelanggan",
-                        desc: "Lihat performa chat dan perilaku pelanggan untuk memahami kebutuhan mereka.",
+                        title: t("myPackagesPro.features.f2.title"),
+                        desc: t("myPackagesPro.features.f2.desc"),
                       },
                       {
                         icon: HiOutlineClock,
-                        title: "Balasan otomatis 24/7",
-                        desc: "Chatbot aktif sepanjang hari untuk menjawab pesan kapan saja.",
+                        title: t("myPackagesPro.features.f3.title"),
+                        desc: t("myPackagesPro.features.f3.desc"),
                       },
                       {
                         icon: HiOutlineSquares2X2,
-                        title: "Template balasan Custom",
-                        desc: "Buat dan atur template balasan sesuai gaya bisnis kamu.",
+                        title: t("myPackagesPro.features.f4.title"),
+                        desc: t("myPackagesPro.features.f4.desc"),
                       },
                       {
                         icon: HiOutlineBell,
-                        title: "Notifikasi chat masuk",
-                        desc: "Dapatkan pemberitahuan instan tiap ada pelanggan yang mengirim pesan.",
+                        title: t("myPackagesPro.features.f5.title"),
+                        desc: t("myPackagesPro.features.f5.desc"),
                       },
                       {
                         icon: HiOutlineArrowPath,
-                        title: "Auto-update FAQ produk",
-                        desc: "FAQ langsung diperbarui otomatis setiap kali kamu ubah data produk.",
+                        title: t("myPackagesPro.features.f6.title"),
+                        desc: t("myPackagesPro.features.f6.desc"),
                       },
                       {
                         icon: HiOutlineChatBubbleBottomCenterText,
-                        title: "Pesan sambutan personal",
-                        desc: "Chatbot menyapa pelanggan dengan salam pembuka yang kamu tentukan sendiri.",
+                        title: t("myPackagesPro.features.f7.title"),
+                        desc: t("myPackagesPro.features.f7.desc"),
                       },
                     ].map((it, i) => (
                       <motion.div

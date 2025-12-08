@@ -258,6 +258,597 @@ const resources = {
           status: "Status"
         },
         empty: "Belum ada referral"
+      },
+      obrolanBasic: {
+        title: "Obrolan",
+        online: "Online",
+        offline: "Offline"
+      },
+      botSettingsBasic: {
+        title: "Pengaturan Bot",
+        tabs: {
+          basic: "Pengaturan Dasar",
+          reply: "Pesan & Balasan",
+          persona: "Personality & Training",
+          faq: "Manajemen FAQ"
+        },
+        basic: {
+          botName: {
+            label: "Nama Bot",
+            desc: "Nama ini akan muncul di header chat pelanggan."
+          },
+          desc: {
+            label: "Deskripsi Bot",
+            desc: "Info singkat yang muncul di profil bot."
+          },
+          lang: "Bahasa Utama Bot",
+          speed: {
+            label: "Kecepatan Balas (detik)",
+            desc: "Jeda waktu sebelum bot mengirim balasan (simulasi ngetik)."
+          },
+          emoji: {
+            title: "Gunakan Emoji",
+            desc: "Bot akan menyisipkan emoji agar lebih ekspresif."
+          }
+        },
+        reply: {
+          welcome: "Pesan Sambutan (Welcome Message)",
+          timing: {
+            title: "Kapan pesan sambutan dikirim?",
+            first: {
+              title: "Hanya saat pertama kali chat",
+              desc: "Kirim cuma sekali seumur hidup per user."
+            },
+            every: {
+              title: "Setiap sesi baru (setelah 24 jam)",
+              desc: "Kirim ulang jika user chat lagi besoknya."
+            }
+          },
+          default: "Balasan Default (Jika bot bingung)",
+          closing: "Pesan Penutup (Closing)"
+        },
+        persona: {
+          desc: {
+            label: "Deskripsi Karakter & Peran",
+            desc: "Jelaskan siapa bot ini. Contoh: 'Kamu adalah CS Joyin yang ramah dan suka membantu...'"
+          },
+          tone: {
+            title: "Gaya Bahasa (Tone)",
+            friendly: {
+              title: "Ramah & Santai",
+              desc: "Menggunakan bahasa gaul, emoji, dan sapaan hangat."
+            },
+            formal: {
+              title: "Formal & Profesional",
+              desc: "Bahasa baku, sopan, langsung pada inti masalah."
+            }
+          },
+          example: {
+            label: "Contoh Gaya Bicara (Opsional)",
+            desc: "Berikan contoh kalimat agar AI meniru gaya bicaranya."
+          },
+          restrictions: {
+            label: "Batasan & Larangan",
+            desc: "Apa yang TIDAK BOLEH dibahas oleh bot? (Misal: kompetitor, politik, SARA)"
+          }
+        },
+        faq: {
+          addTitle: "Tambah FAQ Baru",
+          editTitle: "Edit FAQ",
+          question: "Pertanyaan (Keywords)",
+          answer: "Jawaban Bot",
+          addBtn: "Tambahkan ke List",
+          saveBtn: "Simpan Perubahan",
+          cancelBtn: "Batal Edit",
+          listTitle: "Daftar FAQ",
+          active: "Aktif",
+          inactive: "Nonaktif",
+          empty: "Belum ada FAQ yang ditambahkan.",
+          toggleTitle: "Klik untuk ubah status",
+          editLabel: "Edit FAQ",
+          deleteLabel: "Hapus FAQ"
+        },
+        buttons: {
+          save: "Simpan Semua Pengaturan",
+          reset: "Reset"
+        }
+      },
+      reportBasic: {
+        title: "Laporan"
+      },
+      myPackagesBasic: {
+        title: "Paket Basic",
+        desc: "Atur dan cek status paket langganan Anda",
+        stats: {
+          duration: "Durasi Langganan",
+          durationVal: "3 Bulan",
+          active: "Masa Aktif",
+          activeVal: "15 Hari Lagi",
+          due: "Jatuh Tempo",
+          dueVal: "1 Januari 2026"
+        },
+        buttons: {
+          renew: "Perpanjang Paket",
+          upgrade: "Upgrade Paket",
+          cancel: "Batalkan Paket"
+        },
+        features: {
+          title: "Fitur yang Didapatkan",
+          f1: { title: "300 percakapan/bulan", desc: "Bisa melayani hingga 300 interaksi pelanggan setiap bulannya." },
+          f2: { title: "Template balasan standar", desc: "Tersedia kumpulan template siap pakai untuk mempercepat balasan." },
+          f3: { title: "Balasan otomatis 24/7", desc: "Chatbot aktif sepanjang hari untuk menjawab pesan kapan saja." },
+          f4: { title: "Statistik bulanan sederhana", desc: "Lihat ringkasan performa chatbot secara jelas setiap bulan." },
+          f5: { title: "Integrasi WhatsApp mudah", desc: "Cukup beberapa langkah untuk langsung terhubung ke WhatsApp Anda." },
+          f6: { title: "FAQ dasar bawaan", desc: "Sudah dilengkapi jawaban FAQ umum agar chatbot bisa langsung bekerja." }
+        }
+      },
+      referralBasic: {
+        hero: {
+          title: "Ajak Teman, Dapatkan Komisi",
+          desc: "Ajak temanmu pakai Joyin dan nikmati hadiahnya bareng-bareng! Makin banyak yang gabung, makin besar keuntungan yang kamu dapat."
+        },
+        code: {
+          label: "Kode Referral Anda :",
+          placeholder: "Masukkan kode referral",
+          copy: "Salin",
+          copied: "Tersalin"
+        },
+        list: {
+          title: "Daftar Referral",
+          table: {
+            no: "No",
+            name: "Nama",
+            email: "Email",
+            time: "Waktu",
+            status: "Status"
+          }
+        }
+      },
+      obrolanPro: {
+        title: "Obrolan",
+        online: "Online",
+        offline: "Offline"
+      },
+      obrolanBisnis: {
+        title: "Obrolan",
+        online: "Online",
+        offline: "Offline"
+      },
+      obrolanEnterprise: {
+        title: "Obrolan",
+        online: "Online",
+        offline: "Offline"
+      },
+      botSettingsPro: {
+        title: "Pengaturan Bot",
+        tabs: {
+          basic: "Pengaturan Dasar",
+          reply: "Pesan & Balasan",
+          persona: "Personality & Training",
+          faq: "FAQ Management"
+        },
+        basic: {
+          botName: {
+            label: "Nama Bot",
+            desc: "Nama ini akan muncul di header chat pelanggan."
+          },
+          desc: {
+            label: "Deskripsi Bot",
+            desc: "Info singkat yang muncul di profil bot."
+          },
+          lang: "Bahasa Utama Bot",
+          speed: {
+            label: "Kecepatan Respon",
+            desc: "Membuat jeda pengetikan agar respon terasa lebih natural."
+          },
+          emoji: {
+            title: "Gunakan Emoji",
+            desc: "Buat pesan terasa lebih ekspresif dengan tambahan emoji."
+          }
+        },
+        reply: {
+          welcome: "Pesan Sambutan (Welcome Message)",
+          timing: {
+            title: "Waktu Kirim Pesan Sambutan",
+            first: {
+              title: "Hanya pada chat pertama",
+              desc: "Pesan sambutan dikirim sekali saat customer pertama kali chat"
+            },
+            every: {
+              title: "Setiap chat baru",
+              desc: "Pesan sambutan dikirim setiap kali memulai percakapan baru"
+            }
+          },
+          default: "Balasan Default (Ketika Bot Tidak Paham)",
+          closing: "Pesan Penutup Chat"
+        },
+        persona: {
+          desc: {
+            label: "Personality Bot",
+            desc: "Jelaskan karakter, gaya bicara, cara menyapa, dan peran utama bot."
+          },
+          tone: {
+            title: "Gaya Komunikasi",
+            friendly: {
+              title: "Ramah & Santai",
+              desc: "Gunakan bahasa sehari-hari, nada hangat, dan boleh memakai emoji seperlunya."
+            },
+            formal: {
+              title: "Formal & Profesional",
+              desc: "Gunakan bahasa baku & profesional, cocok untuk konteks bisnis dan perusahaan."
+            }
+          },
+          example: {
+            label: "Contoh Balasan Ideal",
+            desc: "Berikan 1–2 contoh balasan yang mewakili gaya bahasa bot."
+          },
+          restrictions: {
+            label: "Hal yang Tidak Boleh Dijawab / Disampaikan",
+            desc: "Tuliskan topik yang harus dihindari bot (misalnya: politik, SARA, dsb)."
+          }
+        },
+        faq: {
+          addTitle: "Tambah FAQ Baru",
+          editTitle: "Edit FAQ",
+          question: "Pertanyaan",
+          answer: "Jawaban",
+          addBtn: "Tambah FAQ",
+          saveBtn: "Simpan Perubahan",
+          cancelBtn: "Batal",
+          listTitle: "Daftar FAQ",
+          active: "Aktif",
+          inactive: "Nonaktif",
+          empty: "Belum ada FAQ. Tambahkan pertanyaan baru di atas.",
+          toggleTitle: "Klik untuk ubah status",
+          editLabel: "Edit FAQ",
+          deleteLabel: "Hapus FAQ"
+        },
+        buttons: {
+          save: "Simpan Pengaturan",
+          reset: "Reset"
+        }
+      },
+      reportPro: {
+        title: "Laporan"
+      },
+      myPackagesPro: {
+        title: "Paket Pro",
+        desc: "Atur dan cek status paket langganan Anda",
+        stats: {
+          duration: "Durasi Langganan",
+          durationVal: "3 Bulan",
+          active: "Masa Aktif",
+          activeVal: "15 Hari Lagi",
+          due: "Jatuh Tempo",
+          dueVal: "1 Januari 2026"
+        },
+        buttons: {
+          renew: "Perpanjang Paket",
+          upgrade: "Upgrade Paket",
+          cancel: "Batalkan Paket"
+        },
+        features: {
+          title: "Fitur yang Didapatkan",
+          f1: { title: "1000 percakapan/bulan", desc: "Bisa melayani hingga 1000 interaksi pelanggan setiap bulannya." },
+          f2: { title: "Statistik & insight pelanggan", desc: "Lihat performa chat dan perilaku pelanggan untuk memahami kebutuhan mereka." },
+          f3: { title: "Balasan otomatis 24/7", desc: "Chatbot aktif sepanjang hari untuk menjawab pesan kapan saja." },
+          f4: { title: "Template balasan Custom", desc: "Buat dan atur template balasan sesuai gaya bisnis kamu." },
+          f5: { title: "Notifikasi chat masuk", desc: "Dapatkan pemberitahuan instan tiap ada pelanggan yang mengirim pesan." },
+          f6: { title: "Auto-update FAQ produk", desc: "FAQ langsung diperbarui otomatis setiap kali kamu ubah data produk." },
+          f7: { title: "Pesan sambutan personal", desc: "Chatbot menyapa pelanggan dengan salam pembuka yang kamu tentukan sendiri." }
+        }
+      },
+      referralPro: {
+        hero: {
+          title: "Ajak Teman, Dapatkan Komisi",
+          desc: "Ajak temanmu pakai Joyin dan nikmati hadiahnya bareng-bareng! Makin banyak yang gabung, makin besar keuntungan yang kamu dapat."
+        },
+        code: {
+          label: "Kode Referral Anda :",
+          placeholder: "Masukkan kode referral",
+          copy: "Salin",
+          copied: "Tersalin",
+          share: "Bagikan kode unikmu dan dapatkan bonusnya!"
+        },
+        list: {
+          title: "Daftar Referral",
+          table: {
+            no: "No",
+            name: "Nama",
+            email: "Email",
+            time: "Waktu",
+            status: "Status"
+          },
+          empty: "Belum ada teman yang menggunakan referral Anda."
+        }
+      },
+      botSettingsBisnis: {
+        title: "Pengaturan Bot",
+        tabs: {
+          basic: "Pengaturan Dasar",
+          reply: "Pesan & Balasan",
+          persona: "Personality & Training",
+          faq: "FAQ Management"
+        },
+        basic: {
+          botName: {
+            label: "Nama Bot",
+            desc: "Nama ini akan muncul di header chat pelanggan."
+          },
+          desc: {
+            label: "Deskripsi Bot",
+            desc: "Info singkat yang muncul di profil bot."
+          },
+          lang: "Bahasa Utama Bot",
+          speed: {
+            label: "Kecepatan Respon",
+            desc: "Membuat jeda pengetikan agar respon terasa lebih natural."
+          },
+          emoji: {
+            title: "Gunakan Emoji",
+            desc: "Buat pesan terasa lebih ekspresif dengan tambahan emoji."
+          }
+        },
+        reply: {
+          welcome: "Pesan Sambutan (Welcome Message)",
+          timing: {
+            title: "Waktu Kirim Pesan Sambutan",
+            first: {
+              title: "Hanya pada chat pertama",
+              desc: "Pesan sambutan dikirim sekali saat customer pertama kali chat"
+            },
+            every: {
+              title: "Setiap chat baru",
+              desc: "Pesan sambutan dikirim setiap kali memulai percakapan baru"
+            }
+          },
+          default: "Balasan Default (Ketika Bot Tidak Paham)",
+          closing: "Pesan Penutup Chat"
+        },
+        persona: {
+          desc: {
+            label: "Personality Bot",
+            desc: "Jelaskan karakter, gaya bicara, cara menyapa, dan peran utama bot."
+          },
+          tone: {
+            title: "Gaya Komunikasi",
+            friendly: {
+              title: "Ramah & Santai",
+              desc: "Gunakan bahasa sehari-hari, nada hangat, dan boleh memakai emoji seperlunya."
+            },
+            formal: {
+              title: "Formal & Profesional",
+              desc: "Gunakan bahasa baku & profesional, cocok untuk konteks bisnis dan perusahaan."
+            }
+          },
+          example: {
+            label: "Contoh Balasan Ideal",
+            desc: "Berikan 1–2 contoh balasan yang mewakili gaya bahasa bot."
+          },
+          restrictions: {
+            label: "Hal yang Tidak Boleh Dijawab / Disampaikan",
+            desc: "Tuliskan topik yang harus dihindari bot (misalnya: politik, SARA, dsb)."
+          }
+        },
+        faq: {
+          addTitle: "Tambah FAQ Baru",
+          editTitle: "Edit FAQ",
+          question: "Pertanyaan",
+          answer: "Jawaban",
+          addBtn: "Tambah FAQ",
+          saveBtn: "Simpan Perubahan",
+          cancelBtn: "Batal",
+          listTitle: "Daftar FAQ",
+          active: "Aktif",
+          inactive: "Nonaktif",
+          empty: "Belum ada FAQ. Tambahkan pertanyaan baru di atas.",
+          toggleTitle: "Klik untuk ubah status",
+          editLabel: "Edit FAQ",
+          deleteLabel: "Hapus FAQ"
+        },
+        buttons: {
+          save: "Simpan Pengaturan",
+          reset: "Reset"
+        }
+      },
+      reportBisnis: {
+        title: "Laporan"
+      },
+      myPackagesBisnis: {
+        title: "Paket Bisnis",
+        desc: "Atur dan cek status paket langganan Anda",
+        stats: {
+          duration: "Durasi Langganan",
+          durationVal: "6 Bulan",
+          active: "Masa Aktif",
+          activeVal: "45 Hari Lagi",
+          due: "Jatuh Tempo",
+          dueVal: "20 Juni 2026"
+        },
+        buttons: {
+          renew: "Perpanjang Paket",
+          upgrade: "Upgrade Paket",
+          cancel: "Batalkan Paket"
+        },
+        features: {
+          title: "Fitur yang Didapatkan",
+          f1: { title: "5.000 percakapan/bulan", desc: "Kapasitas chat lebih besar untuk menangani lonjakan pelanggan." },
+          f2: { title: "Multi-admin WhatsApp", desc: "Akses WhatsApp bisnis bisa digunakan oleh beberapa admin sekaligus." },
+          f3: { title: "Balasan otomatis 24/7", desc: "Layanan pelanggan selalu aktif tanpa henti, siang maupun malam." },
+          f4: { title: "Template balasan premium", desc: "Akses ke template eksklusif yang lebih profesional dan variatif." },
+          f5: { title: "FAQ otomatis & terjadwal", desc: "Atur jawaban otomatis yang bisa berubah sesuai jadwal tertentu." },
+          f6: { title: "Pesan terjadwal promosi", desc: "Jadwalkan pesan broadcast atau promosi ke pelanggan secara otomatis." },
+          f7: { title: "Laporan mingguan lengkap", desc: "Dapatkan analisis performa bot dan insight pelanggan setiap minggu." },
+          f8: { title: "Prioritas dukungan teknis", desc: "Dapatkan bantuan teknis lebih cepat dari tim support kami." }
+        }
+      },
+      referralBisnis: {
+        hero: {
+          title: "Ajak Teman, Dapatkan Komisi",
+          desc: "Ajak temanmu pakai Joyin dan nikmati hadiahnya bareng-bareng! Makin banyak yang gabung, makin besar keuntungan yang kamu dapat."
+        },
+        code: {
+          label: "Kode Referral Anda :",
+          placeholder: "Masukkan kode referral",
+          copy: "Salin",
+          copied: "Tersalin",
+          share: "Bagikan kode unikmu dan dapatkan bonusnya!"
+        },
+        list: {
+          title: "Daftar Referral",
+          table: {
+            no: "No",
+            name: "Nama",
+            email: "Email",
+            time: "Waktu",
+            status: "Status"
+          },
+          empty: "Belum ada teman yang menggunakan referral Anda."
+        }
+      },
+      botSettingsEnterprise: {
+        title: "Pengaturan Bot",
+        tabs: {
+          basic: "Pengaturan Dasar",
+          reply: "Pesan & Balasan",
+          persona: "Personality & Training",
+          faq: "FAQ Management"
+        },
+        basic: {
+          botName: {
+            label: "Nama Bot",
+            desc: "Nama ini akan muncul di header chat pelanggan."
+          },
+          desc: {
+            label: "Deskripsi Bot",
+            desc: "Info singkat yang muncul di profil bot."
+          },
+          lang: "Bahasa Utama Bot",
+          speed: {
+            label: "Kecepatan Respon",
+            desc: "Membuat jeda pengetikan agar respon terasa lebih natural."
+          },
+          emoji: {
+            title: "Gunakan Emoji",
+            desc: "Buat pesan terasa lebih ekspresif dengan tambahan emoji."
+          }
+        },
+        reply: {
+          welcome: "Pesan Sambutan (Welcome Message)",
+          timing: {
+            title: "Waktu Kirim Pesan Sambutan",
+            first: {
+              title: "Hanya pada chat pertama",
+              desc: "Pesan sambutan dikirim sekali saat customer pertama kali chat"
+            },
+            every: {
+              title: "Setiap chat baru",
+              desc: "Pesan sambutan dikirim setiap kali memulai percakapan baru"
+            }
+          },
+          default: "Balasan Default (Ketika Bot Tidak Paham)",
+          closing: "Pesan Penutup Chat"
+        },
+        persona: {
+          desc: {
+            label: "Personality Bot",
+            desc: "Jelaskan karakter, gaya bicara, cara menyapa, dan peran utama bot."
+          },
+          tone: {
+            title: "Gaya Komunikasi",
+            friendly: {
+              title: "Ramah & Santai",
+              desc: "Gunakan bahasa sehari-hari, nada hangat, dan boleh memakai emoji seperlunya."
+            },
+            formal: {
+              title: "Formal & Profesional",
+              desc: "Gunakan bahasa baku & profesional, cocok untuk konteks bisnis dan perusahaan."
+            }
+          },
+          example: {
+            label: "Contoh Balasan Ideal",
+            desc: "Berikan 1–2 contoh balasan yang mewakili gaya bahasa bot."
+          },
+          restrictions: {
+            label: "Hal yang Tidak Boleh Dijawab / Disampaikan",
+            desc: "Tuliskan topik yang harus dihindari bot (misalnya: politik, SARA, dsb)."
+          }
+        },
+        faq: {
+          addTitle: "Tambah FAQ Baru",
+          editTitle: "Edit FAQ",
+          question: "Pertanyaan",
+          answer: "Jawaban",
+          addBtn: "Tambah FAQ",
+          saveBtn: "Simpan Perubahan",
+          cancelBtn: "Batal",
+          listTitle: "Daftar FAQ",
+          active: "Aktif",
+          inactive: "Nonaktif",
+          empty: "Belum ada FAQ. Tambahkan pertanyaan baru di atas.",
+          toggleTitle: "Klik untuk ubah status",
+          editLabel: "Edit FAQ",
+          deleteLabel: "Hapus FAQ"
+        },
+        buttons: {
+          save: "Simpan Pengaturan",
+          reset: "Reset"
+        }
+      },
+      reportEnterprise: {
+        title: "Laporan"
+      },
+      myPackagesEnterprise: {
+        title: "Paket Enterprise",
+        desc: "Atur dan cek status paket langganan Anda",
+        stats: {
+          duration: "Durasi Langganan",
+          durationVal: "12 Bulan",
+          active: "Masa Aktif",
+          activeVal: "150 Hari Lagi",
+          due: "Jatuh Tempo",
+          dueVal: "31 Desember 2030"
+        },
+        buttons: {
+          renew: "Perpanjang Paket",
+          upgrade: "Kelola Layanan",
+          cancel: "Hubungi Sales"
+        },
+        features: {
+          title: "Fitur yang Didapatkan",
+          f1: { title: "Chat tanpa batas", desc: "Tidak ada batasan jumlah percakapan, bebas chat sepuasnya." },
+          f2: { title: "Integrasi WhatsApp API penuh", desc: "Kases fitur WhatsApp API paling lengkap untuk skala enterprise." },
+          f3: { title: "Balasan otomatis 24/7", desc: "Layanan pelanggan selalu aktif tanpa henti, kapan pun dibutuhkan." },
+          f4: { title: "Statistik real-time & export data", desc: "Pantau performa secara langsung dan unduh data untuk analisis mendalam." },
+          f5: { title: "Multi-admin + manajemen tim", desc: "Atur hak akses berbeda untuk setiap anggota tim atau divisi." },
+          f6: { title: "Laporan custom & konsultasi setup", desc: "Laporan yang disesuaikan kebutuhan & bantuan setup dari tim ahli." },
+          f7: { title: "Prioritas dukungan & SLA support", desc: "Jaminan layanan (SLA) dan dukungan prioritas untuk kendala teknis." },
+          f8: { title: "Integrasi sistem internal (CRM/API)", desc: "Hubungkan chatbot dengan sistem CRM atau database perusahaan Anda." }
+        }
+      },
+      referralEnterprise: {
+        hero: {
+          title: "Ajak Teman, Dapatkan Komisi",
+          desc: "Ajak temanmu pakai Joyin dan nikmati hadiahnya bareng-bareng! Makin banyak yang gabung, makin besar keuntungan yang kamu dapat."
+        },
+        code: {
+          label: "Kode Referral Anda :",
+          placeholder: "Masukkan kode referral",
+          copy: "Salin",
+          copied: "Tersalin",
+          share: "Bagikan kode unikmu dan dapatkan bonusnya!"
+        },
+        list: {
+          title: "Daftar Referral",
+          table: {
+            no: "No",
+            name: "Nama",
+            email: "Email",
+            time: "Waktu",
+            status: "Status"
+          },
+          empty: "Belum ada teman yang menggunakan referral Anda."
+        }
       }
     },
   },
@@ -558,6 +1149,598 @@ const resources = {
           status: "Status"
         },
         empty: "No referrals yet"
+      },
+      obrolanBasic: {
+        title: "Chat",
+        online: "Online",
+        offline: "Offline"
+      },
+      botSettingsBasic: {
+        title: "Bot Settings",
+        tabs: {
+          basic: "Basic",
+          reply: "Messages & Replies",
+          persona: "Personality & Training",
+          faq: "FAQ Management"
+        },
+        basic: {
+          botName: {
+            label: "Bot Name",
+            desc: "This name will appear in the customer chat header."
+          },
+          desc: {
+            label: "Bot Description",
+            desc: "Short info that appears in the bot profile."
+          },
+          lang: "Bot Primary Language",
+          speed: {
+            label: "Reply Speed (seconds)",
+            desc: "Delay before bot sends a reply (typing simulation)."
+          },
+          emoji: {
+            title: "Use Emoji",
+            desc: "Bot will insert emojis to be more expressive."
+          }
+        },
+        reply: {
+          welcome: "Welcome Message",
+          timing: {
+            title: "When is the welcome message sent?",
+            first: {
+              title: "Only on first chat",
+              desc: "Send only once in a lifetime per user."
+            },
+            every: {
+              title: "Every new session (after 24 hours)",
+              desc: "Resend if user chats again the next day."
+            }
+          },
+          default: "Default Reply (If bot is confused)",
+          closing: "Closing Message"
+        },
+        persona: {
+          desc: {
+            label: "Character & Role Description",
+            desc: "Explain who this bot is. Example: 'You are a friendly Joyin CS who likes to help...'"
+          },
+          tone: {
+            title: "Language Style (Tone)",
+            friendly: {
+              title: "Friendly & Casual",
+              desc: "Using slang, emojis, and warm greetings."
+            },
+            formal: {
+              title: "Formal & Professional",
+              desc: "Standard, polite language, straight to the point."
+            }
+          },
+          example: {
+            label: "Speech Style Example (Optional)",
+            desc: "Provide example sentences for AI to mimic its speech style."
+          },
+          restrictions: {
+            label: "Restrictions & Prohibitions",
+            desc: "What MUST NOT be discussed by the bot? (e.g., competitors, politics, SARA)"
+          }
+        },
+        faq: {
+          addTitle: "Add New FAQ",
+          editTitle: "Edit FAQ",
+          question: "Question (Keywords)",
+          answer: "Bot Answer",
+          addBtn: "Add to List",
+          saveBtn: "Save Changes",
+          cancelBtn: "Cancel",
+          listTitle: "FAQ List",
+          active: "Active",
+          inactive: "Inactive",
+          empty: "No FAQs added yet.",
+          toggleTitle: "Click to toggle status",
+          editLabel: "Edit FAQ",
+          deleteLabel: "Delete FAQ"
+        },
+        buttons: {
+          save: "Save All Settings",
+          reset: "Reset"
+        }
+      },
+      reportBasic: {
+        title: "Report"
+      },
+      myPackagesBasic: {
+        title: "Basic Plan",
+        desc: "Manage and check your subscription plan status",
+        stats: {
+          duration: "Subscription Duration",
+          durationVal: "3 Months",
+          active: "Active Period",
+          activeVal: "15 Days Left",
+          due: "Due Date",
+          dueVal: "January 1, 2026"
+        },
+        buttons: {
+          renew: "Renew Plan",
+          upgrade: "Upgrade Plan",
+          cancel: "Cancel Plan"
+        },
+        features: {
+          title: "Features You Get",
+          f1: { title: "300 conversations/month", desc: "Serve up to 300 customer interactions every month." },
+          f2: { title: "Standard reply templates", desc: "Available ready-to-use templates to speed up replies." },
+          f3: { title: "24/7 Auto reply", desc: "Chatbot is active all day to answer messages anytime." },
+          f4: { title: "Simple monthly stats", desc: "View chatbot performance summary clearly every month." },
+          f5: { title: "Easy WhatsApp Integration", desc: "Just a few steps to connect directly to your WhatsApp." },
+          f6: { title: "Built-in basic FAQ", desc: "Equipped with common FAQ answers so the chatbot can work immediately." }
+        }
+      },
+      referralBasic: {
+        hero: {
+          title: "Invite Friends, Get Commission",
+          desc: "Invite your friends to use Joyin and enjoy the rewards together! The more people join, the bigger profit you get."
+        },
+        code: {
+          label: "Your Referral Code :",
+          placeholder: "Enter referral code",
+          copy: "Copy",
+          copied: "Copied"
+        },
+        list: {
+          title: "Referral List",
+          table: {
+            no: "No",
+            name: "Name",
+            email: "Email",
+            time: "Time",
+            status: "Status"
+          },
+          empty: "No referrals yet."
+        }
+      },
+      botSettingsPro: {
+        title: "Bot Settings",
+        tabs: {
+          basic: "Basic Settings",
+          reply: "Messages & Replies",
+          persona: "Personality & Training",
+          faq: "FAQ Management"
+        },
+        basic: {
+          botName: {
+            label: "Bot Name",
+            desc: "This name will appear in the customer chat header."
+          },
+          desc: {
+            label: "Bot Description",
+            desc: "Short info that appears in the bot profile."
+          },
+          lang: "Bot Primary Language",
+          speed: {
+            label: "Response Speed",
+            desc: "Create typing pause to make response feel more natural."
+          },
+          emoji: {
+            title: "Use Emoji",
+            desc: "Make messages feel more expressive with additional emojis."
+          }
+        },
+        reply: {
+          welcome: "Welcome Message",
+          timing: {
+            title: "Welcome Message Timing",
+            first: {
+              title: "Only on first chat",
+              desc: "Welcome message sent once when customer chats for the first time"
+            },
+            every: {
+              title: "Every new chat",
+              desc: "Welcome message sent every time a new conversation starts"
+            }
+          },
+          default: "Default Reply (When Bot Doesn't Understand)",
+          closing: "Chat Closing Message"
+        },
+        persona: {
+          desc: {
+            label: "Bot Personality",
+            desc: "Explain character, speaking style, how to greet, and main role of the bot."
+          },
+          tone: {
+            title: "Communication Style",
+            friendly: {
+              title: "Friendly & Casual",
+              desc: "Use daily language, warm tone, and may use emojis as needed."
+            },
+            formal: {
+              title: "Formal & Professional",
+              desc: "Use standard & professional language, suitable for business context."
+            }
+          },
+          example: {
+            label: "Ideal Reply Example",
+            desc: "Provide 1–2 reply examples representing the bot's language style."
+          },
+          restrictions: {
+            label: "Things Not To Answer / Say",
+            desc: "Write topics the bot must avoid (e.g., politics, SARA, etc)."
+          }
+        },
+        faq: {
+          addTitle: "Add New FAQ",
+          editTitle: "Edit FAQ",
+          question: "Question",
+          answer: "Answer",
+          addBtn: "Add FAQ",
+          saveBtn: "Save Changes",
+          cancelBtn: "Cancel",
+          listTitle: "FAQ List",
+          active: "Active",
+          inactive: "Inactive",
+          empty: "No FAQ yet. Add a new question above.",
+          toggleTitle: "Click to toggle status",
+          editLabel: "Edit FAQ",
+          deleteLabel: "Delete FAQ"
+        },
+        buttons: {
+          save: "Save Settings",
+          reset: "Reset"
+        }
+      },
+      reportPro: {
+        title: "Report"
+      },
+      myPackagesPro: {
+        title: "Pro Plan",
+        desc: "Manage and check your subscription plan status",
+        stats: {
+          duration: "Subscription Duration",
+          durationVal: "3 Months",
+          active: "Active Period",
+          activeVal: "15 Days Left",
+          due: "Due Date",
+          dueVal: "January 1, 2026"
+        },
+        buttons: {
+          renew: "Renew Plan",
+          upgrade: "Upgrade Plan",
+          cancel: "Cancel Plan"
+        },
+        features: {
+          title: "Features You Get",
+          f1: { title: "1000 conversations/month", desc: "Serve up to 1000 customer interactions every month." },
+          f2: { title: "Customer stats & insights", desc: "View chat performance and customer behavior to understand their needs." },
+          f3: { title: "24/7 Auto reply", desc: "Chatbot is active all day to answer messages anytime." },
+          f4: { title: "Custom reply templates", desc: "Create and organize reply templates according to your business style." },
+          f5: { title: "Incoming chat notifications", desc: "Get instant notifications whenever a customer sends a message." },
+          f6: { title: "Auto-update FAQ product", desc: "FAQ is automatically updated whenever you change product data." },
+          f7: { title: "Personal welcome message", desc: "Chatbot greets customers with a welcome greeting you define yourself." }
+        }
+      },
+      referralPro: {
+        hero: {
+          title: "Invite Friends, Get Commission",
+          desc: "Invite your friends to use Joyin and enjoy the rewards together! The more people join, the bigger profit you get."
+        },
+        code: {
+          label: "Your Referral Code :",
+          placeholder: "Enter referral code",
+          copy: "Copy",
+          copied: "Copied",
+          share: "Share your unique code and get the bonus!"
+        },
+        list: {
+          title: "Referral List",
+          table: {
+            no: "No",
+            name: "Name",
+            email: "Email",
+            time: "Time",
+            status: "Status"
+          },
+          empty: "No friends have used your referral yet."
+        }
+      },
+      botSettingsBisnis: {
+        title: "Bot Settings",
+        tabs: {
+          basic: "Basic Settings",
+          reply: "Messages & Replies",
+          persona: "Personality & Training",
+          faq: "FAQ Management"
+        },
+        basic: {
+          botName: {
+            label: "Bot Name",
+            desc: "This name will appear in the customer chat header."
+          },
+          desc: {
+            label: "Bot Description",
+            desc: "Short info that appears in the bot profile."
+          },
+          lang: "Bot Primary Language",
+          speed: {
+            label: "Response Speed",
+            desc: "Create typing pause to make response feel more natural."
+          },
+          emoji: {
+            title: "Use Emoji",
+            desc: "Make messages feel more expressive with additional emojis."
+          }
+        },
+        reply: {
+          welcome: "Welcome Message",
+          timing: {
+            title: "Welcome Message Timing",
+            first: {
+              title: "Only on first chat",
+              desc: "Welcome message sent once when customer chats for the first time"
+            },
+            every: {
+              title: "Every new chat",
+              desc: "Welcome message sent every time a new conversation starts"
+            }
+          },
+          default: "Default Reply (When Bot Doesn't Understand)",
+          closing: "Chat Closing Message"
+        },
+        persona: {
+          desc: {
+            label: "Bot Personality",
+            desc: "Explain character, speaking style, how to greet, and main role of the bot."
+          },
+          tone: {
+            title: "Communication Style",
+            friendly: {
+              title: "Friendly & Casual",
+              desc: "Use daily language, warm tone, and may use emojis as needed."
+            },
+            formal: {
+              title: "Formal & Professional",
+              desc: "Use standard & professional language, suitable for business context."
+            }
+          },
+          example: {
+            label: "Ideal Reply Example",
+            desc: "Provide 1–2 reply examples representing the bot's language style."
+          },
+          restrictions: {
+            label: "Things Not To Answer / Say",
+            desc: "Write topics the bot must avoid (e.g., politics, SARA, etc)."
+          }
+        },
+        faq: {
+          addTitle: "Add New FAQ",
+          editTitle: "Edit FAQ",
+          question: "Question",
+          answer: "Answer",
+          addBtn: "Add FAQ",
+          saveBtn: "Save Changes",
+          cancelBtn: "Cancel",
+          listTitle: "FAQ List",
+          active: "Active",
+          inactive: "Inactive",
+          empty: "No FAQ yet. Add a new question above.",
+          toggleTitle: "Click to toggle status",
+          editLabel: "Edit FAQ",
+          deleteLabel: "Delete FAQ"
+        },
+        buttons: {
+          save: "Save Settings",
+          reset: "Reset"
+        }
+      },
+      reportBisnis: {
+        title: "Report"
+      },
+      myPackagesBisnis: {
+        title: "Business Plan",
+        desc: "Manage and check your subscription plan status",
+        stats: {
+          duration: "Subscription Duration",
+          durationVal: "6 Months",
+          active: "Active Period",
+          activeVal: "45 Days Left",
+          due: "Due Date",
+          dueVal: "June 20, 2026"
+        },
+        buttons: {
+          renew: "Renew Plan",
+          upgrade: "Upgrade Plan",
+          cancel: "Cancel Plan"
+        },
+        features: {
+          title: "Features You Get",
+          f1: { title: "5,000 conversations/month", desc: "Larger chat capacity to handle customer surges." },
+          f2: { title: "Multi-admin WhatsApp", desc: "Business WhatsApp access can be used by multiple admins simultaneously." },
+          f3: { title: "24/7 Auto reply", desc: "Customer service always active non-stop, day or night." },
+          f4: { title: "Premium reply templates", desc: "Access to exclusive templates that are more professional and varied." },
+          f5: { title: "Auto & scheduled FAQ", desc: "Set automatic answers that can change according to a specific schedule." },
+          f6: { title: "Scheduled promo messages", desc: "Schedule broadcast messages or promotions to customers automatically." },
+          f7: { title: "Complete weekly reports", desc: "Get bot performance analysis and customer insights every week." },
+          f8: { title: "Priority technical support", desc: "Get technical help faster from our support team." }
+        }
+      },
+      referralBisnis: {
+        hero: {
+          title: "Invite Friends, Get Commission",
+          desc: "Invite your friends to use Joyin and enjoy the rewards together! The more people join, the bigger profit you get."
+        },
+        code: {
+          label: "Your Referral Code :",
+          placeholder: "Enter referral code",
+          copy: "Copy",
+          copied: "Copied",
+          share: "Share your unique code and get the bonus!"
+        },
+        list: {
+          title: "Referral List",
+          table: {
+            no: "No",
+            name: "Name",
+            email: "Email",
+            time: "Time",
+            status: "Status"
+          },
+          empty: "No friends have used your referral yet."
+        }
+      },
+      botSettingsEnterprise: {
+        title: "Bot Settings",
+        tabs: {
+          basic: "Basic Settings",
+          reply: "Messages & Replies",
+          persona: "Personality & Training",
+          faq: "FAQ Management"
+        },
+        basic: {
+          botName: {
+            label: "Bot Name",
+            desc: "This name will appear in the customer chat header."
+          },
+          desc: {
+            label: "Bot Description",
+            desc: "Short info that appears in the bot profile."
+          },
+          lang: "Bot Primary Language",
+          speed: {
+            label: "Response Speed",
+            desc: "Create typing pause to make response feel more natural."
+          },
+          emoji: {
+            title: "Use Emoji",
+            desc: "Make messages feel more expressive with additional emojis."
+          }
+        },
+        reply: {
+          welcome: "Welcome Message",
+          timing: {
+            title: "Welcome Message Timing",
+            first: {
+              title: "Only on first chat",
+              desc: "Welcome message sent once when customer chats for the first time"
+            },
+            every: {
+              title: "Every new chat",
+              desc: "Welcome message sent every time a new conversation starts"
+            }
+          },
+          default: "Default Reply (When Bot Doesn't Understand)",
+          closing: "Chat Closing Message"
+        },
+        persona: {
+          desc: {
+            label: "Bot Personality",
+            desc: "Explain character, speaking style, how to greet, and main role of the bot."
+          },
+          tone: {
+            title: "Communication Style",
+            friendly: {
+              title: "Friendly & Casual",
+              desc: "Use daily language, warm tone, and may use emojis as needed."
+            },
+            formal: {
+              title: "Formal & Professional",
+              desc: "Use standard & professional language, suitable for business context."
+            }
+          },
+          example: {
+            label: "Ideal Reply Example",
+            desc: "Provide 1–2 reply examples representing the bot's language style."
+          },
+          restrictions: {
+            label: "Things Not To Answer / Say",
+            desc: "Write topics the bot must avoid (e.g., politics, SARA, etc)."
+          }
+        },
+        faq: {
+          addTitle: "Add New FAQ",
+          editTitle: "Edit FAQ",
+          question: "Question",
+          answer: "Answer",
+          addBtn: "Add FAQ",
+          saveBtn: "Save Changes",
+          cancelBtn: "Cancel",
+          listTitle: "FAQ List",
+          active: "Active",
+          inactive: "Inactive",
+          empty: "No FAQ yet. Add a new question above.",
+          toggleTitle: "Click to toggle status",
+          editLabel: "Edit FAQ",
+          deleteLabel: "Delete FAQ"
+        },
+        buttons: {
+          save: "Save Settings",
+          reset: "Reset"
+        }
+      },
+      reportEnterprise: {
+        title: "Report"
+      },
+      myPackagesEnterprise: {
+        title: "Enterprise Plan",
+        desc: "Manage and check your subscription plan status",
+        stats: {
+          duration: "Subscription Duration",
+          durationVal: "12 Months",
+          active: "Active Period",
+          activeVal: "150 Days Left",
+          due: "Due Date",
+          dueVal: "December 31, 2030"
+        },
+        buttons: {
+          renew: "Renew Plan",
+          upgrade: "Manage Service",
+          cancel: "Contact Sales"
+        },
+        features: {
+          title: "Features You Get",
+          f1: { title: "Unlimited chats", desc: "No limit on number of conversations, chat as much as freely." },
+          f2: { title: "Full WhatsApp API Integration", desc: "Access the most complete WhatsApp API features for enterprise scale." },
+          f3: { title: "24/7 Auto reply", desc: "Customer service always active non-stop, whenever needed." },
+          f4: { title: "Real-time stat & data export", desc: "Monitor performance directly and download data for in-depth analysis." },
+          f5: { title: "Multi-admin + team management", desc: "Set different access rights for each team member or division." },
+          f6: { title: "Custom report & setup consultation", desc: "Report customized to needs & setup help from expert team." },
+          f7: { title: "Priority support & SLA support", desc: "Service Level Agreement (SLA) guarantee and priority support for technical issues." },
+          f8: { title: "Internal system integration (CRM/API)", desc: "Connect chatbot with your company's CRM system or database." }
+        }
+      },
+      referralEnterprise: {
+        hero: {
+          title: "Invite Friends, Get Commission",
+          desc: "Invite your friends to use Joyin and enjoy the rewards together! The more people join, the bigger profit you get."
+        },
+        code: {
+          label: "Your Referral Code :",
+          placeholder: "Enter referral code",
+          copy: "Copy",
+          copied: "Copied",
+          share: "Share your unique code and get the bonus!"
+        },
+        list: {
+          title: "Referral List",
+          table: {
+            no: "No",
+            name: "Name",
+            email: "Email",
+            time: "Time",
+            status: "Status"
+          },
+          empty: "No friends have used your referral yet."
+        }
+      },
+      obrolanPro: {
+        title: "Chat",
+        online: "Online",
+        offline: "Offline"
+      },
+      obrolanBisnis: {
+        title: "Chat",
+        online: "Online",
+        offline: "Offline"
+      },
+      obrolanEnterprise: {
+        title: "Chat",
+        online: "Online",
+        offline: "Offline"
       }
     },
   },

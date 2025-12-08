@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   HiOutlineChatBubbleLeftRight,
   HiOutlineSquares2X2,
@@ -48,11 +49,9 @@ const STAT_CARD_CFG = {
 
 const SECTION_PUTIH_CFG = {
   maxW: 2000,
-
   padMobileX: 18,
   padMobileTop: 40,
   padMobileBottom: 28,
-
   padDesktopX: 110,
   padDesktopTop: 300,
   padDesktopBottom: 60,
@@ -62,7 +61,6 @@ const SECTION_PUTIH_IMG_CTRL = {
   translateXMobile: 0,
   translateYMobile: 0,
   scaleMobile: 1,
-
   translateXDesktop: 0,
   translateYDesktop: 72,
   scaleDesktop: 1.09,
@@ -119,10 +117,8 @@ function ActionButton({ children, onClick, variant = "primary" }) {
     "outline-none hover:outline-none focus:outline-none focus-visible:outline-none " +
     "focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 ";
 
-  const cls = variant === "danger" ? base : base;
-
   return (
-    <button type="button" onClick={onClick} className={cls}>
+    <button type="button" onClick={onClick} className={base}>
       {children}
     </button>
   );
@@ -145,7 +141,6 @@ function FeatureCard({ icon: Icon, title, desc }) {
           <div className="mt-[2px] shrink-0 text-black">
             <Icon className="_featureIcon" />
           </div>
-
           <div className="min-w-0 flex-1">
             <div className="_featureTitle font-extrabold text-gray-900">
               {title}
@@ -161,6 +156,7 @@ function FeatureCard({ icon: Icon, title, desc }) {
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
 export default function MyPackagesEnterprise() {
+  const { t } = useTranslation();
   const [progressPct] = useState(78);
 
   const reduceMotion = useReducedMotion();
@@ -225,6 +221,52 @@ export default function MyPackagesEnterprise() {
       },
     }),
   };
+
+  const featureList = useMemo(
+    () => [
+      {
+        icon: HiOutlineChatBubbleLeftRight,
+        title: t("myPackagesEnterprise.features.f1.title", { defaultValue: "Chat tanpa batas" }),
+        desc: t("myPackagesEnterprise.features.f1.desc", { defaultValue: "Tidak ada batasan jumlah percakapan." }),
+      },
+      {
+        icon: HiOutlineChartBar,
+        title: t("myPackagesEnterprise.features.f4.title", { defaultValue: "Statistik real-time" }),
+        desc: t("myPackagesEnterprise.features.f4.desc", { defaultValue: "Pantau performa secara langsung." }),
+      },
+      {
+        icon: HiOutlineClock,
+        title: t("myPackagesEnterprise.features.f3.title", { defaultValue: "Balasan otomatis 24/7" }),
+        desc: t("myPackagesEnterprise.features.f3.desc", { defaultValue: "Layanan pelanggan selalu aktif." }),
+      },
+      {
+        icon: HiOutlineClipboardDocumentList, // Icon match guess: Laporan
+        title: t("myPackagesEnterprise.features.f6.title", { defaultValue: "Laporan custom" }),
+        desc: t("myPackagesEnterprise.features.f6.desc", { defaultValue: "Laporan sesi kebutuhan bisnis." }),
+      },
+      {
+        icon: HiOutlineDevicePhoneMobile,
+        title: t("myPackagesEnterprise.features.f2.title", { defaultValue: "Integrasi WA API" }),
+        desc: t("myPackagesEnterprise.features.f2.desc", { defaultValue: "Akses fitur WhatsApp API lengkap." }),
+      },
+      {
+        icon: HiOutlineQuestionMarkCircle, // Support
+        title: t("myPackagesEnterprise.features.f7.title", { defaultValue: "Prioritas dukungan" }),
+        desc: t("myPackagesEnterprise.features.f7.desc", { defaultValue: "Jaminan layanan (SLA) prioritas." }),
+      },
+      {
+        icon: HiOutlineUserGroup,
+        title: t("myPackagesEnterprise.features.f5.title", { defaultValue: "Multi-admin" }),
+        desc: t("myPackagesEnterprise.features.f5.desc", { defaultValue: "Atur hak akses anggota tim." }),
+      },
+      {
+        icon: HiOutlineLink,
+        title: t("myPackagesEnterprise.features.f8.title", { defaultValue: "Integrasi sistem" }),
+        desc: t("myPackagesEnterprise.features.f8.desc", { defaultValue: "Hubungkan dengan CRM perusahaan." }),
+      },
+    ],
+    [t]
+  );
 
   return (
     <motion.div
@@ -344,10 +386,10 @@ export default function MyPackagesEnterprise() {
         <div className="_pagePad">
           <motion.div variants={fadeUp} className="text-center">
             <h1 className="text-white font-extrabold text-[34px] md:text-[44px] leading-tight">
-              Paket Enterprise
+              {t("myPackagesEnterprise.title", { defaultValue: "Paket Enterprise" })}
             </h1>
             <p className="mt-2 text-white/85 text-[14px] md:text-[15px]">
-              Atur dan cek status paket langganan Anda
+              {t("myPackagesEnterprise.desc", { defaultValue: "Atur dan cek status paket langganan Anda" })}
             </p>
           </motion.div>
 
@@ -359,7 +401,10 @@ export default function MyPackagesEnterprise() {
               animate="show"
               className="w-full flex justify-center"
             >
-              <StatCard title="Durasi Langganan" value="12 Bulan" />
+              <StatCard
+                title={t("myPackagesEnterprise.stats.duration", { defaultValue: "Durasi Langganan" })}
+                value={t("myPackagesEnterprise.stats.durationVal", { defaultValue: "12 Bulan" })}
+              />
             </motion.div>
 
             <motion.div
@@ -370,8 +415,8 @@ export default function MyPackagesEnterprise() {
               className="w-full flex justify-center"
             >
               <StatCard
-                title="Masa Aktif"
-                value="15 Hari Lagi"
+                title={t("myPackagesEnterprise.stats.active", { defaultValue: "Masa Aktif" })}
+                value={t("myPackagesEnterprise.stats.activeVal", { defaultValue: "15 Hari Lagi" })}
                 children={
                   <div className="w-full">
                     <div className="h-[6px] w-full rounded-full bg-white/35 overflow-hidden">
@@ -392,7 +437,10 @@ export default function MyPackagesEnterprise() {
               animate="show"
               className="w-full flex justify-center"
             >
-              <StatCard title="Jatuh Tempo" value="1 Januari 2026" />
+              <StatCard
+                title={t("myPackagesEnterprise.stats.due", { defaultValue: "Jatuh Tempo" })}
+                value={t("myPackagesEnterprise.stats.dueVal", { defaultValue: "31 Desember 2030" })}
+              />
             </motion.div>
           </div>
 
@@ -402,10 +450,19 @@ export default function MyPackagesEnterprise() {
             animate="show"
             className="mt-9 flex flex-wrap items-center justify-center gap-4 _actionsShift"
           >
-            <ActionButton onClick={() => { }}>Perpanjang Paket</ActionButton>
-            <ActionButton onClick={() => { }}>Upgrade Paket</ActionButton>
+            <ActionButton onClick={() => { }}>
+              {t("myPackagesEnterprise.buttons.renew", { defaultValue: "Perpanjang Paket" })}
+            </ActionButton>
+            <ActionButton onClick={() => { }}>
+              {t("myPackagesEnterprise.buttons.upgrade", { defaultValue: "Kelola Layanan" })}
+            </ActionButton>
+            {/* Note: In myPackagesEnterprise i18n, cancel is "Hubungi Sales" but in code it was "Batalkan Paket".
+                I'll use i18n key which says "Hubungi Sales" as per i18n.js, or fallback to code.
+                Wait, i18n.js line 815 says "Hubungi Sales". The code had "Batalkan Paket".
+                Since it's Enterprise, "Hubungi Sales" (Contact Sales) makes more sense for cancellation/changes.
+            */}
             <ActionButton variant="danger" onClick={() => { }}>
-              Batalkan Paket
+              {t("myPackagesEnterprise.buttons.cancel", { defaultValue: "Hubungi Sales" })}
             </ActionButton>
           </motion.div>
 
@@ -438,54 +495,13 @@ export default function MyPackagesEnterprise() {
                   }}
                 >
                   <h2 className="text-[22px] md:text-[26px] font-extrabold text-gray-900">
-                    Fitur yang Didapatkan
+                    {t("myPackagesEnterprise.features.title", { defaultValue: "Fitur yang Didapatkan" })}
                   </h2>
 
                   <div className="mt-7 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                    {[
-                      {
-                        icon: HiOutlineChatBubbleLeftRight,
-                        title: "Chat tanpa batas",
-                        desc: "Layani pelanggan tanpa khawatir batas jumlah percakapan.",
-                      },
-                      {
-                        icon: HiOutlineChartBar,
-                        title: "Statistik real-time & export data",
-                        desc: "Pantau performa secara langsung dan unduh data untuk analisis lanjutan.",
-                      },
-                      {
-                        icon: HiOutlineClock,
-                        title: "Balasan otomatis 24/7",
-                        desc: "Chatbot aktif sepanjang hari untuk menjawab pesan kapan saja.",
-                      },
-                      {
-                        icon: HiOutlineClipboardDocumentList, // Icon match guess
-                        title: "Laporan custom & konsultasi setup",
-                        desc: "Dapatkan laporan khusus sesuai kebutuhan bisnis + bantuan setup dari tim ahli.",
-                      },
-                      {
-                        icon: HiOutlineDevicePhoneMobile,
-                        title: "Integrasi WhatsApp API penuh",
-                        desc: "Akses penuh API resmi untuk performa lebih stabil dan profesional.",
-                      },
-                      {
-                        icon: HiOutlineQuestionMarkCircle, // Or maybe HiOutlineSupport? QuestionMark seems ok for support/help
-                        title: "Prioritas dukungan & SLA support",
-                        desc: "Akses jalur dukungan prioritas dengan standar layanan yang terjamin.",
-                      },
-                      {
-                        icon: HiOutlineUserGroup,
-                        title: "Multi-admin + manajemen tim",
-                        desc: "Tambahkan banyak admin dan kelola peran atau tugas tim dengan mudah.",
-                      },
-                      {
-                        icon: HiOutlineLink,
-                        title: "Integrasi sistem internal (CRM/API)",
-                        desc: "Hubungkan chatbot ke CRM, sistem internal, atau API kustom perusahaan.",
-                      }
-                    ].map((it, i) => (
+                    {featureList.map((it, i) => (
                       <motion.div
-                        key={it.title}
+                        key={i}
                         variants={featureIn}
                         custom={i}
                         initial="hidden"

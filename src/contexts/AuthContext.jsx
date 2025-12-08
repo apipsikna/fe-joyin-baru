@@ -59,6 +59,7 @@ export function AuthProvider({ children }) {
       name: u?.name ?? null,
       phone: u?.phone ?? null,
       avatar: u?.avatar ?? null,
+      role: u?.role ?? "USER",
       // birthDate dihapus karena BE tidak punya field ini
     };
   };
@@ -72,14 +73,14 @@ export function AuthProvider({ children }) {
       try {
         if (val) localStorage.setItem("accessToken", val);
         else localStorage.removeItem("accessToken");
-      } catch {}
+      } catch { }
     }
 
     // sinkron default header axios
     try {
       if (val) api.defaults.headers.common.Authorization = `Bearer ${val}`;
       else delete api.defaults.headers.common.Authorization;
-    } catch {}
+    } catch { }
   };
 
   const saveAuth = ({ token, profile }) => {
@@ -91,7 +92,7 @@ export function AuthProvider({ children }) {
       if (USE_LOCAL_STORAGE) {
         try {
           localStorage.setItem("user", JSON.stringify(profile));
-        } catch {}
+        } catch { }
       }
     }
   };
@@ -144,7 +145,7 @@ export function AuthProvider({ children }) {
               if (USE_LOCAL_STORAGE) {
                 try {
                   localStorage.removeItem("user");
-                } catch {}
+                } catch { }
               }
             }
           }
@@ -226,7 +227,7 @@ export function AuthProvider({ children }) {
         if (USE_LOCAL_STORAGE) {
           try {
             localStorage.setItem("user", JSON.stringify(u));
-          } catch {}
+          } catch { }
         }
       }
       return res.data;
@@ -249,7 +250,7 @@ export function AuthProvider({ children }) {
       if (USE_LOCAL_STORAGE) {
         try {
           localStorage.setItem("user", JSON.stringify(updated));
-        } catch {}
+        } catch { }
       }
     }
     return res.data;
@@ -278,7 +279,7 @@ export function AuthProvider({ children }) {
         if (USE_LOCAL_STORAGE) {
           try {
             localStorage.setItem("user", JSON.stringify(newUser));
-          } catch {}
+          } catch { }
         }
         return newUser;
       });
@@ -301,7 +302,7 @@ export function AuthProvider({ children }) {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("user");
         localStorage.removeItem("refreshToken");
-      } catch {}
+      } catch { }
     }
 
     if (redirectTo) window.location.replace(redirectTo);

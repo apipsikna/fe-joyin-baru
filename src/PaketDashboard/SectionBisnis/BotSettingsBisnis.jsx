@@ -1,5 +1,6 @@
 // src/PaketDashboard/SectionBisnis/BotSettingsBisnis.jsx
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   HiOutlineArrowPath,
   HiOutlinePencilSquare,
@@ -11,10 +12,10 @@ const GRADIENT_FROM = "#5FCAAC";
 const GRADIENT_TO = "#DAEC75";
 
 const TABS = [
-  { key: "basic", label: "Pengaturan Dasar" },
-  { key: "reply", label: "Pesan & Balasan" },
-  { key: "persona", label: "Personality & Training" },
-  { key: "faq", label: "FAQ Management" },
+  { key: "basic", label: "tabs.basic" },
+  { key: "reply", label: "tabs.reply" },
+  { key: "persona", label: "tabs.persona" },
+  { key: "faq", label: "tabs.faq" },
 ];
 
 /**
@@ -38,6 +39,7 @@ const LAYOUT_CFG = {
 };
 
 export default function BotSettingsBisnis() {
+  const { t } = useTranslation();
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 
@@ -293,29 +295,36 @@ export default function BotSettingsBisnis() {
         <motion.div variants={riseSoft} className="joyin-pagePad">
           <div className="mb-6 text-center">
             <h1 className="text-[24px] md:text-[32px] font-semibold text-white tracking-wide">
-              Pengaturan Bot
+              {t("botSettingsBisnis.title")}
             </h1>
           </div>
 
-          <div className="mt-1 flex flex-wrap justify-center gap-6 md:gap-10 relative z-20">
-            {TABS.map((t) => {
-              const active = t.key === tab;
-              return (
-                <button
-                  key={t.key}
-                  type="button"
-                  onClick={() => setTab(t.key)}
-                  className={[
-                    "joyin-tab inline-flex items-center justify-center",
-                    "px-10 md:px-14 py-3.5 rounded-[18px] bg-white",
-                    "text-[14px] md:text-[15px] font-semibold text-[#28AF87]",
-                    active ? "joyin-tab--active" : "opacity-95",
-                  ].join(" ")}
-                >
-                  {t.label}
-                </button>
-              );
-            })}
+          <div className="flex justify-center w-full mt-1 relative z-20">
+            <div className="inline-flex p-1 rounded-full bg-white shadow-sm">
+              {TABS.map((tabItem) => {
+                const active = tabItem.key === tab;
+                return (
+                  <button
+                    key={tabItem.key}
+                    type="button"
+                    onClick={() => setTab(tabItem.key)}
+                    className={[
+                      "relative px-6 md:px-10 py-3 rounded-full text-[14px] md:text-[15px] font-semibold transition-colors duration-200",
+                      active ? "text-white" : "text-[#5FCAAC] hover:bg-gray-50",
+                    ].join(" ")}
+                  >
+                    <span className="relative z-10">{t(`botSettingsBisnis.${tabItem.label}`)}</span>
+                    {active && (
+                      <motion.div
+                        layoutId="activeTabBisnis"
+                        className="absolute inset-0 bg-[#5FCAAC] rounded-full z-0 shadow-sm"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </motion.div>
 
@@ -344,7 +353,7 @@ export default function BotSettingsBisnis() {
                       <>
                         <div className="mb-8">
                           <label className="block text-[18px] font-semibold text-gray-900">
-                            Nama Bot
+                            {t("botSettingsBisnis.basic.botName.label")}
                           </label>
                           <input
                             value={botName}
@@ -353,13 +362,13 @@ export default function BotSettingsBisnis() {
                             className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900"
                           />
                           <p className="mt-2 text-[13px] text-gray-500">
-                            Nama panggilan yang muncul ketika bot membalas
+                            {t("botSettingsBisnis.basic.botName.desc")}
                           </p>
                         </div>
 
                         <div className="mb-8">
                           <label className="block text-[18px] font-semibold text-gray-900">
-                            Deskripsi Singkat
+                            {t("botSettingsBisnis.basic.desc.label")}
                           </label>
                           <textarea
                             value={desc}
@@ -368,13 +377,13 @@ export default function BotSettingsBisnis() {
                             className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
                           />
                           <p className="mt-2 text-[13px] text-gray-500">
-                            Ditampilkan di halaman informasi bot
+                            {t("botSettingsBisnis.basic.desc.desc")}
                           </p>
                         </div>
 
                         <div className="mb-8">
                           <label className="block text-[18px] font-semibold text-gray-900">
-                            Bahasa Bot
+                            {t("botSettingsBisnis.basic.lang")}
                           </label>
                           <input
                             value={botLang}
@@ -386,7 +395,7 @@ export default function BotSettingsBisnis() {
 
                         <div className="mb-10">
                           <label className="block text-[18px] font-semibold text-gray-900">
-                            Kecepatan Respon
+                            {t("botSettingsBisnis.basic.speed.label")}
                           </label>
                           <input
                             value={speed}
@@ -395,17 +404,17 @@ export default function BotSettingsBisnis() {
                             className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900"
                           />
                           <p className="mt-2 text-[13px] text-gray-500">
-                            Membuat jeda pengetikan agar respon terasa lebih natural.
+                            {t("botSettingsBisnis.basic.speed.desc")}
                           </p>
                         </div>
 
                         <div className="flex items-center justify-between gap-6">
                           <div className="min-w-0">
                             <h3 className="text-[18px] font-semibold text-gray-900">
-                              Gunakan Emoji
+                              {t("botSettingsBisnis.basic.emoji.title")}
                             </h3>
                             <p className="mt-1 text-[13px] text-gray-500">
-                              Buat pesan terasa lebih ekspresif dengan tambahan emoji.
+                              {t("botSettingsBisnis.basic.emoji.desc")}
                             </p>
                           </div>
 
@@ -419,7 +428,7 @@ export default function BotSettingsBisnis() {
                       <>
                         <div className="mb-10">
                           <label className="block text-[18px] font-semibold text-gray-900">
-                            Pesan Sambutan
+                            {t("botSettingsBisnis.reply.welcome")}
                           </label>
                           <textarea
                             value={welcomeMessage}
@@ -431,20 +440,20 @@ export default function BotSettingsBisnis() {
 
                         <div className="mb-10">
                           <p className="text-[18px] font-semibold text-gray-900">
-                            Waktu Kirim Pesan Sambutan
+                            {t("botSettingsBisnis.reply.timing.title")}
                           </p>
 
                           <div className="mt-4 space-y-4">
                             <RadioOption
                               checked={welcomeTiming === "first"}
-                              title="Hanya pada chat pertama"
-                              description="Pesan sambutan dikirim sekali saat customer pertama kali chat"
+                              title={t("botSettingsBisnis.reply.timing.first.title")}
+                              description={t("botSettingsBisnis.reply.timing.first.desc")}
                               onClick={() => setWelcomeTiming("first")}
                             />
                             <RadioOption
                               checked={welcomeTiming === "every"}
-                              title="Setiap chat baru"
-                              description="Pesan sambutan dikirim setiap kali memulai percakapan baru"
+                              title={t("botSettingsBisnis.reply.timing.every.title")}
+                              description={t("botSettingsBisnis.reply.timing.every.desc")}
                               onClick={() => setWelcomeTiming("every")}
                             />
                           </div>
@@ -452,7 +461,7 @@ export default function BotSettingsBisnis() {
 
                         <div className="mb-10">
                           <label className="block text-[18px] font-semibold text-gray-900">
-                            Balasan Default (Ketika Bot Tidak Paham)
+                            {t("botSettingsBisnis.reply.default")}
                           </label>
                           <textarea
                             value={defaultReply}
@@ -464,7 +473,7 @@ export default function BotSettingsBisnis() {
 
                         <div className="mb-4">
                           <label className="block text-[18px] font-semibold text-gray-900">
-                            Pesan Penutup Chat
+                            {t("botSettingsBisnis.reply.closing")}
                           </label>
                           <textarea
                             value={closingMessage}
@@ -481,7 +490,7 @@ export default function BotSettingsBisnis() {
                       <>
                         <div className="mb-10">
                           <label className="block text-[18px] font-semibold text-gray-900">
-                            Personality Bot
+                            {t("botSettingsBisnis.persona.desc.label")}
                           </label>
                           <textarea
                             value={personaDescription}
@@ -490,26 +499,26 @@ export default function BotSettingsBisnis() {
                             className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
                           />
                           <p className="mt-2 text-[13px] text-gray-500">
-                            Jelaskan karakter, gaya bicara, cara menyapa, dan peran utama bot.
+                            {t("botSettingsBisnis.persona.desc.desc")}
                           </p>
                         </div>
 
                         <div className="mb-10">
                           <p className="text-[18px] font-semibold text-gray-900">
-                            Gaya Komunikasi
+                            {t("botSettingsBisnis.persona.tone.title")}
                           </p>
 
                           <div className="mt-4 space-y-4">
                             <RadioOption
                               checked={personaTone === "friendly"}
-                              title="Ramah & Santai"
-                              description="Gunakan bahasa sehari-hari, nada hangat, dan boleh memakai emoji seperlunya."
+                              title={t("botSettingsBisnis.persona.tone.friendly.title")}
+                              description={t("botSettingsBisnis.persona.tone.friendly.desc")}
                               onClick={() => setPersonaTone("friendly")}
                             />
                             <RadioOption
                               checked={personaTone === "formal"}
-                              title="Formal & Profesional"
-                              description="Gunakan bahasa baku & profesional, cocok untuk konteks bisnis dan perusahaan."
+                              title={t("botSettingsBisnis.persona.tone.formal.title")}
+                              description={t("botSettingsBisnis.persona.tone.formal.desc")}
                               onClick={() => setPersonaTone("formal")}
                             />
                           </div>
@@ -517,7 +526,7 @@ export default function BotSettingsBisnis() {
 
                         <div className="mb-10">
                           <label className="block text-[18px] font-semibold text-gray-900">
-                            Contoh Balasan Ideal
+                            {t("botSettingsBisnis.persona.example.label")}
                           </label>
                           <textarea
                             value={personaExampleReply}
@@ -526,13 +535,13 @@ export default function BotSettingsBisnis() {
                             className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
                           />
                           <p className="mt-2 text-[13px] text-gray-500">
-                            Berikan 1–2 contoh balasan yang mewakili gaya bahasa bot.
+                            {t("botSettingsBisnis.persona.example.desc")}
                           </p>
                         </div>
 
                         <div className="mb-4">
                           <label className="block text-[18px] font-semibold text-gray-900">
-                            Hal yang Tidak Boleh Dijawab / Disampaikan
+                            {t("botSettingsBisnis.persona.restrictions.label")}
                           </label>
                           <textarea
                             value={personaRestrictions}
@@ -541,7 +550,7 @@ export default function BotSettingsBisnis() {
                             className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
                           />
                           <p className="mt-2 text-[13px] text-gray-500">
-                            Tuliskan topik yang harus dihindari bot (misalnya: politik, SARA, dsb).
+                            {t("botSettingsBisnis.persona.restrictions.desc")}
                           </p>
                         </div>
                       </>
@@ -553,12 +562,12 @@ export default function BotSettingsBisnis() {
                         <div className="mb-10">
                           <div className="w-full rounded-[32px] md:rounded-[36px] bg-white shadow-[0_26px_60px_rgba(0,0,0,0.12)] border border-[#F3F3F3] px-6 md:px-10 py-7 md:py-9">
                             <h2 className="text-[18px] md:text-[20px] font-semibold text-gray-900">
-                              {editingFaqId ? "Edit FAQ" : "Tambah FAQ Baru"}
+                              {editingFaqId ? t("botSettingsBisnis.faq.editTitle") : t("botSettingsBisnis.faq.addTitle")}
                             </h2>
 
                             <div className="mt-6">
                               <label className="block text-[14px] md:text-[15px] font-semibold text-gray-900">
-                                Pertanyaan
+                                {t("botSettingsBisnis.faq.question")}
                               </label>
                               <input
                                 type="text"
@@ -570,7 +579,7 @@ export default function BotSettingsBisnis() {
 
                             <div className="mt-6">
                               <label className="block text-[14px] md:text-[15px] font-semibold text-gray-900">
-                                Jawaban
+                                {t("botSettingsBisnis.faq.answer")}
                               </label>
                               <textarea
                                 rows={3}
@@ -586,7 +595,7 @@ export default function BotSettingsBisnis() {
                                 onClick={handleAddOrUpdateFaq}
                                 className="w-full h-[50px] md:h-[54px] rounded-[12px] bg-[#5FCAAC] text-white text-[14px] md:text-[15px] font-semibold shadow-[0_16px_40px_rgba(0,0,0,0.18)] transition-all duration-150 ease-out transform hover:-translate-y-0.5 hover:shadow-[0_20px_46px_rgba(0,0,0,0.22)] active:translate-y-0"
                               >
-                                {editingFaqId ? "Simpan Perubahan" : "Tambah FAQ"}
+                                {editingFaqId ? t("botSettingsBisnis.faq.saveBtn") : t("botSettingsBisnis.faq.addBtn")}
                               </button>
 
                               {editingFaqId && (
@@ -599,7 +608,7 @@ export default function BotSettingsBisnis() {
                                   }}
                                   className="mt-3 w-full h-[46px] rounded-[12px] border border-[#E5E7EB] bg-white text-gray-700 text-[14px] font-semibold hover:bg-gray-50"
                                 >
-                                  Batal
+                                  {t("botSettingsBisnis.faq.cancelBtn")}
                                 </button>
                               )}
                             </div>
@@ -609,15 +618,15 @@ export default function BotSettingsBisnis() {
                         <div className="mt-2">
                           <div className="flex items-center justify-between gap-4 mb-5">
                             <h3 className="text-[20px] md:text-[22px] font-semibold text-gray-900">
-                              Daftar FAQ
+                              {t("botSettingsBisnis.faq.listTitle")}
                             </h3>
 
                             <div className="flex items-center gap-3">
                               <span className="inline-flex items-center justify-center px-5 h-9 rounded-full bg-green-100 text-green-700 text-[13px] font-semibold">
-                                Aktif : {activeCount}
+                                {t("botSettingsBisnis.faq.active")} : {activeCount}
                               </span>
                               <span className="inline-flex items-center justify-center px-5 h-9 rounded-full bg-gray-100 text-gray-700 text-[13px] font-semibold">
-                                Nonaktif : {inactiveCount}
+                                {t("botSettingsBisnis.faq.inactive")} : {inactiveCount}
                               </span>
                             </div>
                           </div>
@@ -626,7 +635,7 @@ export default function BotSettingsBisnis() {
                             {faqs.length === 0 ? (
                               <div className="w-full rounded-[24px] border border-[#E5E7EB] bg-white px-6 md:px-10 py-8">
                                 <p className="text-[14px] text-gray-400">
-                                  Belum ada FAQ. Tambahkan pertanyaan baru di atas.
+                                  {t("botSettingsBisnis.faq.empty")}
                                 </p>
                               </div>
                             ) : (
@@ -645,9 +654,9 @@ export default function BotSettingsBisnis() {
                                           ? "bg-green-100 text-green-700"
                                           : "bg-gray-100 text-gray-700",
                                       ].join(" ")}
-                                      title="Klik untuk ubah status"
+                                      title={t("botSettingsBisnis.faq.toggleTitle")}
                                     >
-                                      {item.active ? "Aktif" : "Nonaktif"}
+                                      {item.active ? t("botSettingsBisnis.faq.active") : t("botSettingsBisnis.faq.inactive")}
                                     </button>
 
                                     <div className="flex items-center gap-3">
@@ -706,7 +715,7 @@ export default function BotSettingsBisnis() {
                     onClick={handleSave}
                     className="flex-1 h-[52px] md:h-[56px] rounded-[12px] bg-[#5FCAAC] text-white text-[14px] md:text-[15px] font-semibold shadow-[0_12px_30px_rgba(0,0,0,0.18)] transition-all duration-150 ease-out transform hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(0,0,0,0.2)] active:translate-y-0"
                   >
-                    Simpan Pengaturan
+                    {t("botSettingsBisnis.buttons.save")}
                   </button>
 
                   <button
@@ -715,7 +724,7 @@ export default function BotSettingsBisnis() {
                     className="inline-flex items-center justify-center gap-2 px-6 h-[52px] md:h-[56px] rounded-[12px] border border-[#E4E4E4] bg-white text-[#28AF87] text-[14px] md:text-[15px] font-semibold shadow-[0_4px_10px_rgba(0,0,0,0.04)] transition-all duration-150 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(0,0,0,0.08)] active:translate-y-0"
                   >
                     <HiOutlineArrowPath className="w-5 h-5" />
-                    <span>Reset</span>
+                    <span>{t("botSettingsBisnis.buttons.reset")}</span>
                   </button>
                 </div>
               </div>

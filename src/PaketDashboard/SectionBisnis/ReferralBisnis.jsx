@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { HiOutlineDocumentDuplicate } from "react-icons/hi2";
 import { motion, useReducedMotion } from "framer-motion";
 import EightBintang from "../../assets/8bintang.png";
@@ -32,16 +33,6 @@ const STAR8_CTRL = {
   scale: 0.8,
 };
 
-const SAMPLE_ROWS = [
-  { no: 1, nama: "Andin Nugraha", email: "andin.ngrh@gmail.com", waktu: "2025-11-25 09:12", status: "Aktif" },
-  { no: 2, nama: "Bella Nadhira", email: "bella.ndhr@gmail.com", waktu: "2025-11-25 10:45", status: "Pending" },
-  { no: 3, nama: "Candra Wijaya", email: "candra.wjy@gmail.com", waktu: "2025-11-25 08:30", status: "Aktif" },
-  { no: 4, nama: "Dwi Lestari", email: "dwi.lestari@gmail.com", waktu: "2025-11-25 11:05", status: "Aktif" },
-  { no: 5, nama: "Fajar Nugraha", email: "fajar.ngrh@gmail.com", waktu: "2025-11-25 12:58", status: "Pending" },
-  { no: 6, nama: "Gita Ramadhani", email: "gita.rmdh@gmail.com", waktu: "2025-11-25 07:50", status: "Aktif" },
-  { no: 7, nama: "Hendra Saputra", email: "hendra.sptr@gmail.com", waktu: "2025-11-25 13:27", status: "Aktif" },
-];
-
 const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
 const readNum = (qp, key, fallback) => {
   const raw = qp.get(key);
@@ -50,13 +41,20 @@ const readNum = (qp, key, fallback) => {
   return Number.isFinite(v) ? v : fallback;
 };
 
-import { useReferralCode } from "../../hooks/useReferralCode";
+// import { useReferralCode } from "../../hooks/useReferralCode"; // ❌ REPLACED
+import { useLoyalty } from "../../hooks/useLoyalty"; // ✅ NEW HOOK
 
 export default function ReferralBisnis({ profile }) {
+  const { t } = useTranslation();
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 
-  // ✅ Animasi masuk
+  // ✅ Get Real Data
+  const { referralCode: apiCode, referralList, loading } = useLoyalty();
+  // Fallback to profile code if API code is not available
+  const referralCode = apiCode || profile?.referralCode || profile?.refCode || "";
+
+  // Animation variants
   const page = {
     hidden: { opacity: 0 },
     show: {
@@ -114,7 +112,7 @@ export default function ReferralBisnis({ profile }) {
     }),
   };
 
-  const { referralCode } = useReferralCode(profile);
+  // const { referralCode } = useReferralCode(profile); // ❌ NOT USED
 
   const [copied, setCopied] = useState(false);
 
@@ -208,12 +206,11 @@ export default function ReferralBisnis({ profile }) {
 
         <motion.div variants={fadeUp} className="relative z-10">
           <h1 className="text-center text-white font-extrabold tracking-wide text-[32px] md:text-[44px] leading-tight">
-            Ajak Teman, Dapatkan Komisi
+            {t("referralBisnis.hero.title")}
           </h1>
 
           <p className="mt-3 text-center text-white/90 text-[13px] md:text-[15px] leading-relaxed max-w-3xl mx-auto">
-            Ajak temanmu pakai Joyin dan nikmati hadiahnya bareng-bareng! Makin
-            banyak yang gabung, makin besar keuntungan yang kamu dapat.
+            {t("referralBisnis.hero.desc")}
           </p>
 
           <motion.div
@@ -222,14 +219,14 @@ export default function ReferralBisnis({ profile }) {
             style={{ padding: "18px" }}
           >
             <div className="text-white/90 font-semibold text-[16px] md:text-[18px]">
-              Kode Referral Anda :
+              {t("referralBisnis.code.label")}
             </div>
 
             <div className="mt-3 flex items-center gap-3">
               <input
                 value={referralCode}
                 readOnly
-                placeholder="Masukkan kode referral"
+                placeholder={t("referralBisnis.code.placeholder")}
                 className="w-full h-[56px] rounded-[14px] border border-white/70 bg-white/25 px-5 text-white placeholder:text-white/70 outline-none"
               />
 
@@ -237,10 +234,10 @@ export default function ReferralBisnis({ profile }) {
                 type="button"
                 onClick={handleCopy}
                 className="h-[56px] min-w-[160px] md:min-w-[190px] rounded-[14px] bg-white text-[#5FCAAC] font-bold text-[16px] shadow-[0_10px_26px_rgba(0,0,0,0.12)] inline-flex items-center justify-center gap-2 hover:brightness-[0.98] active:brightness-95"
-                title="Salin kode referral"
+                title={t("referralBisnis.code.copy")}
               >
                 <HiOutlineDocumentDuplicate className="w-5 h-5" />
-                {copied ? "Tersalin" : "Salin"}
+                {copied ? t("referralBisnis.code.copied") : t("referralBisnis.code.copy")}
               </button>
             </div>
           </motion.div>
@@ -271,38 +268,62 @@ export default function ReferralBisnis({ profile }) {
           >
             <div className="mx-auto w-full max-w-6xl">
               <motion.h2 variants={fadeUp} className="text-[26px] md:text-[32px] font-extrabold text-gray-900">
-                Daftar Referral
+                {t("referralBisnis.list.title")}
               </motion.h2>
 
               <motion.div variants={fadeUp} className="mt-6 overflow-hidden rounded-2xl border border-gray-200">
                 <table className="w-full text-[13px] md:text-[14px]">
                   <thead className="bg-[#5FCAAC] text-white">
                     <tr>
-                      <th className="py-4 px-4 text-left font-bold w-[64px]">No</th>
-                      <th className="py-4 px-4 text-center font-bold">Nama</th>
-                      <th className="py-4 px-4 text-center font-bold">Email</th>
-                      <th className="py-4 px-4 text-center font-bold">Waktu</th>
-                      <th className="py-4 px-4 text-center font-bold w-[120px]">Status</th>
+                      <th className="py-4 px-4 text-left font-bold w-[64px]">
+                        {t("referralBisnis.list.table.no")}
+                      </th>
+                      <th className="py-4 px-4 text-center font-bold">{t("referralBisnis.list.table.name")}</th>
+                      <th className="py-4 px-4 text-center font-bold">{t("referralBisnis.list.table.email")}</th>
+                      <th className="py-4 px-4 text-center font-bold">{t("referralBisnis.list.table.time")}</th>
+                      <th className="py-4 px-4 text-center font-bold w-[120px]">
+                        {t("referralBisnis.list.table.status")}
+                      </th>
                     </tr>
                   </thead>
 
                   <tbody className="bg-white">
-                    {SAMPLE_ROWS.map((r, i) => (
-                      <motion.tr
-                        key={r.no}
-                        className="border-t border-gray-100"
-                        variants={rowIn}
-                        custom={i}
-                        initial="hidden"
-                        animate="show"
-                      >
-                        <td className="py-4 px-4 text-left text-gray-900">{r.no}</td>
-                        <td className="py-4 px-4 text-center text-gray-900">{r.nama}</td>
-                        <td className="py-4 px-4 text-center text-gray-900">{r.email}</td>
-                        <td className="py-4 px-4 text-center text-gray-900">{r.waktu}</td>
-                        <td className="py-4 px-4 text-center text-gray-900">{r.status}</td>
-                      </motion.tr>
-                    ))}
+                    {referralList && referralList.length > 0 ? (
+                      referralList.map((r, i) => (
+                        <motion.tr
+                          key={r.id || i}
+                          className="border-t border-gray-100"
+                          variants={rowIn}
+                          custom={i}
+                          initial="hidden"
+                          animate="show"
+                        >
+                          <td className="py-4 px-4 text-left text-gray-900">
+                            {i + 1}
+                          </td>
+                          <td className="py-4 px-4 text-center text-gray-900">
+                            {r.name || r.userName || "User"}
+                          </td>
+                          <td className="py-4 px-4 text-center text-gray-900">
+                            {r.email || "-"}
+                          </td>
+                          <td className="py-4 px-4 text-center text-gray-900">
+                            {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "-"}
+                          </td>
+                          <td className="py-4 px-4 text-center text-gray-900">
+                            <span className="px-2 py-1 bg-emerald-50 text-emerald-700 rounded text-xs font-bold">
+                              {r.status || "Aktif"}
+                            </span>
+                          </td>
+                        </motion.tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="5" className="py-8 text-center text-gray-400">
+                          {loading ? "Memuat..." : "Belum ada referral."}
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </motion.div>
@@ -315,8 +336,3 @@ export default function ReferralBisnis({ profile }) {
     </motion.div>
   );
 }
-
-/*
-✅ URL override:
-?starx=40&stary=-15&stars=1.1
-*/

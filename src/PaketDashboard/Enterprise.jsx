@@ -10,6 +10,7 @@ import {
   HiOutlineArrowRightOnRectangle,
   HiOutlineGlobeAlt,
   HiOutlineShare,
+  HiOutlineGift, // ✅ NEW
 } from "react-icons/hi2";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/logo.png";
@@ -26,6 +27,8 @@ import MyPackagesEnterprise from "./SectionEnterprise/MyPackagesEnterprise";
 import BotSettingsEnterprise from "./SectionEnterprise/BotSettingsEnterprise";
 import ObrolanEnterprise from "./SectionEnterprise/ObrolanEnterprise";
 import ReferralEnterprise from "./SectionEnterprise/ReferralEnterprise";
+// ✅ NEW: Rewards import
+import RewardsDashboard from "./SectionReward/RewardsDashboard";
 
 // (tetap)
 import Setting from "../pages/Setting";
@@ -38,6 +41,7 @@ const MENU = {
   REPORTS: "reports",
   PACKAGES: "packages",
   REFERRAL: "referral",
+  REWARDS: "rewards", // ✅ NEW
   SETTINGS: "settings",
 };
 
@@ -86,9 +90,9 @@ export default function Enterprise() {
         if (!cancelled)
           setError(
             err?.message ||
-              t("dashboard.errorLoadProfile", {
-                defaultValue: "Failed to load profile",
-              })
+            t("dashboard.errorLoadProfile", {
+              defaultValue: "Failed to load profile",
+            })
           );
       } finally {
         if (!cancelled) setLoading(false);
@@ -176,6 +180,7 @@ export default function Enterprise() {
         {activeMenu === MENU.REPORTS && <ReportEnterprise />}
         {activeMenu === MENU.PACKAGES && <MyPackagesEnterprise />}
         {activeMenu === MENU.REFERRAL && <ReferralEnterprise profile={profile} />}
+        {activeMenu === MENU.REWARDS && <RewardsDashboard profile={profile} />} {/* ✅ RENDER REWARDS */}
         {activeMenu === MENU.SETTINGS && (
           <Setting onBack={() => setActiveMenu(MENU.HOME)} />
         )}
@@ -231,6 +236,15 @@ function Sidebar({ activeMenu, setActiveMenu, t, onGoLanding }) {
         active={activeMenu === MENU.PACKAGES}
         onClick={() => setActiveMenu(MENU.PACKAGES)}
       />
+
+      {/* ✅ Menu Rewards Baru */}
+      <SidebarButton
+        icon={HiOutlineGift}
+        text="Rewards"
+        active={activeMenu === MENU.REWARDS}
+        onClick={() => setActiveMenu(MENU.REWARDS)}
+      />
+
       <SidebarButton
         icon={HiOutlineShare}
         text={t("dashboard.sidebar.referral", { defaultValue: "Referral" })}
@@ -263,8 +277,8 @@ function SidebarButton({ icon: Icon, text, active, onClick, landing }) {
         active
           ? "bg-[#5CC9AF] text-white shadow-sm"
           : landing
-          ? "text-emerald-700 hover:bg-emerald-50 border border-emerald-100"
-          : "text-gray-600 hover:bg-gray-50",
+            ? "text-emerald-700 hover:bg-emerald-50 border border-emerald-100"
+            : "text-gray-600 hover:bg-gray-50",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300",
       ].join(" ")}
     >
@@ -274,8 +288,8 @@ function SidebarButton({ icon: Icon, text, active, onClick, landing }) {
           active
             ? "bg-white/20 border-white/20"
             : landing
-            ? "bg-emerald-50 border-emerald-100"
-            : "bg-gray-50 border-gray-100 group-hover:bg-gray-100",
+              ? "bg-emerald-50 border-emerald-100"
+              : "bg-gray-50 border-gray-100 group-hover:bg-gray-100",
         ].join(" ")}
       >
         <Icon
@@ -458,11 +472,10 @@ function DropdownItem({ icon, label, sub, onClick, danger }) {
       onClick={onClick}
       role="menuitem"
       className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition
-      ${
-        danger
+      ${danger
           ? "text-red-600 hover:bg-red-50"
           : "text-gray-800 hover:bg-emerald-50"
-      }`}
+        }`}
       whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 500, damping: 30 }}
     >
@@ -474,9 +487,8 @@ function DropdownItem({ icon, label, sub, onClick, danger }) {
       </div>
       <div className="text-left leading-tight">
         <p
-          className={`text-[12px] font-semibold ${
-            danger ? "text-red-600" : "text-gray-900"
-          }`}
+          className={`text-[12px] font-semibold ${danger ? "text-red-600" : "text-gray-900"
+            }`}
         >
           {label}
         </p>
@@ -505,10 +517,9 @@ function LanguageSwitcher({ current, onChange }) {
             key={l.code}
             onClick={() => onChange(l.code)}
             className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border transition
-              ${
-                current?.startsWith(l.code)
-                  ? "bg-emerald-500 text-white border-emerald-500"
-                  : "bg-white text-gray-700 border-emerald-200 hover:bg-emerald-50"
+              ${current?.startsWith(l.code)
+                ? "bg-emerald-500 text-white border-emerald-500"
+                : "bg-white text-gray-700 border-emerald-200 hover:bg-emerald-50"
               }`}
             initial={{ y: 4, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}

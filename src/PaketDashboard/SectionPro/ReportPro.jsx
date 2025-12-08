@@ -1,5 +1,6 @@
 // src/PaketDashboard/SectionPro/ReportPro.jsx
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { motion, useReducedMotion } from "framer-motion";
 
 const GRADIENT_FROM = "#5FCAAC";
@@ -23,6 +24,7 @@ const REPORT_LAYOUT = {
 };
 
 export default function ReportPro() {
+  const { t } = useTranslation();
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 
@@ -106,7 +108,7 @@ export default function ReportPro() {
         style={{ paddingTop: "var(--topPad)" }}
       >
         <h1 className="text-center text-white font-extrabold tracking-wide text-[36px] md:text-[44px] leading-none">
-          Laporan
+          {t("reportPro.title")}
         </h1>
       </motion.div>
 

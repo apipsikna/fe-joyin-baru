@@ -38,7 +38,7 @@ export default function SignUp({ onBack }) {
     let stored = "";
     try {
       stored = (localStorage.getItem(REFERRAL_STORAGE_KEY) || "").trim();
-    } catch {}
+    } catch { }
 
     const picked = (refFromUrl || stored || "").trim();
     if (!picked) return;
@@ -65,7 +65,7 @@ export default function SignUp({ onBack }) {
       const v = (code || "").trim();
       if (v) localStorage.setItem(REFERRAL_STORAGE_KEY, v);
       else localStorage.removeItem(REFERRAL_STORAGE_KEY);
-    } catch {}
+    } catch { }
   };
 
   const handleChange = (e) => {
@@ -94,16 +94,20 @@ export default function SignUp({ onBack }) {
     e.preventDefault();
 
     if (form.password !== form.confirmPassword) {
-      setAlert({ type: "error", message: "Passwords do not match!" });
+      const msg = "Passwords do not match!";
+      if (alert?.type === 'error' && alert?.message === msg) return;
+      setAlert({ type: "error", message: msg });
       return;
     }
     if (!form.agree) {
-      setAlert({ type: "error", message: "You must agree to the terms & policy." });
+      const msg = "You must agree to the terms & policy.";
+      if (alert?.type === 'error' && alert?.message === msg) return;
+      setAlert({ type: "error", message: msg });
       return;
     }
 
     setLoading(true);
-    setAlert(null);
+    // setAlert(null); // Jangan reset null agar tidak flicker
 
     try {
       // ✅ FE dulu: tidak perlu kirim referralCode ke BE (biar aman kalau BE belum support)
@@ -113,6 +117,7 @@ export default function SignUp({ onBack }) {
         email: form.email,
         phone: form.phone,
         password: form.password,
+        referralCode: form.referralCode, // ✅ Include referral code
       };
 
       await signup(payload);
@@ -126,6 +131,11 @@ export default function SignUp({ onBack }) {
         error?.response?.data?.message ||
         error?.message ||
         "Failed to register";
+
+      if (alert?.type === 'error' && alert?.message === msg) {
+        setLoading(false);
+        return;
+      }
       setAlert({ type: "error", message: msg });
     } finally {
       setLoading(false);
@@ -136,14 +146,13 @@ export default function SignUp({ onBack }) {
     const isSuccess = type === "success";
     return (
       <motion.div
-        initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -30 }}
-        className={`fixed top-6 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full shadow-lg text-sm font-medium z-50 transition-all duration-300 ${
-          isSuccess
-            ? "bg-gradient-to-r from-[#52c8b0] to-[#78d98d] text-white"
-            : "bg-red-500 text-white"
-        }`}
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.8 }}
+        className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 px-8 py-4 rounded-xl shadow-2xl text-center font-medium z-50 transition-all duration-300 ${isSuccess
+          ? "bg-gradient-to-r from-[#52c8b0] to-[#78d98d] text-white"
+          : "bg-red-500 text-white"
+          }`}
       >
         {message}
       </motion.div>
@@ -168,20 +177,22 @@ export default function SignUp({ onBack }) {
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={onBack}
-          className="absolute top-4 left-4 p-2 rounded-full hover:bg-gray-100 transition"
+          className="absolute top-6 left-6 p-2 rounded-full hover:bg-gray-100 transition z-20"
           aria-label="Kembali"
           type="button"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </motion.button>
 
         {/* Kiri - Form */}
-        <div className="w-full lg:w-1/2 flex flex-col justify-center px-10">
-          <form onSubmit={handleSubmit} className="flex flex-col space-y-4 max-w-md mx-auto w-full">
-            <h2 className="text-2xl font-bold text-black text-center">Sign Up</h2>
-            <p className="text-center text-gray-500 text-sm mb-2">Create your account</p>
+        <div className="w-full lg:w-1/2 flex flex-col justify-center px-10 lg:px-20 bg-white relative z-10 py-6 lg:py-0">
+          <form onSubmit={handleSubmit} className="flex flex-col space-y-3 w-full">
+            <div className="text-center lg:text-left mb-4">
+              <h2 className="text-3xl font-bold text-black mb-1">Sign Up</h2>
+              <p className="text-gray-500 text-base">Create your account</p>
+            </div>
 
             <input
               type="text"
@@ -189,7 +200,7 @@ export default function SignUp({ onBack }) {
               placeholder="Enter Your Name"
               value={form.name}
               onChange={handleChange}
-              className="w-full border border-gray-300 px-4 py-3 rounded-full text-sm bg-white text-gray-500"
+              className="w-full border border-gray-300 px-5 py-3 rounded-full text-sm bg-white text-gray-500 shadow-sm focus:ring-2 focus:ring-[#52c8b0] transition-all outline-none"
               required
             />
 
@@ -199,7 +210,7 @@ export default function SignUp({ onBack }) {
               placeholder="Enter Email Address"
               value={form.email}
               onChange={handleChange}
-              className="w-full border border-gray-300 px-4 py-3 rounded-full text-sm bg-white text-gray-500"
+              className="w-full border border-gray-300 px-5 py-3 rounded-full text-sm bg-white text-gray-500 shadow-sm focus:ring-2 focus:ring-[#52c8b0] transition-all outline-none"
               required
             />
 
@@ -209,30 +220,30 @@ export default function SignUp({ onBack }) {
               placeholder="Enter Phone Number"
               value={form.phone}
               onChange={handleChange}
-              className="w-full border border-gray-300 px-4 py-3 rounded-full text-sm bg-white text-gray-500"
+              className="w-full border border-gray-300 px-5 py-3 rounded-full text-sm bg-white text-gray-500 shadow-sm focus:ring-2 focus:ring-[#52c8b0] transition-all outline-none"
               required
             />
 
-            {/* Referral Code (Opsional, hanya 1x di register) */}
-            <div className="space-y-2">
+            {/* Referral Code */}
+            <div className="space-y-1">
               <input
                 type="text"
                 name="referralCode"
                 placeholder="Referral Code (optional)"
                 value={form.referralCode}
                 onChange={handleChange}
-                className="w-full border border-gray-300 px-4 py-3 rounded-full text-sm bg-white text-gray-500"
+                className="w-full border border-gray-300 px-5 py-3 rounded-full text-sm bg-white text-gray-500 shadow-sm focus:ring-2 focus:ring-[#52c8b0] transition-all outline-none"
                 autoComplete="off"
               />
               <div className="flex items-center justify-between px-2">
-                <p className="text-[12px] text-gray-400">
+                <p className="text-xs text-gray-400">
                   Isi jika punya kode referral (diskon {REFERRAL_DISCOUNT_PERCENT}% otomatis saat pembelian pertama).
                 </p>
                 {form.referralCode ? (
                   <button
                     type="button"
                     onClick={clearReferral}
-                    className="text-[12px] font-semibold text-[#52c8b0] hover:underline"
+                    className="text-xs font-semibold text-[#52c8b0] hover:underline"
                   >
                     Hapus
                   </button>
@@ -248,12 +259,12 @@ export default function SignUp({ onBack }) {
                 placeholder="Enter Password"
                 value={form.password}
                 onChange={handleChange}
-                className="w-full border border-gray-300 px-4 py-3 rounded-full text-sm bg-white text-gray-500 pr-10"
+                className="w-full border border-gray-300 px-5 py-3 rounded-full text-sm bg-white text-gray-500 pr-12 shadow-sm focus:ring-2 focus:ring-[#52c8b0] transition-all outline-none"
                 required
               />
               <span
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-4 flex items-center cursor-pointer text-gray-500"
+                className="absolute inset-y-0 right-5 flex items-center cursor-pointer text-gray-500"
                 aria-label="Toggle password visibility"
               >
                 {showPassword ? (
@@ -277,12 +288,12 @@ export default function SignUp({ onBack }) {
                 placeholder="Confirm Password"
                 value={form.confirmPassword}
                 onChange={handleChange}
-                className="w-full border border-gray-300 px-4 py-3 rounded-full text-sm bg-white text-gray-500 pr-10"
+                className="w-full border border-gray-300 px-5 py-3 rounded-full text-sm bg-white text-gray-500 pr-12 shadow-sm focus:ring-2 focus:ring-[#52c8b0] transition-all outline-none"
                 required
               />
               <span
                 onClick={() => setShowConfirm(!showConfirm)}
-                className="absolute inset-y-0 right-4 flex items-center cursor-pointer text-gray-500"
+                className="absolute inset-y-0 right-5 flex items-center cursor-pointer text-gray-500"
                 aria-label="Toggle confirm password visibility"
               >
                 {showConfirm ? (
@@ -298,46 +309,46 @@ export default function SignUp({ onBack }) {
               </span>
             </div>
 
-            <div className="flex items-center text-sm text-gray-500 mt-2">
+            <div className="flex items-center text-sm text-gray-500 mt-1">
               <input
                 type="checkbox"
                 name="agree"
                 checked={form.agree}
                 onChange={handleChange}
-                className="w-5 h-5 mr-2 accent-[#52c8b0]"
+                className="w-4 h-4 mr-2 accent-[#52c8b0]"
               />
-              <span>
+              <span className="text-sm">
                 I understand the{" "}
-                <a href="#" className="text-[#52c8b0] underline">
+                <a href="#" className="text-[#52c8b0] underline font-medium">
                   terms & policy
                 </a>
               </span>
             </div>
 
-            <div className="flex justify-center">
+            <div className="flex justify-center lg:justify-start">
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 type="submit"
                 disabled={loading}
-                className="w-fit px-8 bg-gradient-to-r from-[#52c8b0] to-[#78d98d] text-white py-2 rounded-full hover:from-[#43b79c] hover:to-[#66c97b] transition text-sm font-medium disabled:opacity-50"
+                className="w-full bg-gradient-to-r from-[#52c8b0] to-[#78d98d] text-white py-2.5 rounded-full hover:from-[#43b79c] hover:to-[#66c97b] transition text-base font-semibold disabled:opacity-50 shadow-lg transform hover:-translate-y-1 block"
               >
                 {loading ? "Signing Up..." : "Sign Up"}
               </motion.button>
             </div>
 
-            <div className="flex items-center gap-2 my-4">
+            <div className="flex items-center gap-4 my-2">
               <div className="flex-grow h-px bg-gray-300" />
-              <span className="text-sm text-gray-400">or</span>
+              <span className="text-sm text-gray-400 font-medium">or</span>
               <div className="flex-grow h-px bg-gray-300" />
             </div>
 
             <button
               type="button"
               disabled={loading}
-              className="w-full flex items-center text-black justify-center gap-3 py-2 border rounded-md bg-gray-200 hover:bg-gray-200 text-sm transition font-medium"
+              className="w-full flex items-center text-black justify-center gap-3 py-2.5 border border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100 text-sm font-medium transition shadow-sm"
             >
               <img
-                src="https://img.icons8.com/color/16/000000/google-logo.png"
+                src="https://img.icons8.com/color/20/000000/google-logo.png"
                 alt="Google"
               />
               Sign up with Google
@@ -345,15 +356,13 @@ export default function SignUp({ onBack }) {
           </form>
         </div>
 
-        {/* Kanan - Gambar */}
-        <div className="hidden lg:flex items-center justify-center w-1/2 bg-white">
-          <div className="rounded-xl p-6 w-[450px] h-[400px] overflow-hidden">
-            <img
-              src={image}
-              alt="Signup Illustration"
-              className="w-full h-full object-cover rounded-xl"
-            />
-          </div>
+        {/* Kanan - Gambar Full */}
+        <div className="hidden lg:block w-1/2 h-full bg-gray-50">
+          <img
+            src={image}
+            alt="Signup Illustration"
+            className="w-full h-full object-cover"
+          />
         </div>
       </motion.div>
     </AnimatePresence>

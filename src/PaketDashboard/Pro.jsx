@@ -1,5 +1,4 @@
-// (File Dashboard kamu yang tadi) — ganti HOME agar pakai:
-// src/PaketDashboard/SectionPro/HomePro.jsx
+// src/PaketDashboard/Pro.jsx
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -11,6 +10,7 @@ import {
   HiOutlineArrowRightOnRectangle,
   HiOutlineGlobeAlt,
   HiOutlineShare,
+  HiOutlineGift, // ✅ NEW
 } from "react-icons/hi2";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/logo.png";
@@ -30,6 +30,8 @@ import MyPackagesPro from "./SectionPro/MyPackagesPro";
 import ObrolanPro from "./SectionPro/ObrolanPro";
 import ReferralPro from "./SectionPro/ReferralPro";
 import ReportPro from "./SectionPro/ReportPro";
+// ✅ NEW: Rewards import
+import RewardsDashboard from "./SectionReward/RewardsDashboard";
 
 // ===== Menu keys
 const MENU = {
@@ -39,6 +41,7 @@ const MENU = {
   REPORTS: "reports",
   PACKAGES: "packages",
   REFERRAL: "referral",
+  REWARDS: "rewards", // ✅ NEW
   SETTINGS: "settings",
 };
 
@@ -87,9 +90,9 @@ export default function Dashboard() {
         if (!cancelled)
           setError(
             err?.message ||
-              t("dashboard.errorLoadProfile", {
-                defaultValue: "Failed to load profile",
-              })
+            t("dashboard.errorLoadProfile", {
+              defaultValue: "Failed to load profile",
+            })
           );
       } finally {
         if (!cancelled) setLoading(false);
@@ -177,6 +180,7 @@ export default function Dashboard() {
         {activeMenu === MENU.REPORTS && <ReportPro profile={profile} />}
         {activeMenu === MENU.PACKAGES && <MyPackagesPro profile={profile} />}
         {activeMenu === MENU.REFERRAL && <ReferralPro profile={profile} />}
+        {activeMenu === MENU.REWARDS && <RewardsDashboard profile={profile} />}
 
         {/* settings tetap pakai Setting lama */}
         {activeMenu === MENU.SETTINGS && (
@@ -240,6 +244,13 @@ function Sidebar({ activeMenu, setActiveMenu, t, onGoLanding }) {
       />
 
       <SidebarButton
+        icon={HiOutlineGift}
+        text="Rewards"
+        active={activeMenu === MENU.REWARDS}
+        onClick={() => setActiveMenu(MENU.REWARDS)}
+      />
+
+      <SidebarButton
         icon={HiOutlineShare}
         text={t("dashboard.sidebar.referral", { defaultValue: "Referral" })}
         active={activeMenu === MENU.REFERRAL}
@@ -271,8 +282,8 @@ function SidebarButton({ icon: Icon, text, active, onClick, landing }) {
         active
           ? "bg-[#5CC9AF] text-white shadow-sm"
           : landing
-          ? "text-emerald-700 hover:bg-emerald-50 border border-emerald-100"
-          : "text-gray-600 hover:bg-gray-50",
+            ? "text-emerald-700 hover:bg-emerald-50 border border-emerald-100"
+            : "text-gray-600 hover:bg-gray-50",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300",
       ].join(" ")}
     >
@@ -282,8 +293,8 @@ function SidebarButton({ icon: Icon, text, active, onClick, landing }) {
           active
             ? "bg-white/20 border-white/20"
             : landing
-            ? "bg-emerald-50 border-emerald-100"
-            : "bg-gray-50 border-gray-100 group-hover:bg-gray-100",
+              ? "bg-emerald-50 border-emerald-100"
+              : "bg-gray-50 border-gray-100 group-hover:bg-gray-100",
         ].join(" ")}
       >
         <Icon
@@ -502,10 +513,9 @@ function LanguageSwitcher({ current, onChange }) {
             key={l.code}
             onClick={() => onChange(l.code)}
             className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border transition
-              ${
-                current?.startsWith(l.code)
-                  ? "bg-emerald-500 text-white border-emerald-500"
-                  : "bg-white text-gray-700 border-emerald-200 hover:bg-emerald-50"
+              ${current?.startsWith(l.code)
+                ? "bg-emerald-500 text-white border-emerald-500"
+                : "bg-white text-gray-700 border-emerald-200 hover:bg-emerald-50"
               }`}
             initial={{ y: 4, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}

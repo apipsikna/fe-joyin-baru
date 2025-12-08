@@ -42,6 +42,7 @@ import Basic from "./PaketDashboard/Basic";
 import Pro from "./PaketDashboard/Pro";
 import Bisnis from "./PaketDashboard/Bisnis";
 import Enterprise from "./PaketDashboard/Enterprise";
+import AdminDashboard from "./pages/AdminDashboard";
 import ScrollToTop from "./components/ScrollToTop";
 
 function PublicLayout() {
@@ -162,13 +163,31 @@ function PublicOnly({ children }) {
   const { isAuthenticated, ready, user } = useAuth();
   if (!ready) return null;
   const ok = isAuthenticated && !!user?.email;
-  return ok ? <Navigate to="/dashboard" replace /> : children;
+
+  if (ok) {
+    return user?.role === "ADMIN" ? (
+      <Navigate to="/admin" replace />
+    ) : (
+      <Navigate to="/dashboard" replace />
+    );
+  }
+
+  return children;
 }
 
 function PublicOnlyLogin({ children }) {
-  const { isAuthenticated, ready } = useAuth();
+  const { isAuthenticated, ready, user } = useAuth();
   if (!ready) return null;
-  return isAuthenticated ? <Navigate to="/dashboard" replace /> : children;
+
+  if (isAuthenticated) {
+    return user?.role === "ADMIN" ? (
+      <Navigate to="/admin" replace />
+    ) : (
+      <Navigate to="/dashboard" replace />
+    );
+  }
+
+  return children;
 }
 
 function AppInner() {
@@ -302,6 +321,7 @@ function AppInner() {
               </RequireAuth>
             }
           />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route
             path="/settings"
             element={

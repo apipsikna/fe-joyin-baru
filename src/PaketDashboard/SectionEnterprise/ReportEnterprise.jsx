@@ -1,5 +1,6 @@
 import React from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 const GRADIENT_FROM = "#5FCAAC";
 const GRADIENT_TO = "#DAEC75";
@@ -17,6 +18,7 @@ const REPORT_LAYOUT = {
 };
 
 export default function ReportEnterprise() {
+  const { t } = useTranslation();
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 
@@ -94,7 +96,7 @@ export default function ReportEnterprise() {
 
       <motion.div variants={headerIn} className="rp-pad shrink-0" style={{ paddingTop: "var(--topPad)" }}>
         <h1 className="text-center text-white font-extrabold tracking-wide text-[36px] md:text-[44px] leading-none">
-          Laporan
+          {t("reportEnterprise.title", { defaultValue: "Laporan" })}
         </h1>
       </motion.div>
 

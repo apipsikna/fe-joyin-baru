@@ -1,5 +1,6 @@
 // src/PaketDashboard/SectionBasic/MyPackagesBasic.jsx
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   HiOutlineChatBubbleLeftRight,
   HiOutlineSquares2X2,
@@ -189,6 +190,7 @@ function FeatureCard({ icon: Icon, title, desc }) {
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
 export default function MyPackagesBasic() {
+  const { t } = useTranslation();
   const [progressPct] = useState(78);
 
   // ===== Animasi (aman: tidak mengganggu transform CSS yang sudah ada) =====
@@ -397,10 +399,10 @@ export default function MyPackagesBasic() {
           {/* Title */}
           <motion.div variants={fadeUp} className="text-center">
             <h1 className="text-white font-extrabold text-[34px] md:text-[44px] leading-tight">
-              Paket Basic
+              {t("myPackagesBasic.title")}
             </h1>
             <p className="mt-2 text-white/85 text-[14px] md:text-[15px]">
-              Atur dan cek status paket langganan Anda
+              {t("myPackagesBasic.desc")}
             </p>
           </motion.div>
 
@@ -413,7 +415,10 @@ export default function MyPackagesBasic() {
               animate="show"
               className="w-full flex justify-center"
             >
-              <StatCard title="Durasi Langganan" value="3 Bulan" />
+              <StatCard
+                title={t("myPackagesBasic.stats.duration")}
+                value={t("myPackagesBasic.stats.durationVal")}
+              />
             </motion.div>
 
             <motion.div
@@ -424,8 +429,8 @@ export default function MyPackagesBasic() {
               className="w-full flex justify-center"
             >
               <StatCard
-                title="Masa Aktif"
-                value="15 Hari Lagi"
+                title={t("myPackagesBasic.stats.active")}
+                value={t("myPackagesBasic.stats.activeVal")}
                 children={
                   <div className="w-full">
                     <div className="h-[6px] w-full rounded-full bg-white/35 overflow-hidden">
@@ -446,7 +451,10 @@ export default function MyPackagesBasic() {
               animate="show"
               className="w-full flex justify-center"
             >
-              <StatCard title="Jatuh Tempo" value="1 Januari 2026" />
+              <StatCard
+                title={t("myPackagesBasic.stats.due")}
+                value={t("myPackagesBasic.stats.dueVal")}
+              />
             </motion.div>
           </div>
 
@@ -457,10 +465,14 @@ export default function MyPackagesBasic() {
             animate="show"
             className="mt-9 flex flex-wrap items-center justify-center gap-4 _actionsShift"
           >
-            <ActionButton onClick={() => { }}>Perpanjang Paket</ActionButton>
-            <ActionButton onClick={() => { }}>Upgrade Paket</ActionButton>
+            <ActionButton onClick={() => { }}>
+              {t("myPackagesBasic.buttons.renew")}
+            </ActionButton>
+            <ActionButton onClick={() => { }}>
+              {t("myPackagesBasic.buttons.upgrade")}
+            </ActionButton>
             <ActionButton variant="danger" onClick={() => { }}>
-              Batalkan Paket
+              {t("myPackagesBasic.buttons.cancel")}
             </ActionButton>
           </motion.div>
 
@@ -495,40 +507,40 @@ export default function MyPackagesBasic() {
                   }}
                 >
                   <h2 className="text-[22px] md:text-[26px] font-extrabold text-gray-900">
-                    Fitur yang Didapatkan
+                    {t("myPackagesBasic.features.title")}
                   </h2>
 
                   <div className="mt-7 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     {[
                       {
                         icon: HiOutlineChatBubbleLeftRight,
-                        title: "300 percakapan/bulan",
-                        desc: "Bisa melayani hingga 300 interaksi pelanggan setiap bulannya.",
+                        title: t("myPackagesBasic.features.f1.title"),
+                        desc: t("myPackagesBasic.features.f1.desc"),
                       },
                       {
                         icon: HiOutlineSquares2X2,
-                        title: "Template balasan standar",
-                        desc: "Tersedia kumpulan template siap pakai untuk mempercepat balasan.",
+                        title: t("myPackagesBasic.features.f2.title"),
+                        desc: t("myPackagesBasic.features.f2.desc"),
                       },
                       {
                         icon: HiOutlineClock,
-                        title: "Balasan otomatis 24/7",
-                        desc: "Chatbot aktif sepanjang hari untuk menjawab pesan kapan saja.",
+                        title: t("myPackagesBasic.features.f3.title"),
+                        desc: t("myPackagesBasic.features.f3.desc"),
                       },
                       {
                         icon: HiOutlineChartBar,
-                        title: "Statistik bulanan sederhana",
-                        desc: "Lihat ringkasan performa chatbot secara jelas setiap bulan.",
+                        title: t("myPackagesBasic.features.f4.title"),
+                        desc: t("myPackagesBasic.features.f4.desc"),
                       },
                       {
                         icon: HiOutlineDevicePhoneMobile,
-                        title: "Integrasi WhatsApp mudah",
-                        desc: "Cukup beberapa langkah untuk langsung terhubung ke WhatsApp Anda.",
+                        title: t("myPackagesBasic.features.f5.title"),
+                        desc: t("myPackagesBasic.features.f5.desc"),
                       },
                       {
                         icon: HiOutlineQuestionMarkCircle,
-                        title: "FAQ dasar bawaan",
-                        desc: "Sudah dilengkapi jawaban FAQ umum agar chatbot bisa langsung bekerja.",
+                        title: t("myPackagesBasic.features.f6.title"),
+                        desc: t("myPackagesBasic.features.f6.desc"),
                       },
                     ].map((it, i) => (
                       <motion.div

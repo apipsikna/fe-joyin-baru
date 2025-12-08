@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   HiOutlineChatBubbleLeftRight,
   HiOutlineSquares2X2,
@@ -161,6 +162,7 @@ function FeatureCard({ icon: Icon, title, desc }) {
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
 export default function MyPackagesBisnis() {
+  const { t } = useTranslation();
   const [progressPct] = useState(78);
 
   const reduceMotion = useReducedMotion();
@@ -348,10 +350,10 @@ export default function MyPackagesBisnis() {
           {/* Title */}
           <motion.div variants={fadeUp} className="text-center">
             <h1 className="text-white font-extrabold text-[34px] md:text-[44px] leading-tight">
-              Paket Bisnis
+              {t("myPackagesBisnis.title")}
             </h1>
             <p className="mt-2 text-white/85 text-[14px] md:text-[15px]">
-              Atur dan cek status paket langganan Anda
+              {t("myPackagesBisnis.desc")}
             </p>
           </motion.div>
 
@@ -364,7 +366,7 @@ export default function MyPackagesBisnis() {
               animate="show"
               className="w-full flex justify-center"
             >
-              <StatCard title="Durasi Langganan" value="3 Bulan" />
+              <StatCard title={t("myPackagesBisnis.stats.duration")} value={t("myPackagesBisnis.stats.durationVal")} />
             </motion.div>
 
             <motion.div
@@ -375,8 +377,8 @@ export default function MyPackagesBisnis() {
               className="w-full flex justify-center"
             >
               <StatCard
-                title="Masa Aktif"
-                value="15 Hari Lagi"
+                title={t("myPackagesBisnis.stats.active")}
+                value={t("myPackagesBisnis.stats.activeVal")}
                 children={
                   <div className="w-full">
                     <div className="h-[6px] w-full rounded-full bg-white/35 overflow-hidden">
@@ -397,7 +399,7 @@ export default function MyPackagesBisnis() {
               animate="show"
               className="w-full flex justify-center"
             >
-              <StatCard title="Jatuh Tempo" value="1 Januari 2026" />
+              <StatCard title={t("myPackagesBisnis.stats.due")} value={t("myPackagesBisnis.stats.dueVal")} />
             </motion.div>
           </div>
 
@@ -408,10 +410,10 @@ export default function MyPackagesBisnis() {
             animate="show"
             className="mt-9 flex flex-wrap items-center justify-center gap-4 _actionsShift"
           >
-            <ActionButton onClick={() => { }}>Perpanjang Paket</ActionButton>
-            <ActionButton onClick={() => { }}>Upgrade Paket</ActionButton>
+            <ActionButton onClick={() => { }}>{t("myPackagesBisnis.buttons.renew")}</ActionButton>
+            <ActionButton onClick={() => { }}>{t("myPackagesBisnis.buttons.upgrade")}</ActionButton>
             <ActionButton variant="danger" onClick={() => { }}>
-              Batalkan Paket
+              {t("myPackagesBisnis.buttons.cancel")}
             </ActionButton>
           </motion.div>
 
@@ -445,50 +447,50 @@ export default function MyPackagesBisnis() {
                   }}
                 >
                   <h2 className="text-[22px] md:text-[26px] font-extrabold text-gray-900">
-                    Fitur yang Didapatkan
+                    {t("myPackagesBisnis.features.title")}
                   </h2>
 
                   <div className="mt-7 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     {[
                       {
                         icon: HiOutlineChatBubbleLeftRight,
-                        title: "5.000 percakapan/bulan",
-                        desc: "Bisa melayani hingga 5000 interaksi pelanggan setiap bulannya.",
+                        title: t("myPackagesBisnis.features.f1.title"),
+                        desc: t("myPackagesBisnis.features.f1.desc"),
                       },
                       {
                         icon: HiOutlineChartBar,
-                        title: "Laporan mingguan lengkap",
-                        desc: "Dapatkan ringkasan performa chat setiap minggu untuk memantau perkembangan.",
+                        title: t("myPackagesBisnis.features.f2.title"),
+                        desc: t("myPackagesBisnis.features.f2.desc"),
                       },
                       {
                         icon: HiOutlineClock,
-                        title: "Balasan otomatis 24/7",
-                        desc: "Chatbot aktif sepanjang hari untuk menjawab pesan kapan saja.",
+                        title: t("myPackagesBisnis.features.f3.title"),
+                        desc: t("myPackagesBisnis.features.f3.desc"),
                       },
                       {
                         icon: HiOutlineSquares2X2,
-                        title: "Template balasan premium",
-                        desc: "Format jawaban siap pakai yang lebih rapi, profesional, dan bisa diatur bebas.",
+                        title: t("myPackagesBisnis.features.f4.title"),
+                        desc: t("myPackagesBisnis.features.f4.desc"),
                       },
                       {
                         icon: HiOutlineDevicePhoneMobile,
-                        title: "Multi-admin WhatsApp",
-                        desc: "Beberapa admin bisa membalas chat pelanggan secara bersamaan.",
+                        title: t("myPackagesBisnis.features.f5.title"),
+                        desc: t("myPackagesBisnis.features.f5.desc"),
                       },
                       {
                         icon: HiOutlineQuestionMarkCircle,
-                        title: "FAQ otomatis & terjadwal",
-                        desc: "Jawaban umum langsung muncul otomatis, bisa dijadwalkan sesuai kebutuhan.",
+                        title: t("myPackagesBisnis.features.f6.title"),
+                        desc: t("myPackagesBisnis.features.f6.desc"),
                       },
                       {
-                        icon: HiOutlinePhone, // Need to import this or use similar
-                        title: "Prioritas dukungan teknis",
-                        desc: "Tim support lebih cepat merespons dan membantu pengaturan bisnis Anda.",
+                        icon: HiOutlinePhone,
+                        title: t("myPackagesBisnis.features.f7.title"),
+                        desc: t("myPackagesBisnis.features.f7.desc"),
                       },
                       {
-                        icon: HiOutlineCalendar, // Need to import this or use similar
-                        title: "Pesan terjadwal promosi",
-                        desc: "Kirim broadcast promo atau pengingat ke pelanggan secara otomatis.",
+                        icon: HiOutlineCalendar,
+                        title: t("myPackagesBisnis.features.f8.title"),
+                        desc: t("myPackagesBisnis.features.f8.desc"),
                       }
                     ].map((it, i) => (
                       <motion.div

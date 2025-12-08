@@ -345,12 +345,12 @@ export default function Checkout() {
   const markFirstPurchaseDone = async (orderId) => {
     try {
       localStorage.setItem(purchaseKey, "1");
-    } catch {}
+    } catch { }
     setHasPurchased(true);
 
     try {
       localStorage.removeItem(REFERRAL_STORAGE_KEY);
-    } catch {}
+    } catch { }
     setReferralCode("");
 
     if (referralCode) {
@@ -359,8 +359,8 @@ export default function Checkout() {
           orderId,
           referralCode,
         });
-      } catch {
-        // ignore untuk FE-only
+      } catch (err) {
+        console.error("Failed to complete first purchase logic:", err);
       }
     }
   };
@@ -409,7 +409,7 @@ export default function Checkout() {
 
     try {
       localStorage.setItem(RECEIPT_STORAGE_KEY, JSON.stringify(payload));
-    } catch {}
+    } catch { }
 
     navigate("/bukti-pembayaran", { state: payload, replace: true });
   };
@@ -521,10 +521,10 @@ export default function Checkout() {
     (method === "card"
       ? cardOk && ccReady
       : method === "bank"
-      ? !!bank
-      : method === "ewallet"
-      ? !!ewallet
-      : true);
+        ? !!bank
+        : method === "ewallet"
+          ? !!ewallet
+          : true);
 
   const callCharge = async (payload) => {
     const res = await api.post("/payments/core/charge", payload);
@@ -568,8 +568,7 @@ export default function Checkout() {
                 String(tokenResponse.status_code) !== "200"
               ) {
                 alert(
-                  `Tokenisasi gagal: ${
-                    tokenResponse?.status_message || "Unknown error"
+                  `Tokenisasi gagal: ${tokenResponse?.status_message || "Unknown error"
                   }`
                 );
                 return;
@@ -623,8 +622,8 @@ export default function Checkout() {
               console.error(err);
               alert(
                 err?.response?.data?.message ||
-                  err.message ||
-                  "Pembayaran kartu gagal."
+                err.message ||
+                "Pembayaran kartu gagal."
               );
             }
           }
@@ -740,6 +739,7 @@ export default function Checkout() {
           </motion.h1>
 
           {/* Banner referral */}
+          {/* Banner referral */}
           <AnimatePresence mode="popLayout">
             {referralCode && !hasPurchased && (
               <motion.div
@@ -751,7 +751,7 @@ export default function Checkout() {
               >
                 Kamu pakai referral{" "}
                 <span className="font-mono font-semibold">{referralCode}</span> —
-                diskon <span className="font-semibold">6%</span> otomatis untuk
+                diskon <span className="font-semibold">{Math.round(REFERRAL_DISCOUNT_RATE * 100)}%</span> otomatis untuk
                 pembelian pertama.
               </motion.div>
             )}
@@ -829,10 +829,10 @@ export default function Checkout() {
                     id === "card"
                       ? IconCreditCard
                       : id === "bank"
-                      ? IconBankTransfer
-                      : id === "ewallet"
-                      ? IconWallet
-                      : IconQris;
+                        ? IconBankTransfer
+                        : id === "ewallet"
+                          ? IconWallet
+                          : IconQris;
 
                   return (
                     <motion.button
@@ -989,14 +989,12 @@ export default function Checkout() {
                   label="Metode Pembayaran :"
                   value={
                     method === "bank"
-                      ? `Transfer Bank (${
-                          BANKS.find((b) => b.id === bank)?.name || "-"
-                        })`
+                      ? `Transfer Bank (${BANKS.find((b) => b.id === bank)?.name || "-"
+                      })`
                       : method === "ewallet"
-                      ? `E–Wallet (${
-                          EWALLETS.find((w) => w.id === ewallet)?.name || "-"
+                        ? `E–Wallet (${EWALLETS.find((w) => w.id === ewallet)?.name || "-"
                         })`
-                      : METHODS.find((m) => m.id === method)?.label
+                        : METHODS.find((m) => m.id === method)?.label
                   }
                 />
                 <Row

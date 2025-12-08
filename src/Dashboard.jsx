@@ -9,6 +9,7 @@ import {
   HiOutlineArrowRightOnRectangle,
   HiOutlineGlobeAlt,
   HiOutlineShare,
+  HiOutlineGift,
 } from "react-icons/hi2";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "./assets/logo.png";
@@ -25,7 +26,8 @@ import MyPackages from "./pages/MyPackages";
 import BotSettings from "./pages/BotSettings";
 import Setting from "./pages/Setting";
 import Obrolan from "./pages/Obrolan";
-import ReferralDashboard from "./pages/ReferralDashboard"; // ✅ Tambah ini
+import ReferralDashboard from "./pages/ReferralDashboard";
+import RewardsDashboard from "./PaketDashboard/SectionReward/RewardsDashboard";
 
 // ===== Menu keys (stabil, tidak tergantung terjemahan)
 const MENU = {
@@ -35,6 +37,7 @@ const MENU = {
   REPORTS: "reports",
   PACKAGES: "packages",
   REFERRAL: "referral",
+  REWARDS: "rewards",
   SETTINGS: "settings",
 };
 
@@ -229,6 +232,9 @@ export default function Dashboard() {
         {activeMenu === MENU.REFERRAL && (
           <ReferralDashboard profile={profile} />
         )}
+        {activeMenu === MENU.REWARDS && (
+          <RewardsDashboard profile={profile} />
+        )}
         {activeMenu === MENU.SETTINGS && (
           <Setting onBack={() => setActiveMenu(MENU.HOME)} />
         )}
@@ -283,6 +289,13 @@ function Sidebar({ activeMenu, setActiveMenu, t, onGoLanding }) {
         text={t("dashboard.sidebar.packages", { defaultValue: "Paket Saya" })}
         active={activeMenu === MENU.PACKAGES}
         onClick={() => setActiveMenu(MENU.PACKAGES)}
+      />
+
+      <SidebarButton
+        icon={HiOutlineGift}
+        text="Rewards"
+        active={activeMenu === MENU.REWARDS}
+        onClick={() => setActiveMenu(MENU.REWARDS)}
       />
 
       <SidebarButton

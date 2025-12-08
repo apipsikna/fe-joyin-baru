@@ -5,6 +5,7 @@ import {
   HiOutlineTrash,
 } from "react-icons/hi2";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 const GRADIENT_FROM = "#5FCAAC";
 const GRADIENT_TO = "#DAEC75";
@@ -40,6 +41,7 @@ const LAYOUT_CFG = {
 };
 
 export default function BotSettingsEnterprise() {
+  const { t } = useTranslation();
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 
@@ -216,6 +218,14 @@ export default function BotSettingsEnterprise() {
     );
   };
 
+  // ✅ Tabs dengan i18n
+  const currentTabs = useMemo(() => {
+    return TABS.map(tItem => ({
+      ...tItem,
+      label: t(`botSettingsEnterprise.tabs.${tItem.key}`, { defaultValue: tItem.label })
+    }));
+  }, [t]);
+
   return (
     <div
       className="w-full min-h-screen font-poppins overflow-x-hidden"
@@ -296,29 +306,36 @@ export default function BotSettingsEnterprise() {
         <motion.div variants={riseSoft} className="joyin-pagePad">
           <div className="mb-6 text-center">
             <h1 className="text-[24px] md:text-[32px] font-semibold text-white tracking-wide">
-              Pengaturan Bot
+              {t("botSettingsEnterprise.title", { defaultValue: "Pengaturan Bot" })}
             </h1>
           </div>
 
-          <div className="mt-1 flex flex-wrap justify-center gap-6 md:gap-10 relative z-20">
-            {TABS.map((t) => {
-              const active = t.key === tab;
-              return (
-                <button
-                  key={t.key}
-                  type="button"
-                  onClick={() => setTab(t.key)}
-                  className={[
-                    "joyin-tab inline-flex items-center justify-center",
-                    "px-10 md:px-14 py-3.5 rounded-[18px] bg-white",
-                    "text-[14px] md:text-[15px] font-semibold text-[#28AF87]",
-                    active ? "joyin-tab--active" : "opacity-95",
-                  ].join(" ")}
-                >
-                  {t.label}
-                </button>
-              );
-            })}
+          <div className="flex justify-center w-full mt-1 relative z-20">
+            <div className="inline-flex p-1 rounded-full bg-white shadow-sm">
+              {currentTabs.map((tItem) => {
+                const active = tItem.key === tab;
+                return (
+                  <button
+                    key={tItem.key}
+                    type="button"
+                    onClick={() => setTab(tItem.key)}
+                    className={[
+                      "relative px-6 md:px-10 py-3 rounded-full text-[14px] md:text-[15px] font-semibold transition-colors duration-200",
+                      active ? "text-white" : "text-[#5FCAAC] hover:bg-gray-50",
+                    ].join(" ")}
+                  >
+                    <span className="relative z-10">{tItem.label}</span>
+                    {active && (
+                      <motion.div
+                        layoutId="activeTabEnterprise"
+                        className="absolute inset-0 bg-[#5FCAAC] rounded-full z-0 shadow-sm"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </motion.div>
 
@@ -347,7 +364,7 @@ export default function BotSettingsEnterprise() {
                       <>
                         <div className="mb-8">
                           <label className="block text-[18px] font-semibold text-gray-900">
-                            Nama Bot
+                            {t("botSettingsEnterprise.basic.botName.label", { defaultValue: "Nama Bot" })}
                           </label>
                           <input
                             value={botName}
@@ -356,13 +373,13 @@ export default function BotSettingsEnterprise() {
                             className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900"
                           />
                           <p className="mt-2 text-[13px] text-gray-500">
-                            Nama panggilan yang muncul ketika bot membalas
+                            {t("botSettingsEnterprise.basic.botName.desc", { defaultValue: "Nama ini akan muncul di header chat pelanggan." })}
                           </p>
                         </div>
 
                         <div className="mb-8">
                           <label className="block text-[18px] font-semibold text-gray-900">
-                            Deskripsi Singkat
+                            {t("botSettingsEnterprise.basic.desc.label", { defaultValue: "Deskripsi Bot" })}
                           </label>
                           <textarea
                             value={desc}
@@ -371,13 +388,13 @@ export default function BotSettingsEnterprise() {
                             className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
                           />
                           <p className="mt-2 text-[13px] text-gray-500">
-                            Ditampilkan di halaman informasi bot
+                            {t("botSettingsEnterprise.basic.desc.desc", { defaultValue: "Info singkat yang muncul di profil bot." })}
                           </p>
                         </div>
 
                         <div className="mb-8">
                           <label className="block text-[18px] font-semibold text-gray-900">
-                            Bahasa Bot
+                            {t("botSettingsEnterprise.basic.lang", { defaultValue: "Bahasa Utama Bot" })}
                           </label>
                           <input
                             value={botLang}
@@ -389,7 +406,7 @@ export default function BotSettingsEnterprise() {
 
                         <div className="mb-10">
                           <label className="block text-[18px] font-semibold text-gray-900">
-                            Kecepatan Respon
+                            {t("botSettingsEnterprise.basic.speed.label", { defaultValue: "Kecepatan Balas (detik)" })}
                           </label>
                           <input
                             value={speed}
@@ -398,17 +415,17 @@ export default function BotSettingsEnterprise() {
                             className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900"
                           />
                           <p className="mt-2 text-[13px] text-gray-500">
-                            Membuat jeda pengetikan agar respon terasa lebih natural.
+                            {t("botSettingsEnterprise.basic.speed.desc", { defaultValue: "Jeda sebelum bot mengirim balasan (simulasi mengetik)." })}
                           </p>
                         </div>
 
                         <div className="flex items-center justify-between gap-6">
                           <div className="min-w-0">
                             <h3 className="text-[18px] font-semibold text-gray-900">
-                              Gunakan Emoji
+                              {t("botSettingsEnterprise.basic.emoji.title", { defaultValue: "Gunakan Emoji" })}
                             </h3>
                             <p className="mt-1 text-[13px] text-gray-500">
-                              Buat pesan terasa lebih ekspresif dengan tambahan emoji.
+                              {t("botSettingsEnterprise.basic.emoji.desc", { defaultValue: "Bot akan menyisipkan emoji agar lebih ekspresif." })}
                             </p>
                           </div>
 
@@ -422,7 +439,7 @@ export default function BotSettingsEnterprise() {
                       <>
                         <div className="mb-10">
                           <label className="block text-[18px] font-semibold text-gray-900">
-                            Pesan Sambutan
+                            {t("botSettingsEnterprise.reply.welcome", { defaultValue: "Pesan Sambutan (Welcome Message)" })}
                           </label>
                           <textarea
                             value={welcomeMessage}
@@ -434,20 +451,20 @@ export default function BotSettingsEnterprise() {
 
                         <div className="mb-10">
                           <p className="text-[18px] font-semibold text-gray-900">
-                            Waktu Kirim Pesan Sambutan
+                            {t("botSettingsEnterprise.reply.timing.title", { defaultValue: "Kapan pesan sambutan dikirim?" })}
                           </p>
 
                           <div className="mt-4 space-y-4">
                             <RadioOption
                               checked={welcomeTiming === "first"}
-                              title="Hanya pada chat pertama"
-                              description="Pesan sambutan dikirim sekali saat customer pertama kali chat"
+                              title={t("botSettingsEnterprise.reply.timing.first.title", { defaultValue: "Hanya saat chat pertama" })}
+                              description={t("botSettingsEnterprise.reply.timing.first.desc", { defaultValue: "Kirim sekali seumur hidup per user." })}
                               onClick={() => setWelcomeTiming("first")}
                             />
                             <RadioOption
                               checked={welcomeTiming === "every"}
-                              title="Setiap chat baru"
-                              description="Pesan sambutan dikirim setiap kali memulai percakapan baru"
+                              title={t("botSettingsEnterprise.reply.timing.every.title", { defaultValue: "Setiap sesi baru (setelah 24 jam)" })}
+                              description={t("botSettingsEnterprise.reply.timing.every.desc", { defaultValue: "Kirim ulang jika user chat lagi besoknya." })}
                               onClick={() => setWelcomeTiming("every")}
                             />
                           </div>
@@ -455,7 +472,7 @@ export default function BotSettingsEnterprise() {
 
                         <div className="mb-10">
                           <label className="block text-[18px] font-semibold text-gray-900">
-                            Balasan Default (Ketika Bot Tidak Paham)
+                            {t("botSettingsEnterprise.reply.default", { defaultValue: "Balasan Default (Jika bot bingung)" })}
                           </label>
                           <textarea
                             value={defaultReply}
@@ -467,7 +484,7 @@ export default function BotSettingsEnterprise() {
 
                         <div className="mb-4">
                           <label className="block text-[18px] font-semibold text-gray-900">
-                            Pesan Penutup Chat
+                            {t("botSettingsEnterprise.reply.closing", { defaultValue: "Pesan Penutup" })}
                           </label>
                           <textarea
                             value={closingMessage}
@@ -484,7 +501,7 @@ export default function BotSettingsEnterprise() {
                       <>
                         <div className="mb-10">
                           <label className="block text-[18px] font-semibold text-gray-900">
-                            Personality Bot
+                            {t("botSettingsEnterprise.persona.desc.label", { defaultValue: "Deskripsi Karakter & Peran" })}
                           </label>
                           <textarea
                             value={personaDescription}
@@ -493,26 +510,26 @@ export default function BotSettingsEnterprise() {
                             className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
                           />
                           <p className="mt-2 text-[13px] text-gray-500">
-                            Jelaskan karakter, gaya bicara, cara menyapa, dan peran utama bot.
+                            {t("botSettingsEnterprise.persona.desc.desc", { defaultValue: "Jelaskan siapa bot ini. Contoh: 'Kamu adalah CS Joyin yang ramah dan suka membantu...'" })}
                           </p>
                         </div>
 
                         <div className="mb-10">
                           <p className="text-[18px] font-semibold text-gray-900">
-                            Gaya Komunikasi
+                            {t("botSettingsEnterprise.persona.tone.title", { defaultValue: "Gaya Bahasa (Tone)" })}
                           </p>
 
                           <div className="mt-4 space-y-4">
                             <RadioOption
                               checked={personaTone === "friendly"}
-                              title="Ramah & Santai"
-                              description="Gunakan bahasa sehari-hari, nada hangat, dan boleh memakai emoji seperlunya."
+                              title={t("botSettingsEnterprise.persona.tone.friendly.title", { defaultValue: "Ramah & Santai" })}
+                              description={t("botSettingsEnterprise.persona.tone.friendly.desc", { defaultValue: "Menggunakan bahasa gaul, emoji, dan sapaan hangat." })}
                               onClick={() => setPersonaTone("friendly")}
                             />
                             <RadioOption
                               checked={personaTone === "formal"}
-                              title="Formal & Profesional"
-                              description="Gunakan bahasa baku & profesional, cocok untuk konteks bisnis dan perusahaan."
+                              title={t("botSettingsEnterprise.persona.tone.formal.title", { defaultValue: "Formal & Profesional" })}
+                              description={t("botSettingsEnterprise.persona.tone.formal.desc", { defaultValue: "Bahasa baku, sopan, dan to the point." })}
                               onClick={() => setPersonaTone("formal")}
                             />
                           </div>
@@ -520,7 +537,7 @@ export default function BotSettingsEnterprise() {
 
                         <div className="mb-10">
                           <label className="block text-[18px] font-semibold text-gray-900">
-                            Contoh Balasan Ideal
+                            {t("botSettingsEnterprise.persona.example.label", { defaultValue: "Contoh Gaya Bicara (Opsional)" })}
                           </label>
                           <textarea
                             value={personaExampleReply}
@@ -529,13 +546,13 @@ export default function BotSettingsEnterprise() {
                             className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
                           />
                           <p className="mt-2 text-[13px] text-gray-500">
-                            Berikan 1–2 contoh balasan yang mewakili gaya bahasa bot.
+                            {t("botSettingsEnterprise.persona.example.desc", { defaultValue: "Berikan contoh kalimat agar AI bisa meniru gaya bicaranya." })}
                           </p>
                         </div>
 
                         <div className="mb-4">
                           <label className="block text-[18px] font-semibold text-gray-900">
-                            Hal yang Tidak Boleh Dijawab / Disampaikan
+                            {t("botSettingsEnterprise.persona.restrictions.label", { defaultValue: "Batasan & Larangan" })}
                           </label>
                           <textarea
                             value={personaRestrictions}
@@ -544,7 +561,7 @@ export default function BotSettingsEnterprise() {
                             className="joyin-field mt-3 w-full rounded-[12px] border border-[#D6D6D6] bg-white px-4 py-3.5 text-[14px] text-gray-900 resize-none"
                           />
                           <p className="mt-2 text-[13px] text-gray-500">
-                            Tuliskan topik yang harus dihindari bot (misalnya: politik, SARA, dsb).
+                            {t("botSettingsEnterprise.persona.restrictions.desc", { defaultValue: "Apa yang TIDAK BOLEH dibahas oleh bot? (misal: kompetitor, politik, SARA)" })}
                           </p>
                         </div>
                       </>
@@ -556,12 +573,15 @@ export default function BotSettingsEnterprise() {
                         <div className="mb-10">
                           <div className="w-full rounded-[32px] md:rounded-[36px] bg-white shadow-[0_26px_60px_rgba(0,0,0,0.12)] border border-[#F3F3F3] px-6 md:px-10 py-7 md:py-9">
                             <h2 className="text-[18px] md:text-[20px] font-semibold text-gray-900">
-                              {editingFaqId ? "Edit FAQ" : "Tambah FAQ Baru"}
+                              {editingFaqId
+                                ? t("botSettingsEnterprise.faq.editTitle", { defaultValue: "Edit FAQ" })
+                                : t("botSettingsEnterprise.faq.addTitle", { defaultValue: "Tambah FAQ Baru" })
+                              }
                             </h2>
 
                             <div className="mt-6">
                               <label className="block text-[14px] md:text-[15px] font-semibold text-gray-900">
-                                Pertanyaan
+                                {t("botSettingsEnterprise.faq.question", { defaultValue: "Pertanyaan (Kata Kunci)" })}
                               </label>
                               <input
                                 type="text"
@@ -573,7 +593,7 @@ export default function BotSettingsEnterprise() {
 
                             <div className="mt-6">
                               <label className="block text-[14px] md:text-[15px] font-semibold text-gray-900">
-                                Jawaban
+                                {t("botSettingsEnterprise.faq.answer", { defaultValue: "Jawaban Bot" })}
                               </label>
                               <textarea
                                 rows={3}
@@ -589,7 +609,10 @@ export default function BotSettingsEnterprise() {
                                 onClick={handleAddOrUpdateFaq}
                                 className="w-full h-[50px] md:h-[54px] rounded-[12px] bg-[#5FCAAC] text-white text-[14px] md:text-[15px] font-semibold shadow-[0_16px_40px_rgba(0,0,0,0.18)] transition-all duration-150 ease-out transform hover:-translate-y-0.5 hover:shadow-[0_20px_46px_rgba(0,0,0,0.22)] active:translate-y-0"
                               >
-                                {editingFaqId ? "Simpan Perubahan" : "Tambah FAQ"}
+                                {editingFaqId
+                                  ? t("botSettingsEnterprise.faq.saveBtn", { defaultValue: "Simpan Perubahan" })
+                                  : t("botSettingsEnterprise.faq.addBtn", { defaultValue: "Tambahkan ke List" })
+                                }
                               </button>
 
                               {editingFaqId && (
@@ -602,7 +625,7 @@ export default function BotSettingsEnterprise() {
                                   }}
                                   className="mt-3 w-full h-[46px] rounded-[12px] border border-[#E5E7EB] bg-white text-gray-700 text-[14px] font-semibold hover:bg-gray-50"
                                 >
-                                  Batal
+                                  {t("botSettingsEnterprise.faq.cancelBtn", { defaultValue: "Batal" })}
                                 </button>
                               )}
                             </div>
@@ -612,15 +635,15 @@ export default function BotSettingsEnterprise() {
                         <div className="mt-2">
                           <div className="flex items-center justify-between gap-4 mb-5">
                             <h3 className="text-[20px] md:text-[22px] font-semibold text-gray-900">
-                              Daftar FAQ
+                              {t("botSettingsEnterprise.faq.listTitle", { defaultValue: "Daftar FAQ" })}
                             </h3>
 
                             <div className="flex items-center gap-3">
                               <span className="inline-flex items-center justify-center px-5 h-9 rounded-full bg-green-100 text-green-700 text-[13px] font-semibold">
-                                Aktif : {activeCount}
+                                {t("botSettingsEnterprise.faq.active", { defaultValue: "Aktif" })} : {activeCount}
                               </span>
                               <span className="inline-flex items-center justify-center px-5 h-9 rounded-full bg-gray-100 text-gray-700 text-[13px] font-semibold">
-                                Nonaktif : {inactiveCount}
+                                {t("botSettingsEnterprise.faq.inactive", { defaultValue: "Nonaktif" })} : {inactiveCount}
                               </span>
                             </div>
                           </div>
@@ -629,7 +652,7 @@ export default function BotSettingsEnterprise() {
                             {faqs.length === 0 ? (
                               <div className="w-full rounded-[24px] border border-[#E5E7EB] bg-white px-6 md:px-10 py-8">
                                 <p className="text-[14px] text-gray-400">
-                                  Belum ada FAQ. Tambahkan pertanyaan baru di atas.
+                                  {t("botSettingsEnterprise.faq.empty", { defaultValue: "Belum ada FAQ yang ditambahkan." })}
                                 </p>
                               </div>
                             ) : (
@@ -648,9 +671,12 @@ export default function BotSettingsEnterprise() {
                                           ? "bg-green-100 text-green-700"
                                           : "bg-gray-100 text-gray-700",
                                       ].join(" ")}
-                                      title="Klik untuk ubah status"
+                                      title={t("botSettingsEnterprise.faq.toggleTitle", { defaultValue: "Klik untuk ubah status" })}
                                     >
-                                      {item.active ? "Aktif" : "Nonaktif"}
+                                      {item.active
+                                        ? t("botSettingsEnterprise.faq.active", { defaultValue: "Aktif" })
+                                        : t("botSettingsEnterprise.faq.inactive", { defaultValue: "Nonaktif" })
+                                      }
                                     </button>
 
                                     <div className="flex items-center gap-3">
@@ -658,7 +684,7 @@ export default function BotSettingsEnterprise() {
                                         type="button"
                                         onClick={() => handleEditFaq(item)}
                                         className="w-11 h-11 rounded-[10px] bg-indigo-100 text-indigo-600 inline-flex items-center justify-center shadow-[0_10px_22px_rgba(0,0,0,0.06)] hover:brightness-[0.98] active:brightness-95"
-                                        aria-label="Edit FAQ"
+                                        aria-label={t("botSettingsEnterprise.faq.editLabel", { defaultValue: "Edit FAQ" })}
                                       >
                                         <HiOutlinePencilSquare className="w-5 h-5" />
                                       </button>
@@ -666,7 +692,7 @@ export default function BotSettingsEnterprise() {
                                         type="button"
                                         onClick={() => handleDeleteFaq(item.id)}
                                         className="w-11 h-11 rounded-[10px] bg-red-100 text-red-500 inline-flex items-center justify-center shadow-[0_10px_22px_rgba(0,0,0,0.06)] hover:brightness-[0.98] active:brightness-95"
-                                        aria-label="Hapus FAQ"
+                                        aria-label={t("botSettingsEnterprise.faq.deleteLabel", { defaultValue: "Hapus FAQ" })}
                                       >
                                         <HiOutlineTrash className="w-5 h-5" />
                                       </button>
@@ -709,7 +735,7 @@ export default function BotSettingsEnterprise() {
                     onClick={handleSave}
                     className="flex-1 h-[52px] md:h-[56px] rounded-[12px] bg-[#5FCAAC] text-white text-[14px] md:text-[15px] font-semibold shadow-[0_12px_30px_rgba(0,0,0,0.18)] transition-all duration-150 ease-out transform hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(0,0,0,0.2)] active:translate-y-0"
                   >
-                    Simpan Pengaturan
+                    {t("botSettingsEnterprise.buttons.save", { defaultValue: "Simpan Semua Pengaturan" })}
                   </button>
 
                   <button
@@ -718,7 +744,7 @@ export default function BotSettingsEnterprise() {
                     className="inline-flex items-center justify-center gap-2 px-6 h-[52px] md:h-[56px] rounded-[12px] border border-[#E4E4E4] bg-white text-[#28AF87] text-[14px] md:text-[15px] font-semibold shadow-[0_4px_10px_rgba(0,0,0,0.04)] transition-all duration-150 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(0,0,0,0.08)] active:translate-y-0"
                   >
                     <HiOutlineArrowPath className="w-5 h-5" />
-                    <span>Reset</span>
+                    <span>{t("botSettingsEnterprise.buttons.reset", { defaultValue: "Reset" })}</span>
                   </button>
                 </div>
               </div>

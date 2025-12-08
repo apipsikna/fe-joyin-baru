@@ -1,5 +1,6 @@
 // src/PaketDashboard/SectionPro/ObrolanPro.jsx
 import React, { useMemo, useRef, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
@@ -63,6 +64,7 @@ function getNowTime() {
 }
 
 export default function ObrolanPro() {
+  const { t } = useTranslation();
   const reduceMotion = useReducedMotion();
   const EASE = [0.22, 1, 0.36, 1];
 
@@ -265,7 +267,7 @@ export default function ObrolanPro() {
       {/* TOP BAR */}
       <motion.div variants={fadeUp} className="relative w-full px-6 pt-6 shrink-0">
         <h1 className="text-center text-white font-semibold text-[44px] leading-none tracking-wide">
-          Obrolan
+          {t("obrolanPro.title")}
         </h1>
         {/* ✅ Profil pojok kanan atas dihapus */}
       </motion.div>
@@ -363,7 +365,7 @@ export default function ObrolanPro() {
                       {activeConv.name}
                     </p>
                     <p className="text-[12px] text-gray-400">
-                      {activeConv.online ? "Online" : "Offline"}
+                      {activeConv.online ? t("obrolanPro.online") : t("obrolanPro.offline")}
                     </p>
                   </motion.div>
                 </AnimatePresence>
