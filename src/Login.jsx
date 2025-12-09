@@ -1,5 +1,6 @@
 // src/Login.jsx
 import React, { useState, useEffect } from "react";
+import LoadingSpinner from "./components/LoadingSpinner";
 import SignUp from "./SignUp";
 import { AnimatePresence, motion } from "framer-motion";
 import image from "./assets/gambarlogin.png";
@@ -135,10 +136,10 @@ export default function Login() {
     const isSuccess = type === "success";
     return (
       <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.8 }}
-        className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 px-8 py-4 rounded-xl shadow-2xl text-center font-medium z-50 transition-all duration-300 ${isSuccess
+        initial={{ opacity: 0, y: -50, x: "-50%" }}
+        animate={{ opacity: 1, y: 0, x: "-50%" }}
+        exit={{ opacity: 0, y: -50, x: "-50%" }}
+        className={`fixed top-10 left-1/2 transform -translate-x-1/2 px-8 py-4 rounded-xl shadow-2xl text-center font-medium z-50 transition-all duration-300 ${isSuccess
           ? "bg-gradient-to-r from-[#52c8b0] to-[#78d98d] text-white"
           : "bg-red-500 text-white"
           }`}
@@ -151,6 +152,7 @@ export default function Login() {
   return (
     <div className="w-screen h-screen bg-white overflow-hidden relative">
       <AnimatePresence>
+        {loading && <LoadingSpinner />}
         {alert && <AlertMessage type={alert.type} message={alert.message} />}
       </AnimatePresence>
 

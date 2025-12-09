@@ -55,13 +55,18 @@ export default function RewardsDashboard({ profile }) {
     return (
         <div className="p-4 md:p-8 max-w-7xl mx-auto font-poppins text-gray-800">
             {/* HEADER: Title & Welcome */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500">
-                    Rewards & Loyalty
-                </h1>
-                <p className="text-gray-500 mt-1">
-                    Kumpulkan CSAI Points dan tukarkan dengan paket paket langganan gratis!
-                </p>
+            <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500">
+                        Rewards & Loyalty
+                    </h1>
+                    <p className="text-gray-500 mt-1">
+                        Kumpulkan CSAI Points dan tukarkan dengan paket paket langganan gratis!
+                    </p>
+                </div>
+
+                {/* ✅ Manual Check Button (Only shows if there is a pending order in local storage) */}
+                <ManualCheckButton checkFn={useLoyalty().checkPendingTransaction} />
             </div>
 
             {/* STATS CARDS */}
@@ -182,6 +187,47 @@ export default function RewardsDashboard({ profile }) {
                 </ul>
             </div>
 
+        </div>
+    );
+}
+
+// ✅ Helper Component for Manual Check
+function ManualCheckButton({ checkFn }) {
+    const [status, setStatus] = React.useState("idle"); // idle, checking, done
+    const [msg, setMsg] = React.useState("");
+
+    // Only show if localStorage has pending order
+    const [hasPending] = React.useState(() => {
+        if (typeof window === 'undefined') return false;
+        return !!localStorage.getItem("pending_payment_order_id");
+    });
+
+    if (!hasPending && status === "idle") return null;
+
+    const nav = () => {
+        setStatus("checking");
+        checkFn().then(() => {
+            setStatus("done");
+            setMsg("Selesai mengecek.");
+            setTimeout(() => {
+                setMsg("");
+                // Reload page to refresh points visually if updated
+                window.location.reload();
+            }, 1500);
+        });
+    };
+
+    return (
+        <div className="flex items-center gap-2">
+            {msg && <span className="text-xs font-semibold text-emerald-600 animate-pulse">{msg}</span>}
+            <button
+                onClick={nav}
+                disabled={status === "checking"}
+                className="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg shadow-md hover:bg-emerald-700 disabled:opacity-50 transition-all flex items-center gap-2"
+            >
+                <HiOutlineBolt className={status === "checking" ? "animate-spin" : ""} />
+                {status === "checking" ? "Mengecek..." : "Cek Status Transaksi"}
+            </button>
         </div>
     );
 }

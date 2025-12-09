@@ -159,7 +159,7 @@ const resources = {
           title1: "Kenapa Harus Ikut",
           title2: "Program Referral",
           desc1: "Di Joyin, kami percaya hal baik pantas dibagikan! Ajak temanmu untuk bergabung, dan kalian berdua bisa dapetin hadiah spesial dari Joyin 🎉",
-          desc2: "Setiap ajakan membawa kamu semakin dekat ke hadiah utama — kesempatan seru yang sayang banget kalau dilewatkan! Yuk, mulai bagikan link referral-mu sekarang dan raih hadiahnya!"
+          desc2: "Setiap teman yang membeli paket membuat Anda semakin dekat ke hadiah utama! Yuk, mulai bagikan link referral-mu sekarang!",
         },
         section2: {
           title: "Cara Kerjanya Sangat Mudah!",
@@ -167,14 +167,14 @@ const resources = {
         },
         how: {
           steps: [
-            { title: "Dapatkan Kode Unik", desc: "Hanya tiga langkah mudah buat nikmatin keseruan program referral Joyin" },
+            { title: "Dapatkan Kode Unik", desc: "Dapatkan kode unik referral Anda di halaman dashboard." },
             { title: "Bagikan ke Teman", desc: "Share kode Anda melalui WhatsApp, Instagram, Facebook, atau platform sosial media lainnya" },
-            { title: "Dapatkan Bonus", desc: "Ketika teman Anda mendaftar dan bertransaksi, Anda langsung mendapat bonus!" }
+            { title: "Dapatkan Bonus", desc: "Ketika teman Anda mendaftar dan membeli paket, Anda langsung mendapat bonus!" }
           ]
         },
         join: {
           title: "Yuk Gabung & Dapatkan Referral dari Joyin!",
-          desc: "Mulai perjalananmu bareng Joyin sekarang. Setelah daftar, kamu bisa langsung bagikan kode referral-mu dan kumpulkan hadiah seru dari setiap teman yang ikut bergabung!",
+          desc: "Mulai perjalananmu bareng Joyin sekarang. Setelah daftar, kamu bisa langsung bagikan kode referral-mu dan kumpulkan hadiah seru dari setiap teman yang membeli paket!",
           btn: "Bergabung & Dapatkan Hadiah"
         },
         bottomCta: "Ayo Bergabung!",
@@ -188,7 +188,7 @@ const resources = {
           codeNote: "1 orang hanya bisa pakai 1x kode referral saat registrasi.",
           copy: "Copy",
           progressTitle: "Progress hadiah paket Pro 1 bulan",
-          progressNote: "Ajak {{target}} orang menggunakan kode referralmu untuk dapat hadiah."
+          progressNote: "Ajak {{target}} orang membeli paket menggunakan kode referralmu untuk dapat hadiah."
         },
         errors: {
           sessionExpired: "Sesi kamu habis / belum login. Silakan login lagi.",
@@ -245,7 +245,7 @@ const resources = {
       },
       referralDashboard: {
         heroTitle: "Ajak Teman, Dapatkan Komisi",
-        heroDesc: "Ajak temanmu pakai Joyin dan nikmati hadiahnya bareng-bareng! Makin banyak yang gabung, makin besar keuntungan yang kamu dapat.",
+        heroDesc: "Ajak temanmu membeli paket Joyin dan nikmati hadiahnya bareng-bareng! Makin banyak yang beli paket, makin besar keuntungan yang kamu dapat.",
         yourCode: "Kode Referral Anda :",
         copy: "Salin",
         copied: "Tersalin",
@@ -385,7 +385,7 @@ const resources = {
       referralBasic: {
         hero: {
           title: "Ajak Teman, Dapatkan Komisi",
-          desc: "Ajak temanmu pakai Joyin dan nikmati hadiahnya bareng-bareng! Makin banyak yang gabung, makin besar keuntungan yang kamu dapat."
+          desc: "Ajak temanmu membeli paket Joyin dan nikmati hadiahnya bareng-bareng! Makin banyak yang beli paket, makin besar keuntungan yang kamu dapat."
         },
         code: {
           label: "Kode Referral Anda :",
@@ -541,7 +541,7 @@ const resources = {
       referralPro: {
         hero: {
           title: "Ajak Teman, Dapatkan Komisi",
-          desc: "Ajak temanmu pakai Joyin dan nikmati hadiahnya bareng-bareng! Makin banyak yang gabung, makin besar keuntungan yang kamu dapat."
+          desc: "Ajak temanmu membeli paket Joyin dan nikmati hadiahnya bareng-bareng! Makin banyak yang beli paket, makin besar keuntungan yang kamu dapat."
         },
         code: {
           label: "Kode Referral Anda :",
@@ -685,7 +685,7 @@ const resources = {
       referralBisnis: {
         hero: {
           title: "Ajak Teman, Dapatkan Komisi",
-          desc: "Ajak temanmu pakai Joyin dan nikmati hadiahnya bareng-bareng! Makin banyak yang gabung, makin besar keuntungan yang kamu dapat."
+          desc: "Ajak temanmu membeli paket Joyin dan nikmati hadiahnya bareng-bareng! Makin banyak yang beli paket, makin besar keuntungan yang kamu dapat."
         },
         code: {
           label: "Kode Referral Anda :",

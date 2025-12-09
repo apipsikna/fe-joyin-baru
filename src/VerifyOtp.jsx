@@ -22,26 +22,35 @@ export default function VerifyOtp() {
 
   const [digits, setDigits] = useState(Array(OTP_LENGTH).fill(""));
   const [loading, setLoading] = useState(false);
-  const [alert, setAlert] = useState(null); // { type: 'success'|'error'|'info', message: string }
-  const [seconds, setSeconds] = useState(60); // countdown untuk resend
+  const [alert, setAlert] = useState(null);
+  const [seconds, setSeconds] = useState(60);
   const [resending, setResending] = useState(false);
   const inputsRef = useRef([]);
 
-  // Jika user buka halaman tanpa email (misal refresh tab kosong), arahkan balik
+  // Jika user buka halaman tanpa email, arahkan balik
   useEffect(() => {
     if (!email) navigate("/login", { replace: true });
   }, [email, navigate]);
 
-  // Tampilkan flash message dari SignUp (opsional)
+  // Tampilkan flash message dari SignUp
+  const flashShown = useRef(false);
   useEffect(() => {
     const flash = location.state?.flash;
-    if (flash) setAlert({ type: "success", message: flash });
+    if (flash && !flashShown.current) {
+      setAlert({ type: "success", message: flash });
+      flashShown.current = true;
+
+      // Clear location state to prevent reappearance on refresh/navigation if possible,
+      // though typically this is handled by router not re-pushing state.
+      // But purely for local double-check within session:
+      window.history.replaceState({}, document.title)
+    }
   }, [location.state]);
 
   // Auto-dismiss alert
   useEffect(() => {
     if (!alert) return;
-    const t = setTimeout(() => setAlert(null), 2600);
+    const t = setTimeout(() => setAlert(null), 3000);
     return () => clearTimeout(t);
   }, [alert]);
 
@@ -123,68 +132,52 @@ export default function VerifyOtp() {
     if (lastFilled >= 0) inputsRef.current[lastFilled]?.focus();
   };
 
-  // ====> VERIFY via AuthContext
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canSubmit) return;
     if (!email) {
-      setAlert({ type: "error", message: "Email tidak ditemukan. Ulangi pendaftaran." });
+      setAlert({ type: "error", message: "Email hilang. Silakan daftar ulang." });
       return;
     }
 
     setLoading(true);
     setAlert(null);
     try {
-      await verifyOtp(email, code); // simpan token & user di context/localStorage
-      setAlert({ type: "success", message: "OTP benar. Akun aktif!" });
-      setTimeout(() => navigate("/dashboard", { replace: true }), 700);
+      await verifyOtp(email, code);
+      setAlert({ type: "success", message: "Verifikasi berhasil! Mengalihkan..." });
+      setTimeout(() => navigate("/dashboard", { replace: true }), 1000);
     } catch (err) {
-      const msg =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Verifikasi gagal. Coba lagi.";
+      const msg = err?.response?.data?.message || err?.message || "Kode OTP salah atau kadaluarsa.";
       setAlert({ type: "error", message: msg });
-    } finally {
       setLoading(false);
     }
   };
 
-  // ====> RESEND via AuthContext
   const handleResend = async () => {
     if (seconds > 0 || resending) return;
-    if (!email) {
-      setAlert({ type: "error", message: "Email tidak ditemukan. Ulangi pendaftaran." });
-      return;
-    }
+    if (!email) return;
     setResending(true);
     setAlert(null);
     try {
       await resendOtp(email);
-      setAlert({ type: "info", message: "Kode OTP telah dikirim ulang." });
+      setAlert({ type: "info", message: "Kode OTP baru dikirim ke email." });
       setSeconds(60);
     } catch (err) {
-      const msg =
-        err?.response?.data?.message ||
-        "Gagal mengirim ulang OTP. Pastikan email benar / coba beberapa menit lagi.";
-      setAlert({ type: "error", message: msg });
+      setAlert({ type: "error", message: "Gagal kirim ulang. Coba sesaat lagi." });
     } finally {
       setResending(false);
     }
   };
 
-  const AlertMessage = ({ type = "info", message }) => {
-    const color =
-      type === "success"
-        ? "from-[#52c8b0] to-[#78d98d]"
-        : type === "error"
-        ? "from-[#ef4444] to-[#f87171]"
-        : "from-gray-500 to-gray-600";
+  const AlertMessage = ({ type, message }) => {
+    const isSuccess = type === "success";
+    const bg = isSuccess ? "bg-emerald-500" : type === "error" ? "bg-rose-500" : "bg-blue-500";
     return (
       <motion.div
-        initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -30 }}
-        className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 rounded-full px-5 py-2 text-white text-sm shadow-lg bg-gradient-to-r ${color}`}
+        initial={{ opacity: 0, y: -50, x: "-50%" }}
+        animate={{ opacity: 1, y: 0, x: "-50%" }}
+        exit={{ opacity: 0, y: -50, x: "-50%" }}
+        className={`fixed top-10 left-1/2 px-6 py-3 rounded-xl shadow-xl z-50 text-white font-medium transform -translate-x-1/2 ${bg}`}
       >
         {message}
       </motion.div>
@@ -192,126 +185,129 @@ export default function VerifyOtp() {
   };
 
   return (
-    <div className="w-screen h-screen bg-white flex items-center justify-center font-poppins relative overflow-y-auto">
-      <AnimatePresence>
-        {alert && <AlertMessage type={alert.type} message={alert.message} />}
-      </AnimatePresence>
+    <div className="w-screen h-screen overflow-hidden bg-white flex flex-col lg:flex-row font-poppins relative">
+      <AnimatePresence>{alert && <AlertMessage type={alert.type} message={alert.message} />}</AnimatePresence>
 
-      <motion.div
-        key="verify-otp"
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -24 }}
-        transition={{ duration: 0.35 }}
-        className="flex flex-col lg:flex-row w-full max-w-[1100px] min-h-[72%] bg-white rounded-2xl shadow-md overflow-hidden"
-      >
-        {/* Kiri - Form OTP */}
-        <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-12 py-10">
-          {/* Tombol kembali */}
+      {/* LEFT: FORM */}
+      <div className="w-full lg:w-1/2 h-full flex flex-col justify-center px-8 sm:px-14 lg:px-24 bg-white relative z-10">
+        <motion.div
+          initial={{ opacity: 0, x: -40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full max-w-md mx-auto"
+        >
+          {/* Back Button */}
           <button
-            onClick={() => navigate(-1)}
-            className="mb-4 w-fit p-2 rounded-full hover:bg-gray-100 transition"
-            aria-label="Kembali"
+            onClick={() => navigate("/login")}
+            className="mb-8 flex items-center gap-2 text-gray-400 hover:text-gray-800 transition group"
           >
             <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 text-black"
+              className="w-5 h-5 transform group-hover:-translate-x-1 transition"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
-              strokeWidth={2}
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
+            <span className="text-sm font-semibold">Kembali ke Login</span>
           </button>
 
-          <h2 className="text-2xl md:text-3xl text-black font-bold mb-2">Verify your email</h2>
-          <p className="text-gray-500 mb-6">
-            Kami telah mengirim <span className="font-semibold">{OTP_LENGTH}-digit</span> kode ke{" "}
-            <span className="text-black font-medium">{maskedEmail}</span>. Masukkan kodenya di bawah.
+          <h1 className="text-4xl font-extrabold text-gray-900 mb-3">Verifikasi OTP</h1>
+          <p className="text-gray-500 mb-10 leading-relaxed">
+            Masukkan 6 digit kode yang telah kami kirimkan ke <br className="hidden sm:block" />
+            <span className="font-bold text-gray-800">{maskedEmail}</span>
           </p>
 
-          <form onSubmit={handleSubmit} className="w-full max-w-md">
-            <label htmlFor="otp-0" className="sr-only">
-              Masukkan kode OTP
-            </label>
-
-            {/* Kotak OTP */}
+          <form onSubmit={handleSubmit}>
             <div
+              className="grid grid-cols-6 gap-2 sm:gap-3 mb-8"
               onPaste={handlePaste}
-              className="grid grid-cols-6 gap-3 sm:gap-4 mb-5"
-              role="group"
-              aria-label="OTP inputs"
             >
               {Array.from({ length: OTP_LENGTH }).map((_, i) => (
                 <input
                   key={i}
-                  id={`otp-${i}`}
                   ref={(el) => (inputsRef.current[i] = el)}
+                  type="text"
                   inputMode="numeric"
-                  autoComplete={i === 0 ? "one-time-code" : "off"}
-                  pattern="[0-9]*"
                   maxLength={1}
                   value={digits[i]}
                   onChange={(e) => handleChange(i, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(i, e)}
-                  className="w-11 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-semibold border rounded-xl bg-white outline-none
-                             focus:ring-2 focus:ring-[#78d98d] focus:border-[#78d98d] select-none"
+                  className="w-full aspect-square bg-gray-50 border border-gray-200 rounded-xl text-center text-xl sm:text-2xl font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 focus:bg-white transition-all caret-emerald-500"
                 />
               ))}
             </div>
 
-            {/* Info & Resend */}
-            <div className="flex items-center justify-between text-sm mb-6">
-              <span className="text-gray-500">Tidak menerima kode?</span>
-              <button
-                type="button"
-                onClick={handleResend}
-                disabled={seconds > 0 || resending}
-                className={`font-medium ${
-                  seconds > 0 || resending
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-[#43b79c] hover:underline"
-                }`}
-              >
-                {resending
-                  ? "Mengirim..."
-                  : seconds > 0
-                  ? `Kirim ulang dalam ${seconds}s`
-                  : "Kirim ulang"}
-              </button>
-            </div>
-
-            {/* Tombol Verify */}
             <button
               type="submit"
               disabled={!canSubmit || loading}
-              className={`w-full py-3 rounded-full text-white text-sm font-medium transition
-                ${
-                  !canSubmit || loading
-                    ? "bg-gray-300 cursor-not-allowed"
-                    : "bg-gradient-to-r from-[#52c8b0] to-[#78d98d] hover:from-[#43b79c] hover:to-[#66c97b]"
+              className={`w-full py-4 rounded-xl text-white font-bold text-lg shadow-lg shadow-emerald-200 transition-all transform active:scale-[0.98]
+                ${!canSubmit || loading
+                  ? "bg-gray-300 cursor-not-allowed shadow-none"
+                  : "bg-gradient-to-r from-[#52c8b0] to-[#78d98d] hover:brightness-105"
+                }
+              `}
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Memproses...
+                </span>
+              ) : (
+                "Verifikasi Sekarang"
+              )}
+            </button>
+          </form>
+
+          <div className="mt-8 text-center text-sm text-gray-500">
+            Belum terima kode?{" "}
+            <button
+              onClick={handleResend}
+              disabled={seconds > 0 || resending}
+              className={`font-bold transition ${seconds > 0 || resending ? "text-gray-400 cursor-not-allowed" : "text-emerald-500 hover:text-emerald-600 underline"
                 }`}
             >
-              {loading ? "Verifying..." : "Verify & Continue"}
+              {resending
+                ? "Mengirim..."
+                : seconds > 0
+                  ? `Tunggu ${seconds}s`
+                  : "Kirim Ulang"}
             </button>
-
-            {/* Link balik */}
-            <div className="text-center mt-5 text-sm">
-              <button type="button" onClick={() => navigate("/login")} className="text-gray-500 hover:underline">
-                Ganti email / kembali ke Login
-              </button>
-            </div>
-          </form>
-        </div>
-
-        {/* Kanan - Gambar */}
-        <div className="hidden lg:flex items-center justify-center w-1/2 bg-white">
-          <div className="rounded-xl p-6 w-[450px] h-[400px] overflow-hidden">
-            <img src={image} alt="Verify illustration" className="w-full h-full object-cover rounded-xl" />
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
+
+      {/* RIGHT: IMAGE / DECORATION */}
+      <div className="hidden lg:block w-1/2 h-full relative overflow-hidden bg-gray-50">
+        <motion.div
+          initial={{ opacity: 0, scale: 1.05 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
+          className="absolute inset-0"
+        >
+          {image ? (
+            <img src={image} alt="Verify Illustration" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-[#5FCAAC] to-[#DAEC75]" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
+          className="absolute bottom-12 left-12 right-12 text-white drop-shadow-md"
+        >
+          <h3 className="text-3xl font-extrabold mb-2">Amankan Akun Anda.</h3>
+          <p className="text-lg text-white/90">
+            Verifikasi email membantu kami memastikan keamanan dan kenyamanan Anda dalam menggunakan Joyin.
+          </p>
+        </motion.div>
+      </div>
     </div>
   );
 }

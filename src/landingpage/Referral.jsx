@@ -309,7 +309,7 @@ export default function Referral() {
       },
       {
         title: t("referral.how.steps.2.title", "Dapatkan Bonus"),
-        desc: t("referral.how.steps.2.desc", "Ketika teman Anda mendaftar..."),
+        desc: t("referral.how.steps.2.desc", "Ketika teman Anda membeli paket..."),
       },
     ],
     [t]
@@ -472,7 +472,7 @@ export default function Referral() {
                     {t("referral.why.desc1", "Di Joyin, kami percaya hal baik pantas dibagikan! Ajak temanmu untuk bergabung, dan kalian berdua bisa dapetin hadiah spesial dari Joyin 🎉")}
                   </p>
                   <p>
-                    {t("referral.why.desc2", "Setiap ajakan membawa kamu semakin dekat ke hadiah utama — kesempatan seru yang sayang banget kalau dilewatkan! Yuk, mulai bagikan link referral-mu sekarang dan raih hadiahnya!")}
+                    {t("referral.why.desc2", "Setiap teman yang membeli paket membuat Anda semakin dekat ke hadiah utama! Yuk, mulai bagikan link referral-mu sekarang!")}
                   </p>
                 </div>
               </div>

@@ -353,15 +353,15 @@ export default function Checkout() {
     } catch { }
     setReferralCode("");
 
-    if (referralCode) {
-      try {
-        await api.post("/referrals/complete-first-purchase", {
-          orderId,
-          referralCode,
-        });
-      } catch (err) {
-        console.error("Failed to complete first purchase logic:", err);
-      }
+    // ✅ Always trigger complete-first-purchase logic, 
+    // because backend might award "Self Reward" / Cashback even without a referrer.
+    try {
+      await api.post("/referrals/complete-first-purchase", {
+        orderId,
+        referralCode: referralCode || "", // Send empty string if no code
+      });
+    } catch (err) {
+      console.warn("Failed to complete first purchase logic (non-fatal):", err);
     }
   };
 
@@ -544,6 +544,11 @@ export default function Checkout() {
 
     const orderIdLocal = `ORDER-${Date.now()}`;
     const grossAmount = total; // ✅ total sudah termasuk PPN
+
+    // ✅ SAVE PENDING ORDER ID to handle redirect/close tab scenarios
+    try {
+      localStorage.setItem("pending_payment_order_id", orderIdLocal);
+    } catch { }
 
     try {
       if (method === "card") {

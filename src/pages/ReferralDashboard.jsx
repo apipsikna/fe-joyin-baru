@@ -53,7 +53,7 @@ const readNum = (qp, key, fallback) => {
   return Number.isFinite(v) ? v : fallback;
 };
 
-import { useReferralCode } from "../hooks/useReferralCode";
+import { useLoyalty } from "../hooks/useLoyalty";
 
 export default function ReferralDashboard({ profile }) {
   const { t } = useTranslation();
@@ -118,38 +118,20 @@ export default function ReferralDashboard({ profile }) {
     }),
   };
 
-  const { referralCode } = useReferralCode(profile);
+  // ✅ Use consolidated loyalty hook
+  const {
+    referralCode,
+    referralList: referrals,
+    loading,
+    error
+  } = useLoyalty();
+
+  // Remove independent state for these since they come from useLoyalty now
   const [copied, setCopied] = useState(false);
 
-  const [referrals, setReferrals] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // Note: referrals, loading, error are now derived from the hook
+  // We don't need the useEffect manual fetch anymore
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        // Tentative endpoint: /referrals/list
-        // Sesuaikan dengan API backend yang sebenarnya nanti
-        const res = await api.get("/referrals/list");
-        if (mounted) {
-          // Asumsi response structure: { ok: true, data: [...] }
-          const list = res.data?.data || [];
-          setReferrals(list);
-        }
-      } catch (err) {
-        if (mounted) {
-          console.warn("Failed to fetch referrals", err);
-          setError(err.message);
-          // Fallback empty list agar UI tidak crash
-          setReferrals([]);
-        }
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-    return () => { mounted = false; };
-  }, []);
 
   const starCtrl = useMemo(() => {
     if (typeof window === "undefined") return STAR8_CTRL;
@@ -375,8 +357,8 @@ export default function ReferralDashboard({ profile }) {
                         <td className="py-4 px-4 text-center text-gray-900">
                           <span
                             className={`px-2 py-1 rounded text-xs font-semibold ${r.status === "active" || r.status === "Aktif"
-                                ? "bg-green-100 text-green-700"
-                                : "bg-yellow-100 text-yellow-700"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
                               }`}
                           >
                             {r.status || "-"}

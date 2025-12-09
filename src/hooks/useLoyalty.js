@@ -16,47 +16,103 @@ export function useLoyalty() {
     const [error, setError] = useState(null);
 
     const fetchLoyaltyData = useCallback(async () => {
-        if (!isAuthenticated) return; // Token is handled by api instance, but check auth state
+        // If not authenticated, we can't fetch strictly private data, 
+        // but we might want to allow it to run and fail gracefully if the token is just missing momentarily
+        if (!isAuthenticated) return;
 
         setLoading(true);
         setError(null);
         try {
-            // Panggil endpoint existing. Asumsi BE akan menambahkan field points/xp di sini.
-            // Jika belum ada, kita fallback ke 0 atau mock logic sementara.
-            const res = await api.get("/referrals/me"); // ✅ Use api instance, remove /api prefix if base has it, usually base is http://.../api
+            // Mengambil data referral & loyalty dari backend
+            const res = await api.get("/referrals/me");
 
-            const refData = res.data?.data || res.data;
+            // Flexible handling for response structure (e.g. res.data or res.data.data)
+            const refData = res.data?.data || res.data || {};
 
             // MAPPING DATA
-            // Backend mungkin mengirim: { referralCode, referrals: [...], points: ..., xp: ... }
-            // Kita siapkan fallback jika field points belum ada di backend.
+            const points = Number(refData.pointBalance || refData.points || 0);
+            const xp = Number(refData.lifetimePoints || refData.xp || 0); // XP usually same as lifetime points
 
-            const points = refData.points !== undefined ? refData.points : (refData.pointBalance || 0); // Cari field points
-            const xp = refData.xp !== undefined ? refData.xp : (refData.lifetimePoints || 0);
+            // Referral Code retrieval
+            const myRefCode = refData.referralCode || refData.myReferralCode || refData.code || "";
+
+            // Referral List retrieval
+            const rawList = refData.referrals || refData.referralList || [];
+            const list = Array.isArray(rawList) ? rawList : [];
 
             setData({
                 pointBalance: points,
                 lifetimePoints: xp,
-                referralCode: refData.referralCode || refData.myReferralCode || "", // ✅ Added myReferralCode check
-                totalReferrals: Array.isArray(refData.referrals) ? refData.referrals.length : (refData.totalReferrals || 0),
-                referralList: Array.isArray(refData.referrals) ? refData.referrals : [],
-                // Level bisa dihitung di frontend based on XP, atau dari backend
-                level: refData.level || "Newbie"
+                referralCode: myRefCode,
+                totalReferrals: list.length, // Or use refData.totalReferrals if available
+                referralList: list,
+                level: refData.level || "Newbie" // Backend might calculate level, or we do it in FE
             });
 
         } catch (err) {
             console.error("Failed to fetch loyalty data:", err);
-            // Jika error 404/500, jangan crash page, cukup set error state.
-            // Mungkin user belum punya referral data.
-            setError(err?.response?.data?.message || err.message);
+            // Handle specific errors if needed
+            setError(err?.response?.data?.message || "Gagal memuat data loyalty");
         } finally {
             setLoading(false);
         }
     }, [token, isAuthenticated]);
 
-    useEffect(() => {
-        fetchLoyaltyData();
-    }, [fetchLoyaltyData]);
+    const checkPendingTransaction = useCallback(async () => {
+        if (!isAuthenticated) return;
+        const pendingOrder = localStorage.getItem("pending_payment_order_id");
+        if (!pendingOrder) return;
 
-    return { ...data, loading, error, refetch: fetchLoyaltyData };
+        try {
+            // Cek status ke backend
+            const res = await api.get(`/payments/core/status/${pendingOrder}`);
+            const json = res.data;
+
+            if (json?.ok) {
+                const st = json.status?.transaction_status;
+
+                // Jika sukses (settlement/capture), trigger bonus
+                if (st === "capture" || st === "settlement") {
+                    console.log("✅ Recovering pending transaction:", pendingOrder);
+
+                    // Ambil referral code dari storage jika ada (optional)
+                    const refCode = localStorage.getItem("signup_referral_code") || "";
+
+                    await api.post("/referrals/complete-first-purchase", {
+                        orderId: pendingOrder,
+                        referralCode: refCode
+                    });
+
+                    // Clear pending
+                    localStorage.removeItem("pending_payment_order_id");
+                    localStorage.removeItem("signup_referral_code");
+
+                    // Refresh data
+                    fetchLoyaltyData();
+                }
+                // Jika gagal/expire, bersihkan saja
+                else if (st === "deny" || st === "cancel" || st === "expire") {
+                    localStorage.removeItem("pending_payment_order_id");
+                }
+            }
+        } catch (e) {
+            console.warn("Failed to check pending transaction:", e);
+        }
+    }, [isAuthenticated, fetchLoyaltyData]);
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchLoyaltyData();
+            checkPendingTransaction();
+        }
+    }, [fetchLoyaltyData, checkPendingTransaction, isAuthenticated]);
+
+    // Expose refetch so components can manually trigger update after an action
+    return {
+        ...data,
+        loading,
+        error,
+        refetch: fetchLoyaltyData,
+        checkPendingTransaction // ✅ Expose for manual trigger
+    };
 }

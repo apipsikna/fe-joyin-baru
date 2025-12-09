@@ -44,6 +44,14 @@ import Bisnis from "./PaketDashboard/Bisnis";
 import Enterprise from "./PaketDashboard/Enterprise";
 import AdminDashboard from "./pages/AdminDashboard";
 import ScrollToTop from "./components/ScrollToTop";
+import ChatBox from "./components/ChatBox"; // ✅ IMPORT ChatBox
+import { useReferralListener } from "./hooks/useReferralListener";
+
+// ✅ Komponen kecil untuk menjalankan hook di dalam Router
+function ReferralListenerRunner() {
+  useReferralListener();
+  return null;
+}
 
 function PublicLayout() {
   return (
@@ -198,13 +206,17 @@ function AppInner() {
 
       <Router>
         <ScrollToTop />
+        <ReferralListenerRunner /> {/* ✅ Listen for ?ref= globally */}
+        <ChatBox /> {/* ✅ Global Floating Chat */}
         <Routes>
           {/* Public Layout wraps these pages */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<LandingPage />} />
             <Route path="/tentang" element={<TentangKami />} />
             <Route path="/referral" element={<Referral />} />
+            <Route path="/referral" element={<Referral />} />
             <Route path="/tutorial" element={<Tutorial />} />
+
           </Route>
 
           {/* LOGIN */}
