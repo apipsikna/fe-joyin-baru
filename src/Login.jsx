@@ -84,21 +84,19 @@ export default function Login() {
       // DEBUG: Cek struktur response
       console.log("LOGIN RESPONSE FULL:", response);
 
-      // Cek role dari response (sesuaikan struktur BE)
-      const role = response?.user?.role || response?.data?.user?.role || response?.data?.role || "USER";
-
-      console.log("EXTRACTED ROLE:", role);
+      // Cek role dengan case-insensitive
+      const rawRole = response?.user?.role || response?.data?.user?.role || response?.data?.role || "USER";
+      const role = String(rawRole).toUpperCase();
 
       // Tampilkan alert sukses dulu, baru navigate
       setAlert({ type: "success", message: "Berhasil masuk ke akun!" });
       setLoading(false);
       setTimeout(() => {
         setLoading(true); // Munculkan loading sesaat sebelum pindah halaman
+
         if (role === "ADMIN") {
-          console.log("REDIRECTING TO ADMIN DASHBOARD");
           navigate("/admin", { replace: true });
         } else {
-          console.log("REDIRECTING TO USER DASHBOARD");
           navigate("/dashboard", { replace: true });
         }
       }, 1500);

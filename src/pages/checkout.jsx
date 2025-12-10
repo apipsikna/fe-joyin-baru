@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import api from "../api/axios";
 import { useAuth } from "../contexts/AuthContext";
+import { createManualOrder, uploadPaymentProof } from "../services/payment.service"; // ✅ Import Manual Service
 
 /* ====================== Referral Config ====================== */
 const REFERRAL_STORAGE_KEY = "signup_referral_code";
@@ -80,6 +81,7 @@ const METHODS = [
   { id: "bank", label: "Transfer Bank" },
   { id: "ewallet", label: "E–Wallet" },
   { id: "qris", label: "QRIS" },
+  { id: "manual", label: "Transfer Manual" }, // ✅ Added Manual
 ];
 
 const BANKS = [
@@ -143,6 +145,14 @@ const EWALLETS = [
     ],
   },
 ];
+
+// Helper untuk format rupiah (tanpa desimal)
+const formatMoney = (n) =>
+  new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    maximumFractionDigits: 0,
+  }).format(n);
 
 function classNames(...arr) {
   return arr.filter(Boolean).join(" ");
@@ -255,7 +265,7 @@ export default function Checkout() {
   const [planId, setPlanId] = useState("basic");
   const [expandedPlan, setExpandedPlan] = useState(null);
   const [months, setMonths] = useState(0);
-  const [method, setMethod] = useState("card");
+  const [method, setMethod] = useState("manual"); // Default ke Manual agar langsung terlihat user
   const [card, setCard] = useState({ number: "", expiry: "", name: "", cvv: "" });
 
   const [bank, setBank] = useState(null);
@@ -524,7 +534,9 @@ export default function Checkout() {
         ? !!bank
         : method === "ewallet"
           ? !!ewallet
-          : true);
+          : method === "manual" // Manual selalu boleh (tinggal klik)
+            ? true
+            : true);
 
   const callCharge = async (payload) => {
     const res = await api.post("/payments/core/charge", payload);
@@ -717,6 +729,33 @@ export default function Checkout() {
         pollStatus(order_id || orderIdLocal);
         return;
       }
+
+      // ✅ LOGIKA BARU: TRANSFER MANUAL
+      if (method === "manual") {
+        // Backend likely expects Uppercase Plan ID (e.g. 'BASIC')
+        const pId = (selectedPlan?.id || "basic").toUpperCase();
+        console.log("[Checkout] Creating Manual Order for:", pId);
+
+        const res = await createManualOrder({ planId: pId });
+        if (!res?.status) throw new Error(res?.message || "Gagal membuat order manual");
+
+        // Response backend: { status: true, data: { orderId, orderCode, finalAmount, bankDetails: {...} } }
+        const data = res.data;
+
+        setPayInfo({
+          open: true,
+          type: "manual",
+          orderId: data.orderId, // Integer ID dari DB
+          additional: {
+            orderCode: data.orderCode,
+            finalAmount: data.finalAmount,
+            bankDetails: data.bankDetails
+          }
+        });
+        // Tidak perlu pollStatus karena manual. User harus upload bukti.
+        return;
+      }
+
     } catch (err) {
       console.error(err);
       alert(err?.response?.data?.message || err.message || "Pembayaran gagal.");
@@ -837,7 +876,9 @@ export default function Checkout() {
                         ? IconBankTransfer
                         : id === "ewallet"
                           ? IconWallet
-                          : IconQris;
+                          : id === "manual"
+                            ? IconManual // Icon Baru
+                            : IconQris;
 
                   return (
                     <motion.button
@@ -926,6 +967,17 @@ export default function Checkout() {
                     <p className="text-xs text-gray-500">
                       Nomor kartu & CVV tidak dikirim ke server kami. Tokenisasi
                       dilakukan aman langsung ke Midtrans.
+                    </p>
+                  </div>
+                )}
+
+                {/* ✅ INFO MANUAL */}
+                {method === "manual" && (
+                  <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
+                    <div className="font-semibold text-emerald-800 mb-1">Transfer Bank Manual</div>
+                    <p className="text-sm text-emerald-700">
+                      Transfer langsung ke rekening kami. Perlu upload bukti transfer setelah checkout.
+                      Proses verifikasi oleh Admin max 24 jam.
                     </p>
                   </div>
                 )}
@@ -1283,6 +1335,18 @@ function IconQris({ className = "w-14 h-8" }) {
   );
 }
 
+function IconManual({ className = "w-14 h-8" }) {
+  return (
+    <svg viewBox="0 0 56 36" className={className} aria-hidden>
+      <rect x="2" y="5" width="52" height="26" rx="6" fill="#5CC9AF" opacity="0.1" />
+      <path d="M16 12H40V24H16V12Z" stroke="#5CC9AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M20 18H28" stroke="#5CC9AF" strokeWidth="2" strokeLinecap="round" />
+      <path d="M36 24V28" stroke="#5CC9AF" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="36" cy="16" r="2" fill="#5CC9AF" />
+    </svg>
+  );
+}
+
 function BankSelector({ banks, selected, onSelect }) {
   return (
     <div className="border border-gray-200 rounded-2xl p-3 md:p-4">
@@ -1587,6 +1651,11 @@ function PayInstructionModal({ info, onClose, onCheckStatus }) {
             </>
           )}
 
+          {/* ✅ MODAL MANUAL TRANSFER & UPLOAD */}
+          {info.type === "manual" && (
+            <ManualPaymentContent info={info} onClose={onClose} />
+          )}
+
           <div className="pt-2 grid gap-2">
             <button
               onClick={onClose}
@@ -1595,7 +1664,7 @@ function PayInstructionModal({ info, onClose, onCheckStatus }) {
             >
               Tutup
             </button>
-            {info?.orderId && (
+            {info?.orderId && info.type !== "manual" && (
               <button
                 onClick={onCheckStatus}
                 className="w-full h-11 rounded-xl bg-[#5CC9AF] text-white font-semibold hover:opacity-90"
@@ -1608,5 +1677,122 @@ function PayInstructionModal({ info, onClose, onCheckStatus }) {
         </div>
       </motion.div>
     </motion.div>
+  );
+}
+
+// ✅ Sub-component Modal Content untuk Manual Transfer
+function ManualPaymentContent({ info, onClose }) {
+  const [file, setFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [senderName, setSenderName] = useState("");
+  const [senderBank, setSenderBank] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  const details = info.additional?.bankDetails || {};
+  const amount = info.additional?.finalAmount || 0;
+  const orderCode = info.additional?.orderCode;
+
+  const handleUpload = async () => {
+    if (!file) return alert("Pilih file bukti transfer dulu.");
+    setUploading(true);
+    try {
+      await uploadPaymentProof(info.orderId, file, {
+        senderAccountName: senderName,
+        senderBankName: senderBank
+      });
+      setSuccess(true);
+    } catch (err) {
+      alert(err.message || "Gagal upload");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  if (success) {
+    return (
+      <div className="text-center py-6">
+        <div className="mx-auto w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
+          <CheckIcon className="w-8 h-8 text-emerald-600" />
+        </div>
+        <h3 className="text-lg font-bold text-gray-800">Bukti Terkirim!</h3>
+        <p className="text-sm text-gray-600 mt-2">
+          Terima kasih. Admin kami akan memverifikasi pembayaran Anda secepatnya (max 24 jam).
+          Status paket akan aktif otomatis setelah di-approve.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="text-sm font-semibold text-gray-700">Silakan Transfer ke:</div>
+
+      <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-xs text-gray-500 uppercase tracking-wide">Bank</span>
+          <span className="font-bold text-gray-800">{details.bankName || "Bank Kaltimtara"}</span>
+        </div>
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-xs text-gray-500 uppercase tracking-wide">No. Rekening</span>
+          <div className="flex items-center gap-2">
+            <span className="font-mono font-bold text-lg text-gray-800">{details.accountNumber || "1234567890"}</span>
+            <button onClick={() => navigator.clipboard.writeText(details.accountNumber)} className="text-[10px] uppercase bg-white border px-1.5 py-0.5 rounded text-gray-500">Salin</button>
+          </div>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-xs text-gray-500 uppercase tracking-wide">A.N.</span>
+          <span className="font-medium text-gray-800">{details.accountName || "PT CS AI INDONESIA"}</span>
+        </div>
+      </div>
+
+      <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100 text-center">
+        <div className="text-xs text-emerald-700 mb-1">Total Yang Harus Dibayar (Unik)</div>
+        <div className="text-2xl font-bold text-emerald-800">{formatMoney(amount)}</div>
+        <div className="text-[10px] text-emerald-600 mt-1">Mohon transfer nominal TEPAT sampai 3 digit terakhir agar verifikasi otomatis lebih cepat.</div>
+      </div>
+
+      {/* Form Upload */}
+      <div className="border-t border-gray-100 pt-4 space-y-3">
+        <div className="text-sm font-semibold text-gray-900">Konfirmasi Pembayaran</div>
+
+        <input
+          type="text"
+          placeholder="Nama Pengirim (di Rekening)"
+          className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-emerald-500"
+          value={senderName}
+          onChange={e => setSenderName(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Nama Bank Pengirim (misal: BCA, BRI)"
+          className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-emerald-500"
+          value={senderBank}
+          onChange={e => setSenderBank(e.target.value)}
+        />
+
+        <div className="relative">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={e => setFile(e.target.files[0])}
+            className="block w-full text-sm text-gray-500
+                          file:mr-4 file:py-2 file:px-4
+                          file:rounded-full file:border-0
+                          file:text-xs file:font-semibold
+                          file:bg-emerald-50 file:text-emerald-700
+                          hover:file:bg-emerald-100
+                        "
+          />
+        </div>
+
+        <button
+          onClick={handleUpload}
+          disabled={uploading || !file}
+          className="w-full bg-[#5CC9AF] text-white rounded-xl h-10 font-semibold text-sm hover:opacity-90 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+        >
+          {uploading ? "Mengupload..." : "Kirim Bukti Transfer"}
+        </button>
+      </div>
+    </div>
   );
 }

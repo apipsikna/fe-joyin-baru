@@ -55,9 +55,19 @@ User bertanya: "${userText}"
             const data = res.data;
 
             // Parsing Logic
-            let raw = data.choices?.[0]?.message?.content ||
-                data.data?.choices?.[0]?.message?.content ||
-                data.reply || data.data || data.message || "";
+            // Parsing Logic Robust
+            const choice = data.choices?.[0]?.message || data.data?.choices?.[0]?.message;
+            let raw = choice?.content;
+
+            // Jika content kosong, cek reasoning (model Chutes/Chimera kadang taruh di sini)
+            if (!raw && choice?.reasoning) {
+                raw = choice.reasoning;
+            }
+
+            // Fallback lain
+            if (!raw) {
+                raw = data.reply || (typeof data.data === 'string' ? data.data : "") || data.message || "";
+            }
 
             if (typeof raw === 'object') raw = JSON.stringify(raw);
 

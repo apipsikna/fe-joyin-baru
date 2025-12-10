@@ -96,6 +96,10 @@ export function useLoyalty() {
                 }
             }
         } catch (e) {
+            // Suppress 400/404 errors as they are expected for temp/invalid IDs
+            if (e.response && (e.response.status === 400 || e.response.status === 404)) {
+                return;
+            }
             console.warn("Failed to check pending transaction:", e);
         }
     }, [isAuthenticated, fetchLoyaltyData]);

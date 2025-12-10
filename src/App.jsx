@@ -333,7 +333,14 @@ function AppInner() {
               </RequireAuth>
             }
           />
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route
+            path="/admin"
+            element={
+              <RequireAdmin>
+                <AdminDashboard />
+              </RequireAdmin>
+            }
+          />
           <Route
             path="/settings"
             element={
@@ -349,6 +356,27 @@ function AppInner() {
       </Router>
     </>
   );
+}
+
+// ✅ Guard Khusus Admin
+function RequireAdmin({ children }) {
+  const { isAuthenticated, ready, user } = useAuth();
+
+  // Normalisasi role
+  const userRole = user?.role ? String(user.role).toUpperCase() : "";
+
+  if (!ready) return null;
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Cek ADMIN (Case Insensitive)
+  if (userRole !== "ADMIN") {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
 }
 
 export default function App() {
