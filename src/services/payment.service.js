@@ -7,9 +7,9 @@ const handleError = (error, defaultMessage) => {
 };
 
 // 1. Buat Manual Order
-export const createManualOrder = async ({ planId }) => {
+export const createManualOrder = async ({ planId, months }) => {
     try {
-        const response = await api.post("/payments/manual/create-order", { planId });
+        const response = await api.post("/payments/manual/create-order", { planId, months });
         return response.data;
     } catch (error) {
         handleError(error, "Gagal membuat pesanan manual.");

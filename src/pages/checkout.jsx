@@ -736,11 +736,15 @@ export default function Checkout() {
         const pId = (selectedPlan?.id || "basic").toUpperCase();
         console.log("[Checkout] Creating Manual Order for:", pId);
 
-        const res = await createManualOrder({ planId: pId });
+        const res = await createManualOrder({ planId: pId, months });
         if (!res?.status) throw new Error(res?.message || "Gagal membuat order manual");
 
         // Response backend: { status: true, data: { orderId, orderCode, finalAmount, bankDetails: {...} } }
         const data = res.data;
+
+        // Hitung ulang total di frontend agar sesuai dengan durasi & PPN + kode unik dr backend
+        const uniqueCode = data.finalAmount % 1000;
+        const adjustableTotal = total + uniqueCode;
 
         setPayInfo({
           open: true,
@@ -748,7 +752,7 @@ export default function Checkout() {
           orderId: data.orderId, // Integer ID dari DB
           additional: {
             orderCode: data.orderCode,
-            finalAmount: data.finalAmount,
+            finalAmount: adjustableTotal, // ✅ Gunakan total frontend + kode unik
             bankDetails: data.bankDetails
           }
         });
