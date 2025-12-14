@@ -352,7 +352,9 @@ export default function ReferralDashboard({ profile }) {
                           {r.email || "-"}
                         </td>
                         <td className="py-4 px-4 text-center text-gray-900">
-                          {r.createdAt || r.waktu || "-"}
+                          {r.createdAt ? new Date(r.createdAt).toLocaleDateString("id-ID", {
+                            day: 'numeric', month: 'short', year: 'numeric'
+                          }) : "-"}
                         </td>
                         <td className="py-4 px-4 text-center text-gray-900">
                           <span

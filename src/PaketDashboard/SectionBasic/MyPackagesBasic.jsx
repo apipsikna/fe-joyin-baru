@@ -10,6 +10,7 @@ import {
   HiOutlineQuestionMarkCircle,
 } from "react-icons/hi2";
 import { motion, useReducedMotion } from "framer-motion";
+import { useAuth } from "../../contexts/AuthContext";
 
 import SectionPutih from "../../assets/SectionPutih.png";
 
@@ -191,7 +192,49 @@ const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
 export default function MyPackagesBasic() {
   const { t } = useTranslation();
-  const [progressPct] = useState(78);
+  const { user } = useAuth();
+
+  // ✅ Logic: Hitung Sisa Hari & Progress
+  let expiryDisplay = "-";
+  let daysLeft = 0;
+  let progress = 100; // default full
+  let durationDisplay = "-"; // Total durasi paket
+
+  try {
+    const dateObj = user?.planExpiresAt ? new Date(user.planExpiresAt)
+      : user?.planValidUntil ? new Date(user.planValidUntil)
+        : null;
+
+    if (dateObj && !isNaN(dateObj)) {
+      expiryDisplay = new Intl.DateTimeFormat("id-ID", {
+        day: "numeric", month: "long", year: "numeric"
+      }).format(dateObj);
+
+      const now = new Date();
+      const diffMs = dateObj - now;
+      daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      if (daysLeft < 0) daysLeft = 0;
+
+      // Hitung durasi total dari createdAt
+      let total = 30; // fallback
+      if (user?.createdAt) {
+        const start = new Date(user.createdAt);
+        const totalMs = dateObj - start;
+        total = Math.ceil(totalMs / (1000 * 60 * 60 * 24));
+        if (total < 1) total = 30;
+
+        if (total > 360) durationDisplay = "1 Tahun";
+        else if (total > 28 && total < 32) durationDisplay = "1 Bulan";
+        else durationDisplay = `${total} Hari`;
+      } else {
+        durationDisplay = "1 Bulan"; // default if no createdAt
+      }
+
+      progress = clamp((daysLeft / total) * 100, 0, 100);
+    }
+  } catch (e) {
+    expiryDisplay = "Invalid";
+  }
 
   // ===== Animasi (aman: tidak mengganggu transform CSS yang sudah ada) =====
   const reduceMotion = useReducedMotion();
@@ -417,7 +460,7 @@ export default function MyPackagesBasic() {
             >
               <StatCard
                 title={t("myPackagesBasic.stats.duration")}
-                value={t("myPackagesBasic.stats.durationVal")}
+                value={durationDisplay}
               />
             </motion.div>
 
@@ -430,13 +473,13 @@ export default function MyPackagesBasic() {
             >
               <StatCard
                 title={t("myPackagesBasic.stats.active")}
-                value={t("myPackagesBasic.stats.activeVal")}
+                value={`${daysLeft} Hari`}
                 children={
                   <div className="w-full">
                     <div className="h-[6px] w-full rounded-full bg-white/35 overflow-hidden">
                       <div
                         className="h-full rounded-full bg-white/85"
-                        style={{ width: `${clamp(progressPct, 0, 100)}%` }}
+                        style={{ width: `${progress}%` }}
                       />
                     </div>
                   </div>
@@ -453,7 +496,7 @@ export default function MyPackagesBasic() {
             >
               <StatCard
                 title={t("myPackagesBasic.stats.due")}
-                value={t("myPackagesBasic.stats.dueVal")}
+                value={expiryDisplay}
               />
             </motion.div>
           </div>

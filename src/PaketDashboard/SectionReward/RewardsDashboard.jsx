@@ -1,233 +1,521 @@
+// src/PaketDashboard/RewardsDashboard.jsx
 import React, { useMemo } from "react";
-import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { motion } from "framer-motion";
 import { useLoyalty } from "../../hooks/useLoyalty";
-import {
-    HiOutlineSparkles,
-    HiOutlineTicket,
-    HiOutlineTrophy,
-    HiOutlineBolt,
-} from "react-icons/hi2";
+import BintangReward from "../../assets/bintangreward.png";
 
 // === CONSTANTS & LEVELS ===
 const LEVELS = [
-    { name: "Newbie", minXP: 0, multiplier: 1, color: "text-gray-500", bg: "bg-gray-100", border: "border-gray-300" },
-    { name: "Expert", minXP: 50, multiplier: 2, color: "text-blue-500", bg: "bg-blue-100", border: "border-blue-300" },
-    { name: "Master", minXP: 100, multiplier: 3, color: "text-purple-500", bg: "bg-purple-100", border: "border-purple-300" },
-    { name: "Legend", minXP: 200, multiplier: 4, color: "text-yellow-500", bg: "bg-yellow-100", border: "border-yellow-300" },
+  {
+    name: "Newbie",
+    minXP: 0,
+    multiplier: 1,
+    color: "text-gray-800",
+    badgeColor: "bg-yellow-100 text-yellow-600",
+    iconColor: "bg-emerald-400",
+  },
+  {
+    name: "Expert",
+    minXP: 50,
+    multiplier: 2,
+    color: "text-gray-800",
+    badgeColor: "bg-blue-100 text-blue-600",
+    iconColor: "bg-blue-500",
+  },
+  {
+    name: "Master",
+    minXP: 100,
+    multiplier: 3,
+    color: "text-gray-800",
+    badgeColor: "bg-purple-100 text-purple-600",
+    iconColor: "bg-purple-500",
+  },
+  {
+    name: "Legend",
+    minXP: 200,
+    multiplier: 4,
+    color: "text-gray-800",
+    badgeColor: "bg-red-100 text-red-600",
+    iconColor: "bg-yellow-500",
+  },
 ];
 
+// Paket disesuaikan dengan desain "Paket Langganan"
 const PACKAGES = [
-    { id: "basic", name: "Paket Basic", points: 25, price: "Rp 25.000", desc: "Akses fitur dasar selama 1 bulan." },
-    { id: "pro", name: "Paket Pro", points: 65, price: "Rp 65.000", desc: "Fitur lengkap untuk profesional." },
-    { id: "business", name: "Paket Business", points: 125, price: "Rp 125.000", desc: "Solusi bisnis skala menengah." },
-    { id: "enterprise", name: "Paket Enterprise", points: 200, price: "Rp 200.000", desc: "Full akses skala besar." },
+  {
+    id: "basic",
+    name: "Paket Basic",
+    points: 25,
+    price: "Rp. 49.000,-",
+    duration: "Durasi 1 Bulan",
+    cashbackPercent: 10,
+    cashbackPoints: 4,
+  },
+  {
+    id: "pro",
+    name: "Paket Pro",
+    points: 65,
+    price: "Rp. 99.000,-",
+    duration: "Durasi 1 Bulan",
+    cashbackPercent: 10,
+    cashbackPoints: 9,
+  },
+  {
+    id: "business",
+    name: "Paket Bisnis",
+    points: 125,
+    price: "Rp. 199.000,-",
+    duration: "Durasi 1 Bulan",
+    cashbackPercent: 10,
+    cashbackPoints: 19,
+  },
+  {
+    id: "enterprise",
+    name: "Paket Enterprise",
+    points: 200,
+    price: "Rp. 499.000,-",
+    duration: "Durasi 1 Bulan",
+    cashbackPercent: 10,
+    cashbackPoints: 49,
+  },
 ];
+
+// ✅ CONFIGURATION: ATUR TAMPILAN DISINI
+const STYLE_CONFIG = {
+  // 1. Kartu putih utama (membungkus "Dompet Bintang Anda" + kartu tier)
+  mainCard: {
+    // seberapa lebar ekstra ke kiri-kanan (px per sisi)
+    extendX: 90,
+    marginTop: 0,
+    marginBottom: 40,
+    // Tambahan padding ekstra di dalam kartu (px)
+    extraPaddingX: 8,
+  },
+
+  // 2. Kontainer "Paket Langganan" (kartu putih besar yang berisi 4 paket)
+  subscriptionCard: {
+    extendX: 90, // px per sisi
+    marginTop: 0,
+    marginBottom: 0,
+    extraPaddingX: 8,
+  },
+
+  // 3. Gambar Bintang Reward BESAR (satu saja, bisa di-geser & di-scale)
+  heroStar: {
+    show: true,
+    // ukuran (lebar) => ubah ini untuk memperbesar / memperkecil
+    width: "1200px",
+
+    // posisi dasar (bisa px atau %)
+    // silakan adjust: top/left/right/bottom
+    top: "10px",
+    left: "0%",
+    right: "auto",
+    bottom: "auto",
+
+    // offset tambahan via translate (untuk geser halus)
+    // -50% di X artinya center di horizontal
+    translateX: "-50%",
+    translateY: "0",
+
+    // rotasi opsional
+    rotate: "0deg",
+  },
+};
 
 export default function RewardsDashboard({ profile }) {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
 
-    // ✅ Ambil data real dari API via Hook
-    const { pointBalance, lifetimePoints, loading } = useLoyalty();
+  // ✅ Ambil data real dari API via Hook
+  const { pointBalance, lifetimePoints, loading, checkPendingTransaction } =
+    useLoyalty();
 
-    // Fallback ke prop profile atau 0, jika API masih loading/kosong
-    // Prioritas: API > Profile > Mock/0
-    const currentPoints = (pointBalance !== undefined ? pointBalance : profile?.pointBalance) || 0;
-    const currentXP = (lifetimePoints !== undefined ? lifetimePoints : profile?.lifetimePoints) || 0;
+  const currentPoints =
+    (pointBalance !== undefined ? pointBalance : profile?.pointBalance) || 0;
+  const currentXP =
+    (lifetimePoints !== undefined
+      ? lifetimePoints
+      : profile?.lifetimePoints) || 0;
 
-    // Hitung Level
-    const currentLevel = useMemo(() => {
-        return [...LEVELS].reverse().find((l) => currentXP >= l.minXP) || LEVELS[0];
-    }, [currentXP]);
+  // Hitung Level
+  const currentLevel = useMemo(
+    () =>
+      [...LEVELS].reverse().find((l) => currentXP >= l.minXP) || LEVELS[0],
+    [currentXP]
+  );
 
-    const nextLevel = useMemo(() => {
-        return LEVELS.find((l) => l.minXP > currentXP);
-    }, [currentXP]);
+  const nextLevel = useMemo(
+    () => LEVELS.find((l) => l.minXP > currentXP),
+    [currentXP]
+  );
 
-    const progressToNext = useMemo(() => {
-        if (!nextLevel) return 100;
-        const prevXP = currentLevel.minXP;
-        const targetXP = nextLevel.minXP;
-        const progress = ((currentXP - prevXP) / (targetXP - prevXP)) * 100;
-        return Math.min(100, Math.max(0, progress));
-    }, [currentXP, currentLevel, nextLevel]);
+  const progressToNext = useMemo(() => {
+    if (!nextLevel) return 100;
+    const prevXP = currentLevel.minXP;
+    const targetXP = nextLevel.minXP;
+    const progress = ((currentXP - prevXP) / (targetXP - prevXP)) * 100;
+    return Math.min(100, Math.max(0, progress));
+  }, [currentXP, currentLevel, nextLevel]);
 
-    return (
-        <div className="p-4 md:p-8 max-w-7xl mx-auto font-poppins text-gray-800">
-            {/* HEADER: Title & Welcome */}
-            <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-500">
-                        Rewards & Loyalty
-                    </h1>
-                    <p className="text-gray-500 mt-1">
-                        Kumpulkan CSAI Points dan tukarkan dengan paket paket langganan gratis!
-                    </p>
+  const xpNeeded = nextLevel ? nextLevel.minXP - currentXP : 0;
+
+  // ==== hitung style dynamic untuk main card ====
+  const mainExtend = STYLE_CONFIG.mainCard.extendX || 0;
+  const mainExtraPad = STYLE_CONFIG.mainCard.extraPaddingX || 0;
+  const mainWidth = mainExtend ? `calc(100% + ${mainExtend * 2}px)` : "100%";
+
+  // ==== hitung style dynamic untuk kontainer Paket Langganan ====
+  const subExtend = STYLE_CONFIG.subscriptionCard.extendX || 0;
+  const subExtraPad = STYLE_CONFIG.subscriptionCard.extraPaddingX || 0;
+  const subWidth = subExtend ? `calc(100% + ${subExtend * 2}px)` : "100%";
+
+  // ==== HERO STAR CONFIG ====
+  const heroStar = STYLE_CONFIG.heroStar;
+
+  // ==== VARIANTS ANIMASI ====
+  const containerVars = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15, // jeda antar anak
+        delayChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVars = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" },
+    },
+  };
+
+  const starVars = {
+    hidden: { scale: 0.8, opacity: 0 },
+    visible: {
+      scale: 1,
+      opacity: 1,
+      transition: { duration: 1, ease: "easeOut" },
+    },
+  };
+
+  return (
+    <div className="font-poppins min-h-screen w-full bg-gradient-to-r from-[#5FCAAC] to-[#DAEC75] flex">
+      {/* 
+          GUNAKAN motion.div PADA CONTAINER UTAMA 
+          pastikan initial="hidden" dan animate="visible" ada di sini 
+      */}
+      <motion.div
+        className="relative w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8"
+        variants={containerVars}
+        initial="hidden"
+        animate="visible"
+      >
+        {/* ===== Dekorasi Bintang (SATU gambar besar) ===== */}
+        {heroStar.show && (
+          <motion.img
+            src={BintangReward}
+            alt="reward hero decoration"
+            className="hidden sm:block absolute z-10 drop-shadow-lg transition-all duration-300 pointer-events-none select-none"
+            variants={starVars}
+            style={{
+              width: heroStar.width,
+              top: heroStar.top,
+              left: heroStar.left,
+              right: heroStar.right,
+              bottom: heroStar.bottom,
+              transform: `translate(${heroStar.translateX || "0"}, ${heroStar.translateY || "0"
+                }) rotate(${heroStar.rotate || "0deg"})`,
+            }}
+          />
+        )}
+
+        {/* ===== Header: Title (tanpa profile toggle) ===== */}
+        <motion.div className="relative mb-6 sm:mb-8 z-20" variants={itemVars}>
+          <h1 className="text-center text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-wide drop-shadow-[0_8px_18px_rgba(0,0,0,0.25)]">
+            J-Loyalty Rewards Center
+          </h1>
+        </motion.div>
+
+        {/* ===== Kartu Putih Besar (isi konten) ===== */}
+        <motion.div
+          className="bg-white rounded-[32px] sm:rounded-[40px] shadow-[0_18px_60px_rgba(15,23,42,0.22)] border border-emerald-100 px-5 sm:px-8 md:px-10 py-7 sm:py-9 relative z-20"
+          variants={itemVars}
+          style={{
+            width: mainWidth,
+            maxWidth: mainWidth,
+            marginTop: STYLE_CONFIG.mainCard.marginTop,
+            marginBottom: STYLE_CONFIG.mainCard.marginBottom,
+            marginLeft: mainExtend ? -mainExtend : undefined,
+            marginRight: mainExtend ? -mainExtend : undefined,
+            paddingLeft: mainExtraPad
+              ? `calc(1.25rem + ${mainExtraPad}px)`
+              : undefined,
+            paddingRight: mainExtraPad
+              ? `calc(1.25rem + ${mainExtraPad}px)`
+              : undefined,
+          }}
+        >
+          {/* POINTS SECTION */}
+          <div className="mb-8 sm:mb-10">
+            <p className="text-gray-700 font-semibold mb-3 text-sm sm:text-base">
+              Dompet Bintang Anda
+            </p>
+            <div className="flex items-center gap-4 sm:gap-6">
+              {/* Kotak hijau icon bintang/efek */}
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-400 rounded-[22px] flex items-center justify-center shadow-[0_10px_25px_rgba(16,185,129,0.55)]">
+                <span className="text-3xl sm:text-4xl text-white">✨</span>
+              </div>
+
+              <div className="flex items-baseline gap-3 sm:gap-4">
+                <span className="text-[52px] sm:text-[64px] leading-none font-extrabold text-emerald-500 tracking-tighter">
+                  {loading ? "..." : currentPoints}
+                </span>
+                <span className="text-lg sm:text-xl font-bold text-gray-500 mb-2 sm:mb-3">
+                  Bintang
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* TIER STATUS CARD */}
+          <div className="border border-emerald-300 rounded-[28px] sm:rounded-[32px] p-5 sm:p-7 md:p-8 bg-white relative transition-all duration-300">
+            {/* Bagian atas: icon tier + nama + badge + tombol */}
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-3 sm:mb-4">
+              <div className="flex items-start gap-4 sm:gap-5">
+                {/* Icon tier (kotak dengan medal) */}
+                <div className="w-[70px] h-[70px] sm:w-[80px] sm:h-[80px] bg-emerald-300 rounded-3xl flex items-center justify-center shadow-[0_16px_32px_rgba(16,185,129,0.55)]">
+                  <div className="w-14 h-14 bg-emerald-400 rounded-2xl flex items-center justify-center border-[6px] border-white shadow-inner">
+                    <span className="text-3xl">🏅</span>
+                  </div>
                 </div>
 
-                {/* ✅ Manual Check Button (Only shows if there is a pending order in local storage) */}
-                <ManualCheckButton checkFn={useLoyalty().checkPendingTransaction} />
+                <div className="mt-1">
+                  <h2 className="text-2xl sm:text-[26px] md:text-[28px] font-black text-gray-900 leading-tight">
+                    {currentLevel.name}
+                  </h2>
+                  <span
+                    className={`inline-flex items-center justify-center mt-2 px-3 sm:px-4 py-1 rounded-full text-[11px] sm:text-xs font-bold ${currentLevel.badgeColor}`}
+                  >
+                    {currentLevel.multiplier}x Bonus
+                  </span>
+                </div>
+              </div>
+
+              <button className="self-start mt-1 md:mt-0 px-5 sm:px-6 py-2 rounded-xl text-emerald-500 font-bold text-xs sm:text-sm border border-emerald-200 hover:bg-emerald-50/60 transition-all shadow-sm">
+                Lihat Detail
+              </button>
             </div>
 
-            {/* STATS CARDS */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {/* Lifetime XP Text */}
+            <p className="text-xs sm:text-sm font-semibold text-gray-800 mb-3 sm:mb-4">
+              Lifetime XP: {currentXP}
+            </p>
 
-                {/* Card 1: Poin Dompet */}
-                <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-yellow-400/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
+            {/* PROGRESS BAR + ikon target */}
+            <div className="relative mt-1 mb-6 sm:mb-7 pr-[4.5rem] sm:pr-[5.5rem]">
+              {/* Background bar */}
+              <div className="w-full h-4 sm:h-5 bg-gray-100 rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-[#DAEC75] via-[#8FD7A1] to-[#5FCAAC] rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progressToNext}%` }}
+                  transition={{ duration: 1.2, ease: "easeOut", delay: 0.5 }}
+                />
+              </div>
 
-                    <div className="flex items-center gap-4 mb-2">
-                        <div className="w-12 h-12 rounded-2xl bg-yellow-50 text-yellow-600 flex items-center justify-center border border-yellow-100">
-                            <HiOutlineSparkles size={24} />
+              {/* Ikon target di ujung kanan */}
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[18%] sm:translate-x-[22%]">
+                <div className="w-16 h-16 sm:w-[70px] sm:h-[70px] bg-white rounded-full flex items-center justify-center shadow-[0_10px_25px_rgba(15,23,42,0.18)] border-4 border-white relative">
+                  <div className="w-12 h-12 bg-emerald-400 rounded-full flex items-center justify-center text-white shadow-inner">
+                    <span className="text-2xl">🏅</span>
+                  </div>
+                  <div className="absolute -bottom-3 bg-white px-2 py-[2px] rounded-lg shadow-sm border border-gray-100 text-[10px] font-bold text-gray-600 min-w-[2.1rem] text-center">
+                    {nextLevel?.minXP || "Max"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Next Level Caption */}
+            <p className="text-xs sm:text-sm font-medium text-gray-800">
+              {nextLevel ? (
+                <>
+                  {xpNeeded} XP lagi untuk{" "}
+                  <span className="font-bold">{nextLevel.name}</span>!
+                </>
+              ) : (
+                "Selamat! Anda telah mencapai level tertinggi."
+              )}
+            </p>
+          </div>
+
+          {/* Manual Check Button (pojok kanan bawah kartu besar) */}
+          <div className="mt-4 text-right">
+            <ManualCheckButton checkFn={checkPendingTransaction} />
+          </div>
+        </motion.div>
+
+        {/* ===== REDEEM / PAKET LANGGANAN SECTION (sesuai desain foto) ===== */}
+        <motion.div className="mb-12" variants={itemVars}>
+          <div
+            className="bg-white/95 rounded-[32px] sm:rounded-[40px] shadow-[0_18px_60px_rgba(15,23,42,0.20)] border border-white/60 px-5 sm:px-8 md:px-10 py-8 sm:py-10 relative z-20"
+            style={{
+              width: subWidth,
+              maxWidth: subWidth,
+              marginTop: STYLE_CONFIG.subscriptionCard.marginTop,
+              marginBottom: STYLE_CONFIG.subscriptionCard.marginBottom,
+              marginLeft: subExtend ? -subExtend : undefined,
+              marginRight: subExtend ? -subExtend : undefined,
+              paddingLeft: subExtraPad
+                ? `calc(1.25rem + ${subExtraPad}px)`
+                : undefined,
+              paddingRight: subExtraPad
+                ? `calc(1.25rem + ${subExtraPad}px)`
+                : undefined,
+            }}
+          >
+            {/* Title & Subtitle seperti gambar */}
+            <div className="text-center mb-8 sm:mb-10 max-w-2xl mx-auto">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-3">
+                Paket Langganan
+              </h2>
+              <p className="text-sm sm:text-base text-gray-500 leading-relaxed">
+                Dapatkan Bintang dari setiap transaksi dan referral. Gunakan
+                untuk menukar paket langganan.
+              </p>
+            </div>
+
+            {/* List Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+              {PACKAGES.map((pkg) => {
+                const canRedeem = currentPoints >= pkg.points;
+
+                return (
+                  <div
+                    key={pkg.id}
+                    className="bg-white rounded-[28px] shadow-[0_14px_38px_rgba(15,23,42,0.16)] overflow-hidden flex flex-col"
+                  >
+                    {/* Header gradient (bagian hijau atas) */}
+                    <div className="relative bg-gradient-to-br from-[#5FCAAC] to-[#4ade80] px-5 pt-5 pb-6 text-white">
+                      <h3 className="text-base sm:text-lg font-semibold mb-2">
+                        {pkg.name}
+                      </h3>
+                      <p className="text-2xl sm:text-2xl font-extrabold mb-1">
+                        {pkg.price}
+                      </p>
+                      <p className="text-xs opacity-90">{pkg.duration}</p>
+
+                      {/* Badge poin di pojok kanan atas */}
+                      <div className="absolute top-4 right-4">
+                        <div className="bg-white/90 text-emerald-600 text-[11px] font-semibold px-3 py-1 rounded-full inline-flex items-center gap-1 shadow-sm">
+                          <span className="text-xs">✦</span>
+                          <span>{pkg.points}</span>
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Body putih bawah */}
+                    <div className="bg-white px-5 pb-5 pt-4 flex flex-col gap-3 flex-1">
+                      {/* Cashback box */}
+                      <div className="bg-emerald-50 rounded-2xl px-4 py-3 text-xs flex items-center justify-between gap-3">
                         <div>
-                            <p className="text-sm text-gray-500 font-medium">CSAI Points</p>
-                            <h2 className="text-3xl font-black text-gray-900">
-                                {loading ? "..." : currentPoints}
-                            </h2>
+                          <p className="font-semibold text-emerald-700">
+                            Cashback
+                          </p>
+                          <p className="text-[11px] text-emerald-500">
+                            {pkg.cashbackPercent}% dari pembelian
+                          </p>
                         </div>
+                        <p className="text-emerald-700 font-bold text-xs whitespace-nowrap">
+                          +{pkg.cashbackPoints} poin
+                        </p>
+                      </div>
+
+                      {/* Beli Paket */}
+                      <button
+                        type="button"
+                        className="w-full py-2.5 rounded-2xl text-xs sm:text-sm font-semibold bg-emerald-500 text-white shadow-[0_10px_25px_rgba(16,185,129,0.55)] hover:bg-emerald-600 transition-all"
+                      >
+                        Beli Paket
+                      </button>
+
+                      {/* Tukar Bintang */}
+                      <button
+                        type="button"
+                        disabled={!canRedeem}
+                        className={`w-full py-2.5 rounded-2xl text-xs sm:text-sm font-semibold border transition-all
+                          ${canRedeem
+                            ? "border-emerald-400 text-emerald-500 bg-white hover:bg-emerald-50"
+                            : "border-gray-200 text-gray-300 bg-gray-50 cursor-not-allowed"
+                          }`}
+                      >
+                        Tukar Bintang
+                      </button>
+
+                      {/* Lihat Detail */}
+                      <button
+                        type="button"
+                        className="mt-1 text-[11px] sm:text-xs font-semibold text-emerald-500 hover:text-emerald-600 inline-flex items-center justify-center gap-1"
+                      >
+                        <span>Lihat Detail</span>
+                        <span className="text-xs">➜</span>
+                      </button>
                     </div>
-                    <p className="text-xs text-gray-400 mt-2">
-                        Gunakan poin ini untuk menukar paket langganan. 1 Poin ≈ Rp 1.000.
-                    </p>
-                </div>
-
-                {/* Card 2: Level Status */}
-                <div className={`rounded-3xl p-6 shadow-sm border relative overflow-hidden group ${currentLevel.bg} ${currentLevel.border}`}>
-                    <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-4">
-                            <div className={`w-12 h-12 rounded-2xl bg-white/60 flex items-center justify-center backdrop-blur-sm ${currentLevel.color}`}>
-                                <HiOutlineTrophy size={24} />
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-600 font-medium">Current Tier</p>
-                                <h2 className={`text-3xl font-black ${currentLevel.color}`}>{currentLevel.name}</h2>
-                            </div>
-                        </div>
-                        <div className="hidden sm:block text-right">
-                            <p className="text-sm font-bold text-gray-700">{currentLevel.multiplier}x Multiplier</p>
-                            <p className="text-xs text-gray-500">Bonus poin tiap transaksi</p>
-                        </div>
-                    </div>
-
-                    {/* Progress Bar */}
-                    <div className="mt-4">
-                        <div className="flex justify-between text-xs font-semibold text-gray-500 mb-1">
-                            <span>XP: {loading ? "..." : currentXP}</span>
-                            <span>{nextLevel ? `Next: ${nextLevel.name} (${nextLevel.minXP} XP)` : "Max Level!"}</span>
-                        </div>
-                        <div className="w-full h-3 bg-white/50 rounded-full overflow-hidden backdrop-blur-sm">
-                            <motion.div
-                                initial={{ width: 0 }}
-                                animate={{ width: `${progressToNext}%` }}
-                                transition={{ duration: 1, ease: "easeOut" }}
-                                className={`h-full rounded-full ${currentLevel.bg.replace('100', '500')}`}
-                                style={{ backgroundColor: 'currentColor' }}
-                            />
-                        </div>
-                    </div>
-                </div>
+                  </div>
+                );
+              })}
             </div>
-
-            {/* LIST REDEEM */}
-            <div className="mb-6">
-                <h2 className="text-xl font-bold flex items-center gap-2 mb-4">
-                    <HiOutlineTicket className="text-emerald-500" />
-                    Redeem Catalog
-                </h2>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {PACKAGES.map((pkg) => {
-                        const canRedeem = currentPoints >= pkg.points;
-                        return (
-                            <div key={pkg.id} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full">
-                                <div className="mb-3">
-                                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
-                                        {pkg.name}
-                                    </span>
-                                </div>
-                                <div className="flex items-baseline gap-1 mb-2">
-                                    <span className="text-2xl font-extrabold text-gray-900">{pkg.points}</span>
-                                    <span className="text-xs font-semibold text-gray-500">Poin</span>
-                                </div>
-                                <p className="text-xs text-gray-500 mb-4 flex-1">
-                                    {pkg.desc} (Senilai {pkg.price})
-                                </p>
-
-                                <button
-                                    disabled={!canRedeem}
-                                    className={`w-full py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2
-                      ${canRedeem
-                                            ? "bg-gray-900 text-white hover:bg-gray-800 shadow-lg hover:shadow-xl"
-                                            : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
-                                >
-                                    {canRedeem ? (
-                                        <>
-                                            <span>Tukar Sekarang</span>
-                                            <HiOutlineBolt />
-                                        </>
-                                    ) : (
-                                        <span>Poin Kurang</span>
-                                    )}
-                                </button>
-                            </div>
-                        )
-                    })}
-                </div>
-            </div>
-
-            {/* FAQ / INFO */}
-            <div className="mt-12 bg-gray-50 rounded-2xl p-6 border border-gray-100">
-                <h3 className="font-bold text-gray-800 mb-2">Cara Kerja Level & Poin</h3>
-                <ul className="text-sm text-gray-500 list-disc list-inside space-y-1">
-                    <li><strong>Self-Reward:</strong> Beli paket buat diri sendiri dapat cashback poin.</li>
-                    <li><strong>Referral Reward:</strong> Ajak teman beli paket, kamu juga dapat poin.</li>
-                    <li><strong>Multiplier:</strong> Semakin tinggi level (XP), semakin banyak poin yang didapat per transaksi (up to 4x).</li>
-                    <li><strong>Syarat Naik Level:</strong> Akumulasi total belanja/referral (XP) seumur hidup (tidak reset).</li>
-                </ul>
-            </div>
-
-        </div>
-    );
+          </div>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
 }
 
-// ✅ Helper Component for Manual Check
+// ✅ Helper Component untuk manual cek transaksi pending
 function ManualCheckButton({ checkFn }) {
-    const [status, setStatus] = React.useState("idle"); // idle, checking, done
-    const [msg, setMsg] = React.useState("");
+  const [status, setStatus] = React.useState("idle");
+  const [msg, setMsg] = React.useState("");
 
-    // Only show if localStorage has pending order
-    const [hasPending] = React.useState(() => {
-        if (typeof window === 'undefined') return false;
-        return !!localStorage.getItem("pending_payment_order_id");
+  const [hasPending] = React.useState(() => {
+    if (typeof window === "undefined") return false;
+    return !!localStorage.getItem("pending_payment_order_id");
+  });
+
+  if (!hasPending && status === "idle") return null;
+
+  const nav = () => {
+    setStatus("checking");
+    checkFn().then(() => {
+      setStatus("done");
+      setMsg("Selesai");
+      setTimeout(() => {
+        setMsg("");
+        window.location.reload();
+      }, 1000);
     });
+  };
 
-    if (!hasPending && status === "idle") return null;
-
-    const nav = () => {
-        setStatus("checking");
-        checkFn().then(() => {
-            setStatus("done");
-            setMsg("Selesai mengecek.");
-            setTimeout(() => {
-                setMsg("");
-                // Reload page to refresh points visually if updated
-                window.location.reload();
-            }, 1500);
-        });
-    };
-
-    return (
-        <div className="flex items-center gap-2">
-            {msg && <span className="text-xs font-semibold text-emerald-600 animate-pulse">{msg}</span>}
-            <button
-                onClick={nav}
-                disabled={status === "checking"}
-                className="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg shadow-md hover:bg-emerald-700 disabled:opacity-50 transition-all flex items-center gap-2"
-            >
-                <HiOutlineBolt className={status === "checking" ? "animate-spin" : ""} />
-                {status === "checking" ? "Mengecek..." : "Cek Status Transaksi"}
-            </button>
-        </div>
-    );
+  return (
+    <div className="inline-flex items-center gap-2">
+      {msg && (
+        <span className="text-xs font-semibold text-emerald-600 animate-pulse">
+          {msg}
+        </span>
+      )}
+      <button
+        onClick={nav}
+        disabled={status === "checking"}
+        className="text-[10px] text-gray-400 hover:text-emerald-600 underline decoration-dotted transition-colors"
+        title="Cek Status Transaksi Pending"
+      >
+        {status === "checking" ? "Mengecek..." : "Cek Pending Transaksi"}
+      </button>
+    </div>
+  );
 }

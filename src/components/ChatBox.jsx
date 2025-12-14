@@ -8,7 +8,7 @@ import { JOYIN_CONTEXT } from "../data/websiteContext"; // ✅ Context Import
 
 export default function ChatBox() {
     const location = useLocation();
-    const { ready } = useAuth();
+    const { ready, user } = useAuth();
 
     // Config: Hidden Routes
     const hiddenRoutes = [
@@ -40,41 +40,34 @@ export default function ChatBox() {
 
         setMessages(prev => [...prev, newMsg]);
         setInput("");
+
+        // ✅ PREMIUM CHECK (Frontend Guard)
+        // Pastikan user punya plan aktif sebelum call API
+        // Sesuaikan logika ini dengan data plan Anda (misal: "basic", "pro", dsb)
+        if (!user?.plan) {
+            setTimeout(() => {
+                setMessages(prev => [...prev, {
+                    sender: "ai",
+                    text: "Maaf, fitur AI Chat hanya tersedia untuk pengguna Premium. Silakan upgrade paket Anda untuk menikmati layanan ini."
+                }]);
+            }, 500);
+            return;
+        }
+
         setLoading(true);
 
         try {
-            // ✅ Inject Context + Instruction invisibly
-            const finalPrompt = `
-${JOYIN_CONTEXT}
+            // ✅ Updated to use Premium Endpoint
+            const res = await api.post("/ai/chat-premium", { message: userText });
 
-User bertanya: "${userText}"
-(Jawablah dalam Bahasa Indonesia yang ramah dan membantu, singkat padat jelas).
-            `.trim();
+            // New Response Structure: { status: true, message: "...", data: { ai_response: "..." } }
+            const reply =
+                res.data?.data?.ai_response ||
+                res.data?.message ||
+                "Maaf, saya tidak mengerti.";
 
-            const res = await api.post("/ai", { message: finalPrompt });
-            const data = res.data;
-
-            // Parsing Logic
-            // Parsing Logic Robust
-            const choice = data.choices?.[0]?.message || data.data?.choices?.[0]?.message;
-            let raw = choice?.content;
-
-            // Jika content kosong, cek reasoning (model Chutes/Chimera kadang taruh di sini)
-            if (!raw && choice?.reasoning) {
-                raw = choice.reasoning;
-            }
-
-            // Fallback lain
-            if (!raw) {
-                raw = data.reply || (typeof data.data === 'string' ? data.data : "") || data.message || "";
-            }
-
-            if (typeof raw === 'object') raw = JSON.stringify(raw);
-
-            // Cleaning <think> tags if any
-            const clean = String(raw || "Maaf, saya tidak mengerti.")
-                .replace(/<think>[\s\S]*?<\/think>/gi, "")
-                .trim();
+            // Cleaning clean string just in case
+            const clean = String(reply).replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
 
             setMessages(prev => [...prev, { sender: "ai", text: clean }]);
         } catch (err) {

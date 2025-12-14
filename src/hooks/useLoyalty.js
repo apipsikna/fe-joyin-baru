@@ -38,7 +38,13 @@ export function useLoyalty() {
 
             // Referral List retrieval
             const rawList = refData.referrals || refData.referralList || [];
-            const list = Array.isArray(rawList) ? rawList : [];
+            const list = Array.isArray(rawList) ? rawList.map(item => ({
+                ...item,
+                // Map backend 'isVerified' to frontend 'status'
+                status: item.status || (item.isVerified ? "active" : "pending"),
+                // Ensure date is accessible (prefer createdAt)
+                createdAt: item.createdAt || item.waktu
+            })) : [];
 
             setData({
                 pointBalance: points,

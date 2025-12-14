@@ -97,7 +97,22 @@ export default function Login() {
         if (role === "ADMIN") {
           navigate("/admin", { replace: true });
         } else {
-          navigate("/dashboard", { replace: true });
+          // ✅ Redirect ke Dashboard Paket jika punya plan
+          // Pastikan plan ada di response context (sudah ditambahkan sebelumnya)
+          const plan = response?.user?.plan || response?.data?.user?.plan || response?.data?.plan;
+
+          if (plan) {
+            const p = String(plan).toLowerCase();
+            // Normalisasi nama paket jika perlu
+            // Basic, Pro, Business/Bisnis, Enterprise
+            if (p.includes("bisnis") || p.includes("business")) {
+              navigate("/paket-dashboard/bisnis", { replace: true });
+            } else {
+              navigate(`/paket-dashboard/${p}`, { replace: true });
+            }
+          } else {
+            navigate("/dashboard", { replace: true });
+          }
         }
       }, 1500);
     } catch (err) {

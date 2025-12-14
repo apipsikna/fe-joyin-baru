@@ -60,7 +60,9 @@ export function AuthProvider({ children }) {
       phone: u?.phone ?? null,
       avatar: u?.avatar ?? null,
       role: u?.role ?? "USER",
-      // birthDate dihapus karena BE tidak punya field ini
+      planExpiresAt: u?.planExpiresAt ?? null, // ✅ Add expiry
+      planValidUntil: u?.planValidUntil ?? null, // ✅ Add valid until (alt)
+      createdAt: u?.createdAt ?? null, // ✅ Add createdAt for duration calc
     };
   };
 

@@ -3,6 +3,13 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import iconsedih from "../assets/iconsedih.png";
+import { useAuth } from "../contexts/AuthContext";
+
+// Import komponen spesifik per paket
+import MyPackagesBasic from "../PaketDashboard/SectionBasic/MyPackagesBasic";
+import MyPackagesBisnis from "../PaketDashboard/SectionBisnis/MyPackagesBisnis";
+import MyPackagesPro from "../PaketDashboard/SectionPro/MyPackagesPro";
+import MyPackagesEnterprise from "../PaketDashboard/SectionEnterprise/MyPackagesEnterprise";
 
 /* =======================
    ✅ SEMUA SETTING DI AWAL FILE
@@ -21,7 +28,6 @@ const CFG = {
   pagePadBottom: 18,
 
   // header / judul
-  // titleText: "Paket Saya", // Removed, used in translation
   headerGap: 14,
 
   // card putih
@@ -43,7 +49,6 @@ const CFG = {
   textSizeDesktop: 16,
 
   // tombol
-  // btnText: "Pilih Paket", // Removed, used in translation
   btnH: 48,
   btnPX: 40,
   btnRadius: 12,
@@ -53,7 +58,7 @@ const CFG = {
   // route
   choosePlanRoute: "/checkout",
 
-  // animasi (kalau mau tweak cepat)
+  // animasi
   anim: {
     dur: 520, // ms
     ease: "cubic-bezier(.2,.9,.2,1)",
@@ -65,6 +70,7 @@ const CFG = {
 export default function MyPackages() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [enter, setEnter] = useState(false);
 
   // trigger animasi ketika mount
@@ -73,6 +79,29 @@ export default function MyPackages() {
     return () => cancelAnimationFrame(t);
   }, []);
 
+  const hasPlan = !!user?.plan;
+  const userPlan = user?.plan ? user.plan.toUpperCase() : null;
+
+  // ✅ DISPATCHER LOGIC:
+  // Jika punya plan, render komponen dashboard khusus paketnya.
+  // Jika tidak punya, tampilkan tampilan "Empty State" default di bawah.
+  if (hasPlan) {
+    switch (userPlan) {
+      case "BASIC":
+        return <MyPackagesBasic />;
+      case "BISNIS":
+        return <MyPackagesBisnis />;
+      case "PRO":
+        return <MyPackagesPro />;
+      case "ENTERPRISE":
+        return <MyPackagesEnterprise />;
+      default:
+        // Fallback jika plan tidak dikenali, tampilkan Basic atau desain generic
+        return <MyPackagesBasic />;
+    }
+  }
+
+  // --- TAMPILAN JIKA TIDAK ADA PAKET (EMPTY STATE) ---
   return (
     <div
       className="joyin-packages h-[100dvh] w-full overflow-hidden font-poppins"
@@ -164,7 +193,7 @@ export default function MyPackages() {
         <div className="mx-auto w-full j-enter-card" style={{ maxWidth: CFG.cardMaxW }}>
           {/* Card putih */}
           <div
-            className="bg-white border border-black/5 flex items-center justify-center"
+            className="bg-white border border-black/5 flex flex-col items-center justify-center relative overflow-hidden"
             style={{
               borderRadius: "var(--cardRadius)",
               boxShadow: CFG.cardShadow,
@@ -172,29 +201,19 @@ export default function MyPackages() {
               padding: "var(--cardPad)",
             }}
           >
-            <div className="text-center" style={{ maxWidth: CFG.contentMaxW }}>
+            {/* Empty State */}
+            <div className="text-center max-w-[600px]">
               <img
                 src={iconsedih}
-                alt="Sedih"
-                className="mx-auto select-none j-float-icon"
-                style={{ width: "var(--icon)", height: "var(--icon)" }}
+                alt="Empty"
+                className="mx-auto w-24 h-24 mb-6"
                 draggable={false}
               />
-
-              <h2
-                className="mt-6 font-extrabold text-gray-700"
-                style={{ fontSize: "var(--tSize)" }}
-              >
+              <h2 className="font-extrabold text-2xl text-gray-700 mb-3">
                 {t("myPackages.emptyState.title")}
               </h2>
-
-              <p
-                className="mt-3 text-gray-600 leading-relaxed"
-                style={{ fontSize: "var(--pSize)" }}
-              >
-                {t("myPackages.emptyState.desc1")}
-                <br className="hidden md:block" />
-                {t("myPackages.emptyState.desc2")}
+              <p className="text-gray-500 mb-8 leading-relaxed">
+                {t("myPackages.emptyState.desc1")} <br className="hidden md:block" /> {t("myPackages.emptyState.desc2")}
               </p>
 
               <button
