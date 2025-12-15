@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { useLoyalty } from "../../hooks/useLoyalty";
 import BintangReward from "../../assets/bintangreward.png";
+import { useNavigate } from "react-router-dom";
 
 // === CONSTANTS & LEVELS ===
 const LEVELS = [
@@ -126,6 +127,7 @@ const STYLE_CONFIG = {
 
 export default function RewardsDashboard({ profile }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   // ✅ Ambil data real dari API via Hook
   const { pointBalance, lifetimePoints, loading, checkPendingTransaction } =
@@ -179,27 +181,38 @@ export default function RewardsDashboard({ profile }) {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.15, // jeda antar anak
+        staggerChildren: 0.2, // jeda antar anak lebih distinct
         delayChildren: 0.1,
       },
     },
   };
 
   const itemVars = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: 40, scale: 0.95 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.6, ease: "easeOut" },
+      scale: 1,
+      transition: { type: "spring", stiffness: 100, damping: 15 },
     },
   };
 
   const starVars = {
-    hidden: { scale: 0.8, opacity: 0 },
+    hidden: { opacity: 0, filter: "blur(10px)", y: 0 },
     visible: {
-      scale: 1,
       opacity: 1,
-      transition: { duration: 1, ease: "easeOut" },
+      filter: "blur(0px)",
+      transition: {
+        duration: 0.8,
+        ease: [0.22, 1, 0.36, 1],
+        y: {
+          duration: 4,
+          repeat: Infinity,
+          repeatType: "mirror",
+          ease: "easeInOut",
+          delay: 1,
+        },
+      },
     },
   };
 
@@ -259,6 +272,7 @@ export default function RewardsDashboard({ profile }) {
               ? `calc(1.25rem + ${mainExtraPad}px)`
               : undefined,
           }}
+          whileHover={{ scale: 1.01, transition: { duration: 0.3 } }}
         >
           {/* POINTS SECTION */}
           <div className="mb-8 sm:mb-10">
@@ -306,9 +320,14 @@ export default function RewardsDashboard({ profile }) {
                 </div>
               </div>
 
-              <button className="self-start mt-1 md:mt-0 px-5 sm:px-6 py-2 rounded-xl text-emerald-500 font-bold text-xs sm:text-sm border border-emerald-200 hover:bg-emerald-50/60 transition-all shadow-sm">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate("/dashboard/tier-system")}
+                className="self-start mt-1 md:mt-0 px-5 sm:px-6 py-2 rounded-xl text-emerald-500 font-bold text-xs sm:text-sm border border-emerald-200 hover:bg-emerald-50/60 transition-all shadow-sm"
+              >
                 Lihat Detail
-              </button>
+              </motion.button>
             </div>
 
             {/* Lifetime XP Text */}
@@ -391,13 +410,21 @@ export default function RewardsDashboard({ profile }) {
             </div>
 
             {/* List Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6"
+              variants={containerVars} // Re-use container stagger for children
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+            >
               {PACKAGES.map((pkg) => {
                 const canRedeem = currentPoints >= pkg.points;
 
                 return (
-                  <div
+                  <motion.div
                     key={pkg.id}
+                    variants={itemVars}
+                    whileHover={{ scale: 1.03, y: -5, transition: { duration: 0.2 } }}
                     className="bg-white rounded-[28px] shadow-[0_14px_38px_rgba(15,23,42,0.16)] overflow-hidden flex flex-col"
                   >
                     {/* Header gradient (bagian hijau atas) */}
@@ -437,17 +464,21 @@ export default function RewardsDashboard({ profile }) {
                       </div>
 
                       {/* Beli Paket */}
-                      <button
+                      <motion.button
                         type="button"
+                        whileTap={{ scale: 0.95 }}
+                        whileHover={{ scale: 1.02 }}
                         className="w-full py-2.5 rounded-2xl text-xs sm:text-sm font-semibold bg-emerald-500 text-white shadow-[0_10px_25px_rgba(16,185,129,0.55)] hover:bg-emerald-600 transition-all"
                       >
                         Beli Paket
-                      </button>
+                      </motion.button>
 
                       {/* Tukar Bintang */}
-                      <button
+                      <motion.button
                         type="button"
                         disabled={!canRedeem}
+                        whileTap={canRedeem ? { scale: 0.95 } : {}}
+                        whileHover={canRedeem ? { scale: 1.02 } : {}}
                         className={`w-full py-2.5 rounded-2xl text-xs sm:text-sm font-semibold border transition-all
                           ${canRedeem
                             ? "border-emerald-400 text-emerald-500 bg-white hover:bg-emerald-50"
@@ -455,21 +486,24 @@ export default function RewardsDashboard({ profile }) {
                           }`}
                       >
                         Tukar Bintang
-                      </button>
+                      </motion.button>
 
                       {/* Lihat Detail */}
-                      <button
+                      <motion.button
                         type="button"
+                        whileHover={{ scale: 1.05, x: 3 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => navigate("/dashboard/tier-system")}
                         className="mt-1 text-[11px] sm:text-xs font-semibold text-emerald-500 hover:text-emerald-600 inline-flex items-center justify-center gap-1"
                       >
                         <span>Lihat Detail</span>
                         <span className="text-xs">➜</span>
-                      </button>
+                      </motion.button>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
-            </div>
+            </motion.div>
           </div>
         </motion.div>
       </motion.div>

@@ -42,9 +42,11 @@ export default function ChatBox() {
         setInput("");
 
         // ✅ PREMIUM CHECK (Frontend Guard)
-        // Pastikan user punya plan aktif sebelum call API
-        // Sesuaikan logika ini dengan data plan Anda (misal: "basic", "pro", dsb)
-        if (!user?.plan) {
+        // Check if user has a plan OR is an admin
+        const hasPlan = user?.plan && user?.plan !== "free"; // basic/pro/enterprise
+        const isAdmin = user?.role === "ADMIN";
+
+        if (!hasPlan && !isAdmin) {
             setTimeout(() => {
                 setMessages(prev => [...prev, {
                     sender: "ai",
@@ -57,17 +59,30 @@ export default function ChatBox() {
         setLoading(true);
 
         try {
-            // ✅ Updated to use Premium Endpoint
-            const res = await api.post("/ai/chat-premium", { message: userText });
+            // ✅ Updated to use correct endpoint (User confirmed /api/ai is active)
+            // ✅ INJECT CONTEXT: Kirim konteks website agar AI pintar
+            const fullPayload = `System Context:\n${JOYIN_CONTEXT}\n\nUser Question:\n${userText}`;
 
-            // New Response Structure: { status: true, message: "...", data: { ai_response: "..." } }
+            const res = await api.post("/ai", { message: fullPayload });
+
+            // ✅ Debug response
+            console.log("🤖 AI Response Raw:", res.data);
+
+            // Parsing robust
             const reply =
-                res.data?.data?.ai_response ||
-                res.data?.message ||
+                res.data?.reply ||             // Priority 1: Field 'reply' (Confirmed by user logs)
+                res.data?.data?.ai_response || // Priority 2: Controller Premium wrapper
+                res.data?.output ||            // Priority 3: Raw n8n
+                (typeof res.data === "string" ? res.data : "") ||
                 "Maaf, saya tidak mengerti.";
 
             // Cleaning clean string just in case
-            const clean = String(reply).replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+            let clean = String(reply).replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+
+            // Catch stray "Okay, " at start if <think> usage was weird
+            if (clean.startsWith("Okay, ") && clean.includes("</think>")) {
+                clean = clean.split("</think>").pop().trim();
+            }
 
             setMessages(prev => [...prev, { sender: "ai", text: clean }]);
         } catch (err) {

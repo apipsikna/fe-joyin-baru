@@ -36,3 +36,33 @@ export const uploadPaymentProof = async (orderId, file, senderInfo = {}) => {
         handleError(error, "Gagal mengunggah bukti transfer.");
     }
 };
+
+// 3. Perpanjang Paket
+export const extendPackage = async () => {
+    try {
+        const response = await api.post("/payments/subscription/extend");
+        return response.data;
+    } catch (error) {
+        handleError(error, "Gagal memperpanjang paket.");
+    }
+};
+
+// 4. Upgrade Paket
+export const upgradePackage = async (targetPlanId) => {
+    try {
+        const response = await api.post("/payments/subscription/upgrade", { targetPlanId });
+        return response.data;
+    } catch (error) {
+        handleError(error, "Gagal upgrade paket.");
+    }
+};
+
+// 5. Batalkan Paket
+export const cancelPackage = async () => {
+    try {
+        const response = await api.post("/payments/subscription/cancel");
+        return response.data;
+    } catch (error) {
+        handleError(error, "Gagal membatalkan paket.");
+    }
+};

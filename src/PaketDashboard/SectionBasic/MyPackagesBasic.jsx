@@ -11,6 +11,11 @@ import {
 } from "react-icons/hi2";
 import { motion, useReducedMotion } from "framer-motion";
 import { useAuth } from "../../contexts/AuthContext";
+import { createManualOrder, cancelPackage } from "../../services/payment.service";
+import Swal from "sweetalert2";
+
+import ManualPaymentModal from "../../components/ManualPaymentModal";
+import SubscriptionActionModal from "../../components/SubscriptionActionModal";
 
 import SectionPutih from "../../assets/SectionPutih.png";
 
@@ -190,9 +195,27 @@ function FeatureCard({ icon: Icon, title, desc }) {
 
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
+import { HiArrowPath } from "react-icons/hi2";
+
 export default function MyPackagesBasic() {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, fetchMe } = useAuth();
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [paymentModalData, setPaymentModalData] = useState(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefreshData = async () => {
+    setIsRefreshing(true);
+    await fetchMe();
+
+    // Beri jeda visual sedikit agar user tahu proses terjadi
+    setTimeout(() => {
+      setIsRefreshing(false);
+    }, 800);
+  };
+
+  // New state for Action Modal (Renew/Upgrade)
+  const [actionModalMode, setActionModalMode] = useState(null); // 'RENEW' | 'UPGRADE' | null
 
   // ✅ Logic: Hitung Sisa Hari & Progress
   let expiryDisplay = "-";
@@ -235,6 +258,88 @@ export default function MyPackagesBasic() {
   } catch (e) {
     expiryDisplay = "Invalid";
   }
+
+  // ================= HANDLERS =================
+  const handleRenew = () => {
+    setActionModalMode('RENEW');
+  };
+
+  const handleUpgrade = () => {
+    setActionModalMode('UPGRADE');
+  };
+
+  const handleActionConfirm = async ({ plan, months }) => {
+    try {
+      Swal.fire({
+        title: "Memproses...",
+        text: "Sedang membuat pesanan manual...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      // Use selected plan for upgrade, or current plan for renew
+      const targetPlan = plan || user?.plan || "BASIC";
+
+      // 1. Calculate Expected Amount (Frontend Force)
+      const taxRate = 0.11;
+      const prices = { BASIC: 49000, PRO: 99000, BUSINESS: 199000, ENTERPRISE: 499000 };
+      const basePrice = prices[targetPlan] || 0;
+      const expectedTotal = (basePrice * months) + ((basePrice * months) * taxRate);
+
+      const res = await createManualOrder({ planId: targetPlan, months });
+      Swal.close();
+
+      if (res?.data?.orderId) {
+        const data = res.data;
+        const modalInfo = {
+          orderId: data.orderId,
+          type: "manual",
+          additional: {
+            orderCode: data.orderCode,
+            finalAmount: expectedTotal, // Force usage of frontend calc logic for display
+            bankDetails: data.bankDetails
+          }
+        };
+        setPaymentModalData(modalInfo);
+        setPaymentModalOpen(true);
+      }
+    } catch (err) {
+      Swal.close();
+      console.error(err);
+      Swal.fire("Gagal", err.message || "Gagal membuat pesanan.", "error");
+    }
+  };
+
+  const handleCancel = async () => {
+    const result = await Swal.fire({
+      title: 'Batalkan Paket?',
+      text: "Anda akan kehilangan fitur auto-renew. Paket tetap aktif hingga masa berlaku habis.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ff4b4b',
+      confirmButtonText: 'Ya, Batalkan',
+      cancelButtonText: 'Kembali'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        Swal.fire({ title: "Memproses...", didOpen: () => Swal.showLoading() });
+        const res = await cancelPackage();
+        Swal.close();
+        Swal.fire("Berhasil", res?.message || "Paket berhasil dibatalkan.", "success")
+          .then(() => window.location.reload());
+      } catch (err) {
+        Swal.close();
+        Swal.fire("Gagal", err.message || "Gagal membatalkan paket.", "error");
+      }
+    }
+  };
+
+  const calendarSnapAvailable = () => {
+    if (typeof window !== "undefined" && window.snap) return true;
+    Swal.fire("Error", "Midtrans Snap script not loaded.", "error");
+    return false;
+  };
 
   // ===== Animasi (aman: tidak mengganggu transform CSS yang sudah ada) =====
   const reduceMotion = useReducedMotion();
@@ -447,6 +552,16 @@ export default function MyPackagesBasic() {
             <p className="mt-2 text-white/85 text-[14px] md:text-[15px]">
               {t("myPackagesBasic.desc")}
             </p>
+
+            {/* New Refresh Button */}
+            <button
+              onClick={handleRefreshData}
+              disabled={isRefreshing}
+              className="mx-auto mt-4 flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full text-xs font-bold transition-all backdrop-blur-sm border border-white/20"
+            >
+              <HiArrowPath className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
+              {isRefreshing ? "Memuat Data..." : "Refresh Status Paket"}
+            </button>
           </motion.div>
 
           {/* Stat cards */}
@@ -508,13 +623,13 @@ export default function MyPackagesBasic() {
             animate="show"
             className="mt-9 flex flex-wrap items-center justify-center gap-4 _actionsShift"
           >
-            <ActionButton onClick={() => { }}>
+            <ActionButton onClick={handleRenew}>
               {t("myPackagesBasic.buttons.renew")}
             </ActionButton>
-            <ActionButton onClick={() => { }}>
+            <ActionButton onClick={handleUpgrade}>
               {t("myPackagesBasic.buttons.upgrade")}
             </ActionButton>
-            <ActionButton variant="danger" onClick={() => { }}>
+            <ActionButton variant="danger" onClick={handleCancel}>
               {t("myPackagesBasic.buttons.cancel")}
             </ActionButton>
           </motion.div>
@@ -604,6 +719,22 @@ export default function MyPackagesBasic() {
           {/* /manfaat */}
         </div>
       </div>
+
+      {/* Manual Payment Modal */}
+      <ManualPaymentModal
+        isOpen={paymentModalOpen}
+        onClose={() => setPaymentModalOpen(false)}
+        info={paymentModalData}
+      />
+
+      {/* Subscription Action Modal (Renew/Upgrade) */}
+      <SubscriptionActionModal
+        isOpen={!!actionModalMode}
+        mode={actionModalMode}
+        currentPlan={user?.plan}
+        onClose={() => setActionModalMode(null)}
+        onConfirm={handleActionConfirm}
+      />
     </motion.div>
   );
 }

@@ -26,7 +26,7 @@ export default function Login() {
   // Auto-hide alert
   useEffect(() => {
     if (!alert) return;
-    const t = setTimeout(() => setAlert(null), 3000);
+    const t = setTimeout(() => setAlert(null), 5000); // Alert auto hide in 5s
     return () => clearTimeout(t);
   }, [alert]);
 
@@ -114,7 +114,7 @@ export default function Login() {
             navigate("/dashboard", { replace: true });
           }
         }
-      }, 1500);
+      }, 1500); // 1.5s delay
     } catch (err) {
       const status = err?.response?.status;
       const backendMsg = err?.response?.data?.message || err?.message || "";

@@ -7,11 +7,13 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import ProfileModal from "../components/profile/ProfileModal";
 
 // Services
-import { getPendingOrders, approveOrder, rejectOrder } from "../services/admin.service";
+import { getPendingOrders, getAllOrders, approveOrder, rejectOrder } from "../services/admin.service";
 
 // Shared Components
 import Sidebar from "../components/dashboard/Sidebar";
 import TopRightProfile from "../components/dashboard/TopRightProfile";
+import AdminActionModal from "../components/AdminActionModal";
+import OrderDetailActionModal from "../components/OrderDetailActionModal";
 
 const MENU = {
     ORDERS: "orders",
@@ -36,7 +38,12 @@ export default function AdminDashboard() {
     const [loadingOrders, setLoadingOrders] = useState(false);
     const [actionLoading, setActionLoading] = useState(null); // ID order yg sedang diproses
     const [alert, setAlert] = useState(null); // { type: 'success'|'error', message: '' }
+
     const [selectedProof, setSelectedProof] = useState(null); // URL gambar bukti
+
+    // New Action Modal State
+    const [actionModal, setActionModal] = useState({ isOpen: false, type: null, data: null }); // type: 'APPROVE' | 'REJECT'
+    const [detailModal, setDetailModal] = useState({ isOpen: false, order: null });
 
     const dropdownRef = useRef();
 
@@ -69,17 +76,22 @@ export default function AdminDashboard() {
         };
     }, [ready, isAuthenticated, fetchMe]);
 
-    // 2. Fetch Pending Orders
+    // 2. Fetch Orders (All)
     const fetchOrders = async () => {
         if (!isAuthenticated) return;
         setLoadingOrders(true);
         try {
-            const res = await getPendingOrders();
-            // Backend return: { status: true, message: "...", data: [...] }
+            // Ambil semua history (tanpa fallback)
+            const res = await getAllOrders();
             setOrders(res.data || []);
         } catch (error) {
-            console.error("Failed to fetch orders:", error);
-            // Sembunyikan error visual jika kosong, atau setAlert jika perlu
+            console.error("Gagal ambil history pesanan:", error);
+            // Tampilkan error agar user tahu jika backend belum siap
+            setAlert({
+                type: 'error',
+                message: "Gagal memuat riwayat pesanan. Pastikan Backend sudah diperbarui."
+            });
+            setTimeout(() => setAlert(null), 5000);
         } finally {
             setLoadingOrders(false);
         }
@@ -94,38 +106,53 @@ export default function AdminDashboard() {
 
 
     // Action Handlers
-    const handleApprove = async (orderId) => {
-        if (!window.confirm("Yakin ingin menyetujui pesanan ini?")) return;
+    // Action Handlers
+    const handleApprove = (orderId) => {
+        setActionModal({ isOpen: true, type: 'APPROVE', data: { id: orderId } });
+    };
 
+    const handleReject = (orderId) => {
+        setActionModal({ isOpen: true, type: 'REJECT', data: { id: orderId } });
+    };
+
+    const handleConfirmAction = async ({ orderId, reason }) => {
+        const type = actionModal.type;
         setActionLoading(orderId);
+
         try {
-            await approveOrder(orderId);
-            setAlert({ type: "success", message: "Pesanan berhasil disetujui!" });
-            // Refresh data
+            if (type === 'APPROVE') {
+                await approveOrder(orderId);
+                setAlert({ type: "success", message: "Pesanan berhasil disetujui!" });
+            } else if (type === 'REJECT') {
+                await rejectOrder(orderId, reason);
+                setAlert({ type: "success", message: "Pesanan berhasil ditolak!" });
+            }
             fetchOrders();
         } catch (err) {
-            setAlert({ type: "error", message: err.message || "Gagal menyetujui pesanan" });
+            setAlert({ type: "error", message: err.message || `Gagal ${type === 'APPROVE' ? 'menyetujui' : 'menolak'} pesanan` });
         } finally {
             setActionLoading(null);
             setTimeout(() => setAlert(null), 3000);
         }
     };
 
-    const handleReject = async (orderId) => {
-        const reason = window.prompt("Masukkan alasan penolakan (opsional):");
-        if (reason === null) return; // Cancel
+    const handleViewDetail = (order) => {
+        // Resolve proofUrl for modal (reuse logic or let modal handle simplistic resolution)
+        // Here we pass the order object, modal will extract properties
+        setDetailModal({ isOpen: true, order });
+    };
 
-        setActionLoading(orderId);
-        try {
-            await rejectOrder(orderId, reason);
-            setAlert({ type: "success", message: "Pesanan berhasil ditolak!" });
-            fetchOrders();
-        } catch (err) {
-            setAlert({ type: "error", message: err.message || "Gagal menolak pesanan" });
-        } finally {
-            setActionLoading(null);
-            setTimeout(() => setAlert(null), 3000);
-        }
+    const handleCancelConfirmation = async (order) => {
+        // Logika Batalkan Konfirmasi:
+        // Idealnya ada endpoint khusus 'unapprove'.
+        // Untuk sekarang kita gunakan flow 'REJECT' sebagai cara membatalkan/menolak ulang.
+
+        if (!window.confirm("Batalkan konfirmasi pesanan ini? Status akan berubah.")) return;
+
+        setDetailModal({ isOpen: false, order: null }); // Tutup detail modal
+        // Buka reject modal atau langsung proses?
+        // User request: "Batalkan Konfirmasi" -> kita anggap Reject
+        setActionModal({ isOpen: true, type: 'REJECT', data: { id: order.id } });
     };
 
     // Close Dropdown logic
@@ -316,7 +343,12 @@ export default function AdminDashboard() {
                                                                     </button>
                                                                 </>
                                                             ) : (
-                                                                <span className="text-gray-400 text-xs italic">Selesai</span>
+                                                                <button
+                                                                    onClick={() => handleViewDetail(item)}
+                                                                    className="flex items-center gap-1 px-4 py-1.5 rounded-full border border-[#5FCAAC] text-[#5FCAAC] text-xs font-bold hover:bg-[#5FCAAC] hover:text-white transition-all shadow-sm"
+                                                                >
+                                                                    Lihat Detail
+                                                                </button>
                                                             )}
                                                         </div>
                                                     </td>
@@ -367,6 +399,23 @@ export default function AdminDashboard() {
                         </div>
                     </div>
                 )}
+
+                {/* Themed Action Modal */}
+                <AdminActionModal
+                    isOpen={actionModal.isOpen}
+                    type={actionModal.type}
+                    data={actionModal.data}
+                    onClose={() => setActionModal({ ...actionModal, isOpen: false })}
+                    onConfirm={handleConfirmAction}
+                />
+
+                {/* Order Detail Modal */}
+                <OrderDetailActionModal
+                    isOpen={detailModal.isOpen}
+                    order={detailModal.order}
+                    onClose={() => setDetailModal({ isOpen: false, order: null })}
+                    onCancelConfirmation={handleCancelConfirmation}
+                />
             </div>
         </div>
     );

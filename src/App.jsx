@@ -46,6 +46,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ScrollToTop from "./components/ScrollToTop";
 import ChatBox from "./components/ChatBox"; // ✅ IMPORT ChatBox
 import { useReferralListener } from "./hooks/useReferralListener";
+import TierSystem from "./pages/TierSystem"; // ✅ Import Tier System Page
 
 // ✅ Komponen kecil untuk menjalankan hook di dalam Router
 function ReferralListenerRunner() {
@@ -278,6 +279,16 @@ function AppInner() {
             element={
               <RequireAuth>
                 <Enterprise />
+              </RequireAuth>
+            }
+          />
+
+          {/* ✅ TIER SYSTEM DETAIL PAGE */}
+          <Route
+            path="/dashboard/tier-system"
+            element={
+              <RequireAuth>
+                <TierSystem />
               </RequireAuth>
             }
           />

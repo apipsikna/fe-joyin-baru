@@ -9,6 +9,8 @@ import React, {
 } from "react";
 import api, { bindAccessTokenFns } from "../api/axios";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import Swal from "sweetalert2";
 
 const USE_LOCAL_STORAGE =
   (import.meta.env.VITE_USE_LOCAL_STORAGE ?? "true") === "true";
@@ -60,6 +62,7 @@ export function AuthProvider({ children }) {
       phone: u?.phone ?? null,
       avatar: u?.avatar ?? null,
       role: u?.role ?? "USER",
+      plan: u?.plan ?? null, // ✅ Add plan (fix missing field)
       planExpiresAt: u?.planExpiresAt ?? null, // ✅ Add expiry
       planValidUntil: u?.planValidUntil ?? null, // ✅ Add valid until (alt)
       createdAt: u?.createdAt ?? null, // ✅ Add createdAt for duration calc
@@ -73,9 +76,19 @@ export function AuthProvider({ children }) {
 
     if (USE_LOCAL_STORAGE) {
       try {
-        if (val) localStorage.setItem("accessToken", val);
-        else localStorage.removeItem("accessToken");
+        if (val) {
+          localStorage.setItem("accessToken", val);
+        } else {
+          localStorage.removeItem("accessToken");
+          // ✅ Also clear user data when token is removed
+          localStorage.removeItem("user");
+        }
       } catch { }
+    }
+
+    // If token is cleared, also clear user state in memory
+    if (!val) {
+      setUser(null);
     }
 
     // sinkron default header axios
@@ -159,6 +172,62 @@ export function AuthProvider({ children }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ====== Helper: Alert Session Expired ======================================
+  const handleSessionExpired = () => {
+    Swal.fire({
+      icon: "warning",
+      title: "Sesi Habis",
+      text: "Sesi login anda habis. Mohon harap untuk login ulang.",
+      confirmButtonText: "Login Ulang",
+      confirmButtonColor: "#3085d6",
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+    }).then(() => {
+      logout("/login");
+    });
+  };
+
+  // ====== Auto Logout Check Interval (Client + Server) =======================
+  useEffect(() => {
+    if (!accessToken) return;
+
+    // 1. Cek Client Side (JWT Exp)
+    const clientCheck = setInterval(() => {
+      try {
+        const decoded = jwtDecode(accessToken);
+        if (decoded.exp) {
+          const currentTime = Date.now() / 1000;
+          if (decoded.exp < currentTime) {
+            console.warn("Session expired (Client Check). Logging out...");
+            clearInterval(clientCheck); // Stop interval agar tidak spam alert
+            handleSessionExpired();
+          }
+        }
+      } catch (error) {
+        console.error("Error decoding token:", error);
+      }
+    }, 5000);
+
+    // 2. Cek Server Side (Ping) - Penting jika Backend Session < JWT Valid Time
+    // Kita ping endpoint ringan (misal fetchMe atau profile)
+    // Interval agak jarang biar ga spam, tapi cukup untuk case 1 menit (misal 15s)
+    const serverCheck = setInterval(async () => {
+      try {
+        // Panggil endpoint yang butuh auth. Jika 401, interceptor / fetchMe logic akan logout.
+        await api.get("/profile", { withCredentials: true });
+      } catch (e) {
+        // Error akan dicatch oleh interceptor axios yg sudah kita pasang force redirect
+        // atau jika lolos, biarkan 'fetchMe' atau fungsi lain handle.
+        // Tapi interceptor axios yang kita pasang di step sebelumnya SUDAH handle 401 -> logout.
+      }
+    }, 15000); // 15 detik
+
+    return () => {
+      clearInterval(clientCheck);
+      clearInterval(serverCheck);
+    };
+  }, [accessToken]);
+
   // ====== Actions ============================================================
   const login = async (email, password) => {
     const res = await api.post(
@@ -235,6 +304,8 @@ export function AuthProvider({ children }) {
       return res.data;
     } catch (err) {
       if (axios.isAxiosError(err) && err.response?.status === 401) {
+        // Token valid secara format tapi ditolak backend (session expired)
+        handleSessionExpired();
         return null;
       }
       console.warn("[fetchMe] unexpected:", err?.message || err);

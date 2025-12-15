@@ -1,5 +1,6 @@
 // src/api/axios.js
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export const API_BASE_URL =
   (import.meta.env.VITE_API_BASE_URL && import.meta.env.VITE_API_BASE_URL.trim()) ||
@@ -25,7 +26,7 @@ try {
 
 // ====== Token helpers (di-bind oleh AuthContext) ======
 let getAccessToken = () => null;
-let _setAccessToken = (_t) => {};
+let _setAccessToken = (_t) => { };
 
 export const bindAccessTokenFns = (getFn, setFn) => {
   getAccessToken = getFn;
@@ -77,7 +78,7 @@ api.interceptors.response.use(
       if (!newAccess) throw new Error("No accessToken from refresh");
 
       // update token global + header default
-      try { _setAccessToken(newAccess); } catch {}
+      try { _setAccessToken(newAccess); } catch { }
       api.defaults.headers.common.Authorization = `Bearer ${newAccess}`;
 
       // ulang request awal
@@ -85,10 +86,23 @@ api.interceptors.response.use(
       original.headers.Authorization = `Bearer ${newAccess}`;
       return api.request(original);
     } catch (e) {
-      // pastikan token & header dibersihkan ketika refresh gagal
-      try { localStorage.removeItem("accessToken"); } catch {}
-      try { _setAccessToken(""); } catch {}
+      try { localStorage.removeItem("accessToken"); } catch { }
+      try { _setAccessToken(""); } catch { }
       delete api.defaults.headers.common.Authorization;
+      // Force redirect to login to prevent broken UI state
+      if (typeof window !== "undefined" && !window.location.pathname.includes("/login")) {
+        Swal.fire({
+          icon: "warning",
+          title: "Sesi Habis",
+          text: "Sesi login anda habis. Mohon harap untuk login ulang.",
+          confirmButtonText: "Login Ulang",
+          confirmButtonColor: "#3085d6",
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+        }).then(() => {
+          window.location.href = "/login";
+        });
+      }
       return Promise.reject(e);
     }
   }

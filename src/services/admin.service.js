@@ -18,14 +18,22 @@ export const getPendingOrders = async () => {
     }
 };
 
+// 1b. Ambil SEMUA pesanan (pending & paid)
+export const getAllOrders = async () => {
+    try {
+        // Coba endpoint ini, jika 404 kita akan tangani nanti
+        const response = await api.get("/admin/orders");
+        return response.data;
+    } catch (error) {
+        handleError(error, "Gagal mengambil semua data pesanan.");
+    }
+};
+
 // 2. Approve Pesanan (Manual Transfer)
-// Endpoint: POST /payment/manual/approve (sesuai backend user)
-// Body: { orderId: 123 }
+// Endpoint: POST /admin/orders/:orderId/approve
 export const approveOrder = async (orderId) => {
     try {
-        // Perhatikan URL prefix '/payment' (asumsi payment.routes.js di-mount di /payment atau /api/payment)
-        // Jika nanti 404, coba check apakah mount path-nya '/api/payment'
-        const response = await api.post(`/payments/manual/approve`, { orderId });
+        const response = await api.post(`/admin/orders/${orderId}/approve`, {});
         return response.data;
     } catch (error) {
         handleError(error, "Gagal menyetujui pesanan.");
@@ -33,6 +41,7 @@ export const approveOrder = async (orderId) => {
 };
 
 // 3. Reject Pesanan (Opsional: Butuh alasan?)
+// Endpoint: POST /admin/orders/:orderId/reject
 export const rejectOrder = async (orderId, reason = "") => {
     try {
         const response = await api.post(`/admin/orders/${orderId}/reject`, { reason });
