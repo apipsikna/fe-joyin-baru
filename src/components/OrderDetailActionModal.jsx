@@ -46,7 +46,7 @@ export default function OrderDetailActionModal({ isOpen, order, onClose, onCance
     const proofUrl = resolveImageUrl(rawProofUrl);
 
     // Hitung/Ambil data
-    const finalAmount = order.totalAmount || 0;
+    const finalAmount = order.finalAmount || order.totalAmount || 0;
     const planName = order.planId || "Paket Basic"; // Fallback text
     const statusText = order.status === "PAID" ? "Lunas" : order.status;
 

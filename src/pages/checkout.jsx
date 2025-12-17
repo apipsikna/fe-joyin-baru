@@ -743,8 +743,10 @@ export default function Checkout() {
         const data = res.data;
 
         // Hitung ulang total di frontend agar sesuai dengan durasi & PPN + kode unik dr backend
-        const uniqueCode = data.finalAmount % 1000;
-        const adjustableTotal = total + uniqueCode;
+        // ✅ FIXED: Gunakan finalAmount LANGSUNG dari backend agar sesuai dengan database (Admin Dashboard)
+        // const uniqueCode = data.finalAmount % 1000;
+        // const adjustableTotal = total + uniqueCode;
+        const adjustableTotal = data.finalAmount;
 
         setPayInfo({
           open: true,

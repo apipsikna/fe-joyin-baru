@@ -278,15 +278,17 @@ export default function MyPackagesBasic() {
       });
 
       // Use selected plan for upgrade, or current plan for renew
-      const targetPlan = plan || user?.plan || "BASIC";
+      const targetPlan = (plan || user?.plan || "BASIC").toUpperCase();
 
-      // 1. Calculate Expected Amount (Frontend Force)
-      const taxRate = 0.11;
-      const prices = { BASIC: 49000, PRO: 99000, BUSINESS: 199000, ENTERPRISE: 499000 };
-      const basePrice = prices[targetPlan] || 0;
-      const expectedTotal = (basePrice * months) + ((basePrice * months) * taxRate);
+      console.log("[MyPackagesBasic] handleActionConfirm:", { plan, months, targetPlan });
 
-      const res = await createManualOrder({ planId: targetPlan, months });
+      if (!months) {
+        Swal.close();
+        Swal.fire("Error", "Durasi tidak valid?", "question");
+        return;
+      }
+
+      const res = await createManualOrder({ planId: targetPlan, months: Number(months) });
       Swal.close();
 
       if (res?.data?.orderId) {
@@ -296,7 +298,7 @@ export default function MyPackagesBasic() {
           type: "manual",
           additional: {
             orderCode: data.orderCode,
-            finalAmount: expectedTotal, // Force usage of frontend calc logic for display
+            finalAmount: data.finalAmount, // ✅ FIXED: Use backend amount (includes unique code)
             bankDetails: data.bankDetails
           }
         };

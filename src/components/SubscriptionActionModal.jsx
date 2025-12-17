@@ -36,7 +36,7 @@ export default function SubscriptionActionModal({ isOpen, onClose, mode, onConfi
     const [selectedDuration, setSelectedDuration] = useState("");
 
     // Identify active plan for calculation
-    const activePlanId = mode === 'UPGRADE' ? selectedPlan : currentPlan;
+    const activePlanId = (mode === 'UPGRADE' ? selectedPlan : currentPlan).toUpperCase();
 
     // Calculate Totals
     let subtotal = 0;
