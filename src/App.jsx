@@ -25,6 +25,7 @@ import Setting from "./pages/Setting";
 
 // ✅ FIX: sesuaikan dengan nama file aslinya (Checkout.jsx)
 import Checkout from "./pages/checkout";
+import PackageDetail from "./pages/PackageDetail"; // ✅ Import PackageDetail
 
 import VerifyOtp from "./VerifyOtp";
 import ResetPassword from "./ResetPassword";
@@ -289,6 +290,16 @@ function AppInner() {
             element={
               <RequireAuth>
                 <TierSystem />
+              </RequireAuth>
+            }
+          />
+
+          {/* ✅ NEW: DETAIL PAKET PAGE */}
+          <Route
+            path="/package-detail/:id"
+            element={
+              <RequireAuth>
+                <PackageDetail />
               </RequireAuth>
             }
           />

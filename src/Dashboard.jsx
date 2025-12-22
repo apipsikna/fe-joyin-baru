@@ -10,6 +10,7 @@ import {
   HiOutlineGlobeAlt,
   HiOutlineShare,
   HiOutlineGift,
+  HiChevronDown,
 } from "react-icons/hi2";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "./assets/logo.png";
@@ -362,9 +363,9 @@ function SidebarButton({ icon: Icon, text, active, onClick, landing }) {
   );
 }
 
-/* ================= TopRightProfile ================= */
+
+/* ================= TopRightProfile (Redesigned: Simple & Premium) ================= */
 function TopRightProfile({
-  t,
   profile,
   firstName,
   language,
@@ -376,10 +377,7 @@ function TopRightProfile({
   onLogout,
 }) {
   const plan =
-    profile?.planName ||
-    profile?.package ||
-    profile?.subscription ||
-    t("dashboard.profile.planFree", { defaultValue: "Gratis" });
+    profile?.planName || profile?.package || profile?.subscription || "Gratis";
 
   const rawAvatar =
     profile?.avatar ||
@@ -389,7 +387,6 @@ function TopRightProfile({
     null;
 
   const avatarUrl = rawAvatar ? resolveAvatarUrl(rawAvatar) : null;
-
   const dropdownId = "profile-dropdown";
 
   return (
@@ -399,51 +396,31 @@ function TopRightProfile({
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={dropdownId}
-        className="group flex items-center gap-2 rounded-full pl-1.5 pr-2.5 py-1
-                   bg-white/80 backdrop-blur border border-emerald-100 shadow
-                   hover:shadow-lg transition"
-        whileTap={{ scale: 0.97 }}
-        whileHover={{ y: -1 }}
-        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+        className="group flex items-center gap-2 p-1 pr-2.5 rounded-full
+                   bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-gray-100
+                   hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 transition-all duration-300"
+        whileTap={{ scale: 0.96 }}
       >
-        <motion.div
-          className="relative w-8 h-8 rounded-full p-[1.5px]"
-          style={{
-            background: "linear-gradient(135deg, #5CC9AF 0%, #D7E96F 100%)",
-          }}
-          animate={open ? { scale: 1.04 } : { scale: 1 }}
-          transition={{ type: "spring", stiffness: 400, damping: 24 }}
-        >
-          <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+        {/* Avatar Circle */}
+        <div className="relative w-8 h-8 rounded-full bg-gray-50 p-[2px] ring-1 ring-gray-100 group-hover:ring-emerald-200 transition-all">
+          <div className="w-full h-full rounded-full bg-white overflow-hidden">
             {rawAvatar ? (
               <img
                 src={avatarUrl}
                 alt={firstName}
-                className="w-full h-full object-cover rounded-full"
+                className="w-full h-full object-cover"
               />
             ) : (
-              <span className="text-emerald-600 text-[11px] font-semibold">
+              <div className="w-full h-full flex items-center justify-center bg-gray-50 text-emerald-600 font-bold text-[10px]">
                 {getInitials(profile?.name)}
-              </span>
+              </div>
             )}
           </div>
-        </motion.div>
-
-        <div className="text-left leading-tight">
-          <p className="text-[12px] font-semibold text-gray-900">{firstName}</p>
-          <span
-            className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-[2px] rounded-full
-                           bg-emerald-50 text-emerald-700 border border-emerald-100"
-          >
-            {plan}
-          </span>
         </div>
 
-        <motion.span
-          className="ml-0.5 inline-block h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_0_2px_rgba(16,185,129,0.2)]"
-          aria-hidden
-          animate={{ rotate: open ? 45 : 0 }}
-          transition={{ type: "spring", stiffness: 400, damping: 22 }}
+        {/* Simple Chevron */}
+        <HiChevronDown
+          className={`w-3.5 h-3.5 text-gray-400 group-hover:text-emerald-500 transition-colors duration-300 ${open ? 'rotate-180' : ''}`}
         />
       </motion.button>
 
@@ -452,80 +429,70 @@ function TopRightProfile({
           <motion.div
             id={dropdownId}
             role="menu"
-            className="absolute right-0 mt-2 w-[260px] rounded-xl border border-emerald-100
-                       bg-white/90 backdrop-blur-xl shadow-[0_10px_30px_rgba(92,201,175,.22)] overflow-hidden origin-top-right"
-            initial={{ opacity: 0, y: -8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.98 }}
-            transition={{ type: "spring", stiffness: 420, damping: 26 }}
+            className="absolute right-0 mt-3 w-[240px] rounded-2xl border border-white/40
+                       bg-white/80 backdrop-blur-2xl shadow-[0_20px_40px_rgba(0,0,0,0.1)] overflow-hidden origin-top-right z-50"
+            initial={{ opacity: 0, y: -10, scale: 0.96, filter: "blur(10px)" }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: -10, scale: 0.96, filter: "blur(10px)" }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
           >
-            <div className="p-3 flex items-center gap-2.5">
-              <motion.div
-                className="w-9 h-9 rounded-full ring-1 ring-emerald-200 overflow-hidden bg-white flex items-center justify-center"
-                initial={{ scale: 0.95 }}
-                animate={{ scale: 1 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 400,
-                  damping: 24,
-                  delay: 0.02,
-                }}
-              >
+            {/* Header Dropdown */}
+            <div className="p-4 flex items-center gap-3 bg-white/50 border-b border-white/40">
+              <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden shadow-sm shrink-0">
                 {rawAvatar ? (
-                  <img
-                    src={avatarUrl}
-                    alt={firstName}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-emerald-600 text-[11px] font-semibold">
+                  <span className="w-full h-full flex items-center justify-center text-gray-500 font-bold text-xs">
                     {getInitials(profile?.name)}
                   </span>
                 )}
-              </motion.div>
-
-              <div className="min-w-0">
-                <p className="text-[12px] font-bold text-gray-900 truncate">
-                  {profile?.name ||
-                    t("dashboard.profile.defaultName", { defaultValue: "Pengguna" })}
-                </p>
-                {profile?.email && (
-                  <p className="text-[11px] text-gray-500 truncate">
-                    {profile.email}
-                  </p>
-                )}
               </div>
-
-              <button
-                onClick={onShowProfile}
-                className="ml-auto text-[10px] font-semibold px-2 py-1 rounded-full
-                           bg-emerald-50 text-emerald-700 border border-emerald-100 hover:bg-emerald-100"
-              >
-                {t("dashboard.profile.viewProfile", { defaultValue: "Profil" })}
-              </button>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold text-gray-800 truncate leading-tight">
+                  {profile?.name || "Pengguna"}
+                </p>
+                <p className="text-[11px] text-gray-500 truncate mt-0.5 font-medium">
+                  {profile?.email || "No Email"}
+                </p>
+              </div>
             </div>
 
-            <div className="h-px bg-emerald-100" />
+            <div className="p-2 space-y-1">
+              <DropdownItem
+                icon={<HiOutlineChatBubbleLeftRight size={16} />}
+                label="Profil Saya"
+                onClick={onShowProfile}
+              />
 
-            <div className="p-2">
               <DropdownItem
                 icon={<HiOutlineCog6Tooth size={16} />}
-                label={t("dashboard.dropdown.settings", {
-                  defaultValue: "Pengaturan",
-                })}
-                sub={t("dashboard.dropdown.settingsSub", {
-                  defaultValue: "Bahasa & preferensi",
-                })}
+                label="Pengaturan"
                 onClick={onGoSettings}
               />
-              <LanguageSwitcher
-                t={t}
-                current={language}
-                onChange={onChangeLanguage}
-              />
+
+              <div className="px-2 py-2">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 pl-1">Bahasa</p>
+                <div className="flex bg-gray-100/50 p-1 rounded-lg border border-gray-100">
+                  {['id', 'en'].map((code) => (
+                    <button
+                      key={code}
+                      onClick={() => onChangeLanguage(code)}
+                      className={`flex-1 py-1 text-[11px] font-bold rounded-md transition-all ${language?.startsWith(code)
+                        ? "bg-white text-emerald-600 shadow-sm"
+                        : "text-gray-400 hover:text-gray-600"
+                        }`}
+                    >
+                      {code.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="h-px bg-gray-100 my-1 mx-2" />
+
               <DropdownItem
                 icon={<HiOutlineArrowRightOnRectangle size={16} />}
-                label={t("dashboard.dropdown.logout", { defaultValue: "Keluar" })}
+                label="Keluar"
                 danger
                 onClick={onLogout}
               />
@@ -542,34 +509,30 @@ function DropdownItem({ icon, label, sub, onClick, danger }) {
     <motion.button
       onClick={onClick}
       role="menuitem"
-      className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition
+      className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 overflow-hidden group
       ${danger
-          ? "text-red-600 hover:bg-red-50"
-          : "text-gray-800 hover:bg-emerald-50"
+          ? "hover:bg-red-50 text-red-600"
+          : "hover:bg-black/5 text-gray-700 hover:text-gray-900"
         }`}
       whileTap={{ scale: 0.98 }}
-      transition={{ type: "spring", stiffness: 500, damping: 30 }}
     >
       <div
-        className={`w-8 h-8 rounded-lg flex items-center justify-center border
-        ${danger ? "border-red-100 bg-white" : "border-emerald-100 bg-white"}`}
+        className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors
+        ${danger
+            ? "bg-red-100 text-red-500 group-hover:bg-red-200"
+            : "bg-gray-100 text-gray-500 group-hover:bg-white group-hover:text-emerald-500 group-hover:shadow-sm"}`}
       >
         {icon}
       </div>
-      <div className="text-left leading-tight">
-        <p
-          className={`text-[12px] font-semibold ${danger ? "text-red-600" : "text-gray-900"
-            }`}
-        >
-          {label}
-        </p>
-        {sub && <p className="text-[11px] text-gray-500">{sub}</p>}
+      <div className="text-left">
+        <p className="text-[13px] font-bold leading-none mb-0.5">{label}</p>
+        {sub && <p className="text-[10px] text-gray-400 font-medium group-hover:text-gray-500">{sub}</p>}
       </div>
     </motion.button>
   );
 }
 
-function LanguageSwitcher({ t, current, onChange }) {
+function LanguageSwitcher({ current, onChange }) {
   const langs = [
     { code: "id", label: "ID" },
     { code: "en", label: "EN" },
@@ -580,9 +543,7 @@ function LanguageSwitcher({ t, current, onChange }) {
         <div className="w-8 h-8 rounded-lg flex items-center justify-center border border-emerald-100 bg-white">
           <HiOutlineGlobeAlt size={16} />
         </div>
-        <p className="text-[12px] font-semibold text-gray-900">
-          {t("dashboard.dropdown.language", { defaultValue: "Bahasa" })}
-        </p>
+        <p className="text-[12px] font-semibold text-gray-900">Bahasa</p>
       </div>
       <div className="flex gap-1.5 pl-10">
         {langs.map((l, idx) => (

@@ -337,51 +337,31 @@ function TopRightProfile({
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={dropdownId}
-        className="group flex items-center gap-2 rounded-full pl-1.5 pr-2.5 py-1
-                   bg-white/80 backdrop-blur border border-emerald-100 shadow
-                   hover:shadow-lg transition"
-        whileTap={{ scale: 0.97 }}
-        whileHover={{ y: -1 }}
-        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+        className="group flex items-center gap-2 p-1 pr-2.5 rounded-full
+                   bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-gray-100
+                   hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 transition-all duration-300"
+        whileTap={{ scale: 0.96 }}
       >
-        <motion.div
-          className="relative w-8 h-8 rounded-full p-[1.5px]"
-          style={{
-            background: "linear-gradient(135deg, #5CC9AF 0%, #D7E96F 100%)",
-          }}
-          animate={open ? { scale: 1.04 } : { scale: 1 }}
-          transition={{ type: "spring", stiffness: 400, damping: 24 }}
-        >
-          <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+        {/* Avatar Circle */}
+        <div className="relative w-8 h-8 rounded-full bg-gray-50 p-[2px] ring-1 ring-gray-100 group-hover:ring-emerald-200 transition-all">
+          <div className="w-full h-full rounded-full bg-white overflow-hidden">
             {rawAvatar ? (
               <img
                 src={avatarUrl}
                 alt={firstName}
-                className="w-full h-full object-cover rounded-full"
+                className="w-full h-full object-cover"
               />
             ) : (
-              <span className="text-emerald-600 text-[11px] font-semibold">
+              <div className="w-full h-full flex items-center justify-center bg-gray-50 text-emerald-600 font-bold text-[10px]">
                 {getInitials(profile?.name)}
-              </span>
+              </div>
             )}
           </div>
-        </motion.div>
-
-        <div className="text-left leading-tight">
-          <p className="text-[12px] font-semibold text-gray-900">{firstName}</p>
-          <span
-            className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-[2px] rounded-full
-                       bg-emerald-50 text-emerald-700 border border-emerald-100"
-          >
-            {plan}
-          </span>
         </div>
 
-        <motion.span
-          className="ml-0.5 inline-block h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_0_2px_rgba(16,185,129,0.2)]"
-          aria-hidden
-          animate={{ rotate: open ? 45 : 0 }}
-          transition={{ type: "spring", stiffness: 400, damping: 22 }}
+        {/* Simple Chevron */}
+        <HiChevronDown
+          className={`w-3.5 h-3.5 text-gray-400 group-hover:text-emerald-500 transition-colors duration-300 ${open ? 'rotate-180' : ''}`}
         />
       </motion.button>
 

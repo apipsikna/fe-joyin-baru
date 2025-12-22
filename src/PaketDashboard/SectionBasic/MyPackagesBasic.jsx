@@ -1,4 +1,3 @@
-// src/PaketDashboard/SectionBasic/MyPackagesBasic.jsx
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -8,6 +7,7 @@ import {
   HiOutlineChartBar,
   HiOutlineDevicePhoneMobile,
   HiOutlineQuestionMarkCircle,
+  HiArrowPath // Moved up from line 198
 } from "react-icons/hi2";
 import { motion, useReducedMotion } from "framer-motion";
 import { useAuth } from "../../contexts/AuthContext";
@@ -18,6 +18,7 @@ import ManualPaymentModal from "../../components/ManualPaymentModal";
 import SubscriptionActionModal from "../../components/SubscriptionActionModal";
 
 import SectionPutih from "../../assets/SectionPutih.png";
+import { formatSubscriptionDuration } from "../../utils/dateUtils"; // ✅ Added Import
 
 // ✅ Gradasi background baru
 const GRADIENT_FROM = "#5FCAAC";
@@ -195,8 +196,6 @@ function FeatureCard({ icon: Icon, title, desc }) {
 
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
-import { HiArrowPath } from "react-icons/hi2";
-
 export default function MyPackagesBasic() {
   const { t } = useTranslation();
   const { user, fetchMe } = useAuth();
@@ -238,22 +237,20 @@ export default function MyPackagesBasic() {
       daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
       if (daysLeft < 0) daysLeft = 0;
 
-      // Hitung durasi total dari createdAt
-      let total = 30; // fallback
+      // ✅ Hitung durasi total dari createdAt menggunakan utility baru
       if (user?.createdAt) {
+        durationDisplay = formatSubscriptionDuration(user.createdAt, dateObj);
+
+        // Recalculate total days for progress bar only
         const start = new Date(user.createdAt);
         const totalMs = dateObj - start;
-        total = Math.ceil(totalMs / (1000 * 60 * 60 * 24));
-        if (total < 1) total = 30;
+        let totalDays = Math.ceil(totalMs / (1000 * 60 * 60 * 24));
+        if (totalDays < 1) totalDays = 30;
 
-        if (total > 360) durationDisplay = "1 Tahun";
-        else if (total > 28 && total < 32) durationDisplay = "1 Bulan";
-        else durationDisplay = `${total} Hari`;
+        progress = clamp((daysLeft / totalDays) * 100, 0, 100);
       } else {
-        durationDisplay = "1 Bulan"; // default if no createdAt
+        durationDisplay = "1 Bulan"; // default fallback
       }
-
-      progress = clamp((daysLeft / total) * 100, 0, 100);
     }
   } catch (e) {
     expiryDisplay = "Invalid";

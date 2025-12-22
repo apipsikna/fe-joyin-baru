@@ -774,7 +774,7 @@ export default function Checkout() {
   return (
     <>
       <motion.div
-        className="w-screen min-h-screen bg-[#EFEFEF] px-4 md:px-8 py-6"
+        className="w-screen min-h-screen bg-[#F8F9FA] px-4 md:px-8 py-8"
         variants={pageV}
         initial="hidden"
         animate="show"
@@ -827,7 +827,7 @@ export default function Checkout() {
             {/* LEFT */}
             <motion.div
               variants={itemV}
-              className="lg:col-span-2 bg-white border border-black/10 rounded-2xl p-4 md:p-6 space-y-6"
+              className="lg:col-span-2 bg-white rounded-[32px] p-6 md:p-8 space-y-8 shadow-[0_20px_40px_-5px_rgba(0,0,0,0.05)] border border-gray-100"
             >
               <SectionTitle icon={HiOutlineCube} title="Pilih Paket" />
 
@@ -891,11 +891,11 @@ export default function Checkout() {
                       key={id}
                       onClick={() => setMethod(id)}
                       className={classNames(
-                        "group flex flex-col items-center justify-center gap-3 rounded-[18px] border bg-white px-4 py-5 md:py-6 text-sm shadow-[0_6px_16px_rgba(0,0,0,0.06)] transition",
+                        "group flex flex-col items-center justify-center gap-3 rounded-[24px] border px-4 py-6 text-sm transition-all duration-300",
                         active
-                          ? "border-[#5CC9AF] ring-1 ring-[#5CC9AF]"
-                          : "border-[#E7E7E7] hover:border-[#5CC9AF]",
-                        "focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
+                          ? "bg-emerald-50/50 border-emerald-400 ring-4 ring-emerald-500/10 shadow-lg shadow-emerald-100"
+                          : "bg-white border-gray-100 hover:border-emerald-200 hover:shadow-md",
+                        "focus:outline-none"
                       )}
                       style={{ WebkitTapHighlightColor: "transparent" }}
                       type="button"
@@ -1023,24 +1023,23 @@ export default function Checkout() {
                 onClick={handlePay}
                 disabled={!canPay}
                 className={classNames(
-                  "w-full mt-2 h-12 rounded-xl font-semibold text-white transition",
+                  "w-full mt-4 h-14 rounded-2xl font-bold text-white transition-all transform duration-200 shadow-xl",
                   canPay
-                    ? "bg-[#5CC9AF] hover:opacity-90"
-                    : "bg-gray-300 cursor-not-allowed"
+                    ? "bg-gradient-to-r from-[#5CC9AF] to-[#41bca0] shadow-emerald-400/30 hover:shadow-emerald-400/50 hover:-translate-y-0.5"
+                    : "bg-gray-300 cursor-not-allowed shadow-none"
                 )}
                 type="button"
                 variants={itemV}
-                whileHover={canPay && !reduce ? { y: -1 } : undefined}
-                whileTap={canPay && !reduce ? { scale: 0.99 } : undefined}
+                whileTap={canPay && !reduce ? { scale: 0.98 } : undefined}
               >
-                Bayar Sekarang - {formatRupiah(total)}
+                Bayar Sekarang <span className="mx-1">•</span> {formatRupiah(total)}
               </motion.button>
             </motion.div>
 
             {/* RIGHT */}
             <motion.aside
               variants={itemV}
-              className="bg-white border border-black/10 rounded-2xl p-4 md:p-6 h-fit"
+              className="bg-white rounded-[32px] p-6 md:p-8 h-fit shadow-[0_20px_40px_-5px_rgba(0,0,0,0.05)] border border-gray-100 sticky top-6"
             >
               <h3 className="text-base font-semibold mb-4">Ringkasan Pembelian</h3>
 
@@ -1251,15 +1250,18 @@ function PlanCard({ plan, onSelect, expanded, onToggleExpand }) {
       <button
         type="button"
         onClick={onSelect}
-        className="w-full bg-[#5CC9AF] text-white h-[104px] flex flex-col items-center justify-center px-4 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
+        className="w-full bg-gradient-to-br from-[#5CC9AF] to-[#4ade80] text-white h-[110px] flex flex-col items-center justify-center px-4 focus:outline-none relative overflow-hidden"
         style={{ WebkitTapHighlightColor: "transparent" }}
       >
-        <div className="text-[15px] font-semibold leading-tight text-center">
+        <div className="absolute top-0 right-0 p-3 opacity-20 transform translate-x-1/4 -translate-y-1/4">
+          <svg width="60" height="60" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+        </div>
+        <div className="text-[15px] font-bold leading-tight text-center tracking-wide relative z-10 opacity-95">
           {plan.name}
         </div>
-        <div className="mt-2 text-[16px] font-bold leading-tight text-center">
+        <div className="mt-2 text-[18px] font-black leading-tight text-center relative z-10 drop-shadow-sm">
           {priceText}{" "}
-          <span className="text-white/80 font-medium text-[12px]">/ Bulan</span>
+          <span className="text-white/90 font-semibold text-[13px]">/ bln</span>
         </div>
       </button>
 
@@ -1278,9 +1280,9 @@ function PlanCard({ plan, onSelect, expanded, onToggleExpand }) {
         type="button"
         onClick={onToggleExpand}
         className={classNames(
-          "w-full h-12 bg-white flex items-center justify-center rounded-b-[26px]",
-          expanded ? "border-t border-gray-200" : "",
-          "focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
+          "w-full h-11 bg-white hover:bg-gray-50 flex items-center justify-center rounded-b-[26px] transition-colors",
+          expanded ? "border-t border-gray-100" : "",
+          "focus:outline-none"
         )}
         aria-expanded={expanded}
         aria-label={expanded ? "Sembunyikan benefit" : "Tampilkan benefit"}
@@ -1473,10 +1475,10 @@ function RadioVisual({ active }) {
 function LabeledInput({ label, ...props }) {
   return (
     <label className="block">
-      <div className="mb-1 text-xs font-medium text-gray-600">{label}</div>
+      <div className="mb-1.5 text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">{label}</div>
       <input
         {...props}
-        className="w-full h-11 rounded-lg border border-gray-300 px-3 outline-none focus:border-[#5CC9AF] focus:ring-2 focus:ring-[#5CC9AF33] placeholder:text-gray-400"
+        className="w-full h-12 rounded-2xl border border-gray-200 bg-gray-50 px-4 outline-none transition-all duration-200 focus:bg-white focus:border-[#5CC9AF] focus:ring-4 focus:ring-[#5CC9AF20] placeholder:text-gray-400 font-medium text-gray-800"
       />
     </label>
   );

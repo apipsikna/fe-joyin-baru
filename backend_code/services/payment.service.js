@@ -14,10 +14,10 @@ import { generateOrderCode } from "../utils/ordercodegenerator.js";
 // 1. REWARD (Pemasukan Poin) - Base Reward
 // Sekitar 10% dari harga paket
 const BASE_REWARD_POINTS = {
-    BASIC: 2,       // 2 Poin
-    PRO: 5,         // 5 Poin
-    BUSINESS: 10,   // 10 Poin
-    ENTERPRISE: 15  // 15 Poin
+    BASIC: 4,       // 4 Poin (Match Frontend)
+    PRO: 9,         // 9 Poin
+    BUSINESS: 19,   // 19 Poin
+    ENTERPRISE: 49  // 49 Poin
 };
 
 // 2. REDEEM (Pengeluaran Poin) - Harga Tukar
@@ -71,27 +71,36 @@ async function getPriceAndDiscount(userId, planId) {
  * @param {string} source - Sumber ('SELF_CASHBACK' | 'REFERRAL_COMMISSION')
  * @param {object} prismaTx - Instance prisma transaction
  */
-async function distributeRewardPoints(userId, planId, source, prismaTx) {
+async function distributeRewardPoints(userId, planId, source, prismaTx, months = 1) {
     const db = prismaTx || prisma;
 
     const user = await db.user.findUnique({ where: { id: userId } });
     if (!user) return;
 
     // 1. Ambil Base Reward
-    const basePoint = BASE_REWARD_POINTS[planId] || 0;
-    if (basePoint === 0) return;
+    const safePlanId = (planId || "").toUpperCase();
+    const basePoint = BASE_REWARD_POINTS[safePlanId] || 0;
+
+    console.log(`[DEBUG_POINTS] Plan: ${planId} -> Safe: ${safePlanId} | Base: ${basePoint} | Months: ${months}`);
+
+    if (basePoint === 0) {
+        console.warn(`[DEBUG_POINTS] ABORT: Base point is 0 for PlanID ${safePlanId}`);
+        return;
+    }
 
     // 2. Cek Tier Multiplier Berdasarkan Lifetime Points (XP)
     let multiplier = 1;
-    const xp = user.lifetimePoints;
+    const xp = user.lifetimePoints || 0;
 
     if (xp >= 200) multiplier = 4;       // LEGEND (4x)
     else if (xp >= 100) multiplier = 3;  // MASTER (3x)
     else if (xp >= 50) multiplier = 2;   // EXPERT (2x)
     else multiplier = 1;                 // NEWBIE (1x)
 
-    // 3. Hitung Total Poin
-    const pointsEarned = basePoint * multiplier;
+    console.log(`[DEBUG_POINTS] UserXP: ${xp} | Multiplier: ${multiplier}x | Duration: ${months} Bulan`);
+
+    // 3. Hitung Total Poin (Base * Tier * Duration)
+    const pointsEarned = basePoint * multiplier * months;
 
     // 4. Update Database
     await db.user.update({
@@ -102,7 +111,7 @@ async function distributeRewardPoints(userId, planId, source, prismaTx) {
         }
     });
 
-    console.log(`[GAMIFICATION] User ${userId} (${source}) | Tier ${multiplier}x | +${pointsEarned} Poin.`);
+    console.log(`[GAMIFICATION] User ${userId} (${source}) | Tier ${multiplier}x | Duration ${months}mo | +${pointsEarned} Poin.`);
 }
 
 /* ===========================================================
@@ -448,11 +457,12 @@ export const approveManualOrderService = async (orderId) => {
                     // Toleransi 2000 rupiah (untuk cover unique code 0-999 dan sedikit noise)
                     const diff = Math.abs(amountForCalc - expectedTotal);
 
-                    // console.log(`[DEBUG MATCH] Month: ${m} | Exp: ${expectedTotal} | Act: ${amountForCalc} | Diff: ${diff}`);
+                    console.log(`[DEBUG MATCH] Month: ${m} | Base: ${basePrice} | Tax: ${tax} | ExpTotal: ${expectedTotal} | Act: ${amountForCalc} | Diff: ${diff}`);
 
                     if (diff < 2000 && diff < minDiff) {
                         minDiff = diff;
                         bestMatch = m;
+                        console.log(`[DEBUG MATCH] Found closer match: ${m} Months (Diff: ${diff})`);
                     }
                 }
 
@@ -487,12 +497,13 @@ export const approveManualOrderService = async (orderId) => {
         });
 
         // C. === BAGI-BAGI POIN (GAMIFIKASI) ===
-        // 1. Poin Cashback Diri Sendiri
-        await distributeRewardPoints(order.userId, order.planId, 'SELF_CASHBACK', tx);
+        // C. === BAGI-BAGI POIN (GAMIFIKASI) ===
+        // 1. Poin Cashback Diri Sendiri (Dikali Durasi)
+        await distributeRewardPoints(order.userId, order.planId, 'SELF_CASHBACK', tx, monthDuration);
 
-        // 2. Poin Referral (Jika ada)
+        // 2. Poin Referral (Dikali Durasi juga biar fair)
         if (updatedUser.referredById) {
-            await distributeRewardPoints(updatedUser.referredById, order.planId, 'REFERRAL_COMMISSION', tx);
+            await distributeRewardPoints(updatedUser.referredById, order.planId, 'REFERRAL_COMMISSION', tx, monthDuration);
         }
     });
 

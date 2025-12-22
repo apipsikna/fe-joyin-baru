@@ -217,13 +217,13 @@ export default function RewardsDashboard({ profile }) {
   };
 
   return (
-    <div className="font-poppins min-h-screen w-full bg-gradient-to-r from-[#5FCAAC] to-[#DAEC75] flex">
+    <div className="font-poppins min-h-screen w-full bg-gradient-to-r from-[#5FCAAC] to-[#DAEC75] flex flex-col">
       {/* 
           GUNAKAN motion.div PADA CONTAINER UTAMA 
           pastikan initial="hidden" dan animate="visible" ada di sini 
       */}
       <motion.div
-        className="relative w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8"
+        className="relative w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-0 flex flex-col flex-grow"
         variants={containerVars}
         initial="hidden"
         animate="visible"
@@ -272,7 +272,6 @@ export default function RewardsDashboard({ profile }) {
               ? `calc(1.25rem + ${mainExtraPad}px)`
               : undefined,
           }}
-          whileHover={{ scale: 1.01, transition: { duration: 0.3 } }}
         >
           {/* POINTS SECTION */}
           <div className="mb-8 sm:mb-10">
@@ -380,9 +379,9 @@ export default function RewardsDashboard({ profile }) {
         </motion.div>
 
         {/* ===== REDEEM / PAKET LANGGANAN SECTION (sesuai desain foto) ===== */}
-        <motion.div className="mb-12" variants={itemVars}>
+        <motion.div className="mt-auto mb-0" variants={itemVars}>
           <div
-            className="bg-white/95 rounded-[32px] sm:rounded-[40px] shadow-[0_18px_60px_rgba(15,23,42,0.20)] border border-white/60 px-5 sm:px-8 md:px-10 py-8 sm:py-10 relative z-20"
+            className="bg-white/95 rounded-t-[32px] sm:rounded-t-[40px] rounded-b-none shadow-[0_18px_60px_rgba(15,23,42,0.20)] border border-white/60 border-b-0 px-5 sm:px-8 md:px-10 py-8 sm:py-10 relative z-20"
             style={{
               width: subWidth,
               maxWidth: subWidth,
@@ -493,7 +492,7 @@ export default function RewardsDashboard({ profile }) {
                         type="button"
                         whileHover={{ scale: 1.05, x: 3 }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => navigate("/dashboard/tier-system")}
+                        onClick={() => navigate(`/package-detail/${pkg.id}`)}
                         className="mt-1 text-[11px] sm:text-xs font-semibold text-emerald-500 hover:text-emerald-600 inline-flex items-center justify-center gap-1"
                       >
                         <span>Lihat Detail</span>
