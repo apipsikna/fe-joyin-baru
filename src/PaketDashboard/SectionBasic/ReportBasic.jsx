@@ -1,5 +1,5 @@
 // src/PaketDashboard/SectionBasic/ReportBasic.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, useReducedMotion } from "framer-motion";
 import {
@@ -120,7 +120,7 @@ export default function ReportBasic() {
           padding-left: var(--spM);
           padding-right: var(--spM);
         }
-        @media (min-width: 768px){
+        @media(min-width: 768px) {
           .rp-pad{
             padding-left: var(--spD);
             padding-right: var(--spD);
@@ -134,8 +134,8 @@ export default function ReportBasic() {
         }
         /* Custom Date Picker Styles */
         input[type="date"]::-webkit-calendar-picker-indicator {
-            opacity: 0.5;
-            cursor: pointer;
+          opacity: 0.5;
+          cursor: pointer;
         }
       `}</style>
 
@@ -304,14 +304,7 @@ export default function ReportBasic() {
                   </ResponsiveContainer>
                 </div>
               </div>
-            </div>
 
-            {/* DOWNLOAD BUTTON */}
-            <div className="flex justify-center mt-4">
-              <button className="bg-[#5FCAAC] hover:bg-[#4FB89B] text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-3">
-                <FaDownload className="text-lg" />
-                <span>Download Excel</span>
-              </button>
             </div>
 
           </div>

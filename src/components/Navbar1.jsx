@@ -1,5 +1,5 @@
 // src/components/Navbar1.jsx
-import React, { useState, useRef, useEffect, useLayoutEffect, useMemo } from "react";
+import React, { useState, useRef, useEffect, useLayoutEffect, useMemo, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -72,7 +72,7 @@ export default function Navbar() {
   }, [location]);
 
   // Update underline position
-  useLayoutEffect(() => {
+  const updateIndicator = useCallback(() => {
     const el = itemRefs.current[active];
     if (el) {
       setIndicator({
@@ -80,7 +80,18 @@ export default function Navbar() {
         width: el.offsetWidth,
       });
     }
-  }, [active, i18n.language]);
+  }, [active]);
+
+  useLayoutEffect(() => {
+    updateIndicator();
+  }, [updateIndicator, i18n.language]);
+
+  // Re-check position when fonts are ready (fixes initial load misalignment)
+  useEffect(() => {
+    document.fonts.ready.then(updateIndicator);
+    window.addEventListener("resize", updateIndicator);
+    return () => window.removeEventListener("resize", updateIndicator);
+  }, [updateIndicator]);
 
   // Klik item menu
   const handleClick = (e, item) => {
