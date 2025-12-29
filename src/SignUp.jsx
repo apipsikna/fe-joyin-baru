@@ -93,6 +93,14 @@ export default function SignUp({ onBack }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (localStorage.getItem("joyin_device_registered")) {
+      setAlert({
+        type: "error",
+        message: "Kamu sudah membuat akun di perangkat ini. Hanya diperbolehkan 1 akun per perangkat.",
+      });
+      return;
+    }
+
     if (form.password !== form.confirmPassword) {
       const msg = "Passwords do not match!";
       if (alert?.type === 'error' && alert?.message === msg) return;
@@ -110,17 +118,18 @@ export default function SignUp({ onBack }) {
     // setAlert(null); // Jangan reset null agar tidak flicker
 
     try {
-      // ✅ FE dulu: tidak perlu kirim referralCode ke BE (biar aman kalau BE belum support)
+      // FE dulu: tidak perlu kirim referralCode ke BE (biar aman kalau BE belum support)
       // Referral sudah disimpan di localStorage untuk dipakai otomatis saat checkout pertama.
       const payload = {
         name: form.name,
         email: form.email,
         phone: form.phone,
         password: form.password,
-        referralCode: form.referralCode, // ✅ Include referral code
+        referralCode: form.referralCode, // Include referral code
       };
 
       await signup(payload);
+      persistDeviceRegistration(); // Mark device as registered
 
       navigate(`/verify-otp?email=${encodeURIComponent(form.email)}`, {
         replace: true,
@@ -140,6 +149,22 @@ export default function SignUp({ onBack }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Check for existing account on device
+  useEffect(() => {
+    const hasAccount = localStorage.getItem("joyin_device_registered");
+    if (hasAccount) {
+      setAlert({
+        type: "error",
+        message: "Kamu sudah membuat akun di perangkat ini. Hanya diperbolehkan 1 akun per perangkat.",
+      });
+      // Optional: Redirect or disable form if needed
+    }
+  }, []);
+
+  const persistDeviceRegistration = () => {
+    localStorage.setItem("joyin_device_registered", "true");
   };
 
   const AlertMessage = ({ type, message }) => {

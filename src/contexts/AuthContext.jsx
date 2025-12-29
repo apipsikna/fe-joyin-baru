@@ -192,15 +192,24 @@ export function AuthProvider({ children }) {
     if (!accessToken) return;
 
     // 1. Cek Client Side (JWT Exp)
-    const clientCheck = setInterval(() => {
+    // 1. Cek Client Side (JWT Exp)
+    const clientCheck = setInterval(async () => {
       try {
         const decoded = jwtDecode(accessToken);
         if (decoded.exp) {
-          const currentTime = Date.now() / 1000;
-          if (decoded.exp < currentTime) {
-            console.warn("Session expired (Client Check). Logging out...");
-            clearInterval(clientCheck); // Stop interval agar tidak spam alert
-            handleSessionExpired();
+          const currentTime = Math.floor(Date.now() / 1000);
+
+          // Jika expired atau sisa < 1 menit, coba refresh dulu
+          if (decoded.exp < currentTime + 60) {
+            console.log("⚠️ Token almost expired/expired. Attempting silent refresh...");
+            const refreshed = await silentRefresh();
+
+            // Jika refresh gagal DAN memang sudah expired, baru logout
+            if (!refreshed && decoded.exp < currentTime) {
+              console.warn("❌ Session expired & Refresh failed. Logging out...");
+              clearInterval(clientCheck); // Stop interval agar tidak spam alert
+              handleSessionExpired();
+            }
           }
         }
       } catch (error) {

@@ -3,6 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useLoyalty } from "../hooks/useLoyalty";
 import { motion } from "framer-motion";
 import BalonDecoration from "../assets/balon.png";
+import BadgeTierIcon from "../assets/loyalty/badge2.png";
+import BadgeIcon from "../assets/loyalty/badge.png";
+import TrophyIcon from "../assets/loyalty/trophy.png";
+import CrownIcon from "../assets/loyalty/crown.png";
 // import { ArrowLeft } from "lucide-react"; // Removed as we use SVG directly
 
 // === CONSTANTS & LEVELS (Copy from RewardsDashboard to ensure consistency) ===
@@ -195,16 +199,18 @@ export default function TierSystem() {
                     <div className="flex flex-col items-center justify-center relative z-10">
                         <div className="relative mb-4">
                             {/* White Outer Ring */}
-                            <div className="w-40 h-40 bg-white/30 rounded-full flex items-center justify-center backdrop-blur-sm">
-                                <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-lg relative">
-                                    <div className="w-28 h-28 bg-[#00C2A0] rounded-full flex items-center justify-center shadow-inner border-[4px] border-white">
-                                        <span className="text-6xl drop-shadow-md">🏅</span>
-                                    </div>
-                                </div>
+                            {/* Center Badge Image */}
+                            <div className="relative z-10">
+                                <img
+                                    src={BadgeTierIcon}
+                                    alt="Tier Badge"
+                                    className="w-56 h-56 object-contain drop-shadow-2xl"
+                                />
                             </div>
 
                             {/* Multiplier Badge */}
-                            <div className="absolute bottom-1 -right-2 bg-[#FCD34D] text-yellow-800 text-sm font-bold px-3 py-1 rounded-xl border-2 border-white shadow-sm z-20">
+                            {/* Multiplier Badge */}
+                            <div className="absolute bottom-4 right-0 bg-[#FFF59D] text-[#DFA40A] text-4xl font-extrabold px-6 py-2 rounded-[24px] shadow-lg z-20">
                                 {currentLevel.multiplier}x
                             </div>
                         </div>
@@ -313,10 +319,12 @@ export default function TierSystem() {
                             {/* Left: Icon & Info */}
                             <div className="flex items-center gap-5 z-10">
                                 {/* Icon Box */}
-                                <div className="w-20 h-20 bg-white rounded-[20px] flex items-center justify-center shadow-md">
-                                    <div className="w-16 h-16 bg-[#10B981] rounded-full flex items-center justify-center border-4 border-emerald-50">
-                                        <span className="text-4xl">🏅</span>
-                                    </div>
+                                <div className="relative">
+                                    <img
+                                        src={BadgeIcon}
+                                        alt="Newbie Badge"
+                                        className="w-20 h-20 object-contain drop-shadow-lg"
+                                    />
                                 </div>
                                 {/* Text */}
                                 <div>
@@ -407,10 +415,12 @@ export default function TierSystem() {
                             {/* Left: Icon & Info */}
                             <div className="flex items-center gap-5 z-10">
                                 {/* Icon Box */}
-                                <div className="w-20 h-20 bg-white rounded-[20px] flex items-center justify-center shadow-md">
-                                    <div className="w-16 h-16 bg-[#10B981] rounded-full flex items-center justify-center border-4 border-emerald-50">
-                                        <span className="text-4xl">🏅</span>
-                                    </div>
+                                <div className="relative">
+                                    <img
+                                        src={BadgeIcon}
+                                        alt="Expert Badge"
+                                        className="w-20 h-20 object-contain drop-shadow-lg"
+                                    />
                                 </div>
                                 {/* Text */}
                                 <div>
@@ -501,10 +511,12 @@ export default function TierSystem() {
                             {/* Left: Icon & Info */}
                             <div className="flex items-center gap-5 z-10">
                                 {/* Icon Box */}
-                                <div className="w-20 h-20 bg-white rounded-[20px] flex items-center justify-center shadow-md">
-                                    <div className="w-16 h-16 bg-[#10B981] rounded-full flex items-center justify-center border-4 border-emerald-50">
-                                        <span className="text-4xl">🏅</span>
-                                    </div>
+                                <div className="relative">
+                                    <img
+                                        src={TrophyIcon}
+                                        alt="Master Badge"
+                                        className="w-20 h-20 object-contain drop-shadow-lg"
+                                    />
                                 </div>
                                 {/* Text */}
                                 <div>
@@ -595,10 +607,12 @@ export default function TierSystem() {
                             {/* Left: Icon & Info */}
                             <div className="flex items-center gap-5 z-10">
                                 {/* Icon Box */}
-                                <div className="w-20 h-20 bg-white rounded-[20px] flex items-center justify-center shadow-md">
-                                    <div className="w-16 h-16 bg-[#10B981] rounded-full flex items-center justify-center border-4 border-emerald-50">
-                                        <span className="text-4xl">👑</span>
-                                    </div>
+                                <div className="relative">
+                                    <img
+                                        src={CrownIcon}
+                                        alt="Legend Badge"
+                                        className="w-20 h-20 object-contain drop-shadow-lg"
+                                    />
                                 </div>
                                 {/* Text */}
                                 <div>

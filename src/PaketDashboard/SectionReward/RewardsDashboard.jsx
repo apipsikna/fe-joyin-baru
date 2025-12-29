@@ -4,6 +4,10 @@ import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { useLoyalty } from "../../hooks/useLoyalty";
 import BintangReward from "../../assets/bintangreward.png";
+import BadgeIcon from "../../assets/loyalty/badge.png";
+import BadgeMilestoneIcon from "../../assets/loyalty/badge1.png";
+import BintangIcon from "../../assets/loyalty/bintang.png";
+import BadgeTierIcon from "../../assets/loyalty/badge2.png";
 import { useNavigate } from "react-router-dom";
 
 // === CONSTANTS & LEVELS ===
@@ -280,13 +284,16 @@ export default function RewardsDashboard({ profile }) {
             </p>
             <div className="flex items-center gap-4 sm:gap-6">
               {/* Kotak hijau icon bintang/efek */}
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-400 rounded-[22px] flex items-center justify-center shadow-[0_10px_25px_rgba(16,185,129,0.55)]">
-                <span className="text-3xl sm:text-4xl text-white">✨</span>
-              </div>
+              {/* Icon Bintang Image */}
+              <img
+                src={BintangIcon}
+                alt="Bintang Icon"
+                className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-md"
+              />
 
               <div className="flex items-baseline gap-3 sm:gap-4">
-                <span className="text-[52px] sm:text-[64px] leading-none font-extrabold text-emerald-500 tracking-tighter">
-                  {loading ? "..." : currentPoints}
+                <span className="text-[52px] sm:text-[64px] leading-none font-extrabold text-[#5FCAAC] tracking-tighter">
+                  {currentPoints}
                 </span>
                 <span className="text-lg sm:text-xl font-bold text-gray-500 mb-2 sm:mb-3">
                   Bintang
@@ -300,12 +307,12 @@ export default function RewardsDashboard({ profile }) {
             {/* Bagian atas: icon tier + nama + badge + tombol */}
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-3 sm:mb-4">
               <div className="flex items-start gap-4 sm:gap-5">
-                {/* Icon tier (kotak dengan medal) */}
-                <div className="w-[70px] h-[70px] sm:w-[80px] sm:h-[80px] bg-emerald-300 rounded-3xl flex items-center justify-center shadow-[0_16px_32px_rgba(16,185,129,0.55)]">
-                  <div className="w-14 h-14 bg-emerald-400 rounded-2xl flex items-center justify-center border-[6px] border-white shadow-inner">
-                    <span className="text-3xl">🏅</span>
-                  </div>
-                </div>
+                {/* Icon tier (Image replacement) */}
+                <img
+                  src={BadgeIcon}
+                  alt="Badge Tier"
+                  className="w-[70px] h-[70px] sm:w-[80px] sm:h-[80px] object-contain drop-shadow-lg"
+                />
 
                 <div className="mt-1">
                   <h2 className="text-2xl sm:text-[26px] md:text-[28px] font-black text-gray-900 leading-tight">
@@ -335,7 +342,7 @@ export default function RewardsDashboard({ profile }) {
             </p>
 
             {/* PROGRESS BAR + ikon target */}
-            <div className="relative mt-1 mb-6 sm:mb-7 pr-[4.5rem] sm:pr-[5.5rem]">
+            <div className="relative mt-1 mb-6 sm:mb-7 pr-8 sm:pr-8">
               {/* Background bar */}
               <div className="w-full h-4 sm:h-5 bg-gray-100 rounded-full overflow-hidden">
                 <motion.div
@@ -348,11 +355,13 @@ export default function RewardsDashboard({ profile }) {
 
               {/* Ikon target di ujung kanan */}
               <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[18%] sm:translate-x-[22%]">
-                <div className="w-16 h-16 sm:w-[70px] sm:h-[70px] bg-white rounded-full flex items-center justify-center shadow-[0_10px_25px_rgba(15,23,42,0.18)] border-4 border-white relative">
-                  <div className="w-12 h-12 bg-emerald-400 rounded-full flex items-center justify-center text-white shadow-inner">
-                    <span className="text-2xl">🏅</span>
-                  </div>
-                  <div className="absolute -bottom-3 bg-white px-2 py-[2px] rounded-lg shadow-sm border border-gray-100 text-[10px] font-bold text-gray-600 min-w-[2.1rem] text-center">
+                <div className="relative flex flex-col items-center justify-center">
+                  <img
+                    src={BadgeMilestoneIcon}
+                    alt="Target Badge"
+                    className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-md"
+                  />
+                  <div className="absolute -bottom-2 bg-white px-2 py-[2px] rounded-lg shadow-sm border border-gray-100 text-[10px] font-bold text-gray-600 min-w-[2.1rem] text-center">
                     {nextLevel?.minXP || "Max"}
                   </div>
                 </div>
